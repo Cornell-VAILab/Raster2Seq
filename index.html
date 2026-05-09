@@ -1,0 +1,2519 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Indie+Flower&family=Space+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script
+      id="MathJax-script"
+      async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    ></script>
+
+    <meta id="og-site-name" property="og:site_name" content="Raster2Seq" />
+    <meta property="og:type" content="video.other" />
+    <meta
+      id="og-title"
+      property="og:title"
+      content="Raster2Seq: Polygon Sequence Generation for Floorplan Reconstruction"
+    />
+    <meta
+      property="og:description"
+      content="Polygon Sequence Generation for Floorplan Reconstruction"
+    />
+    <meta
+      property="og:url"
+      content="https://Cornell-VAILab/Raster2Seq.github.io/"
+    />
+    <meta property="og:image" content="./webpage_assets/images/teaser.png" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      id="twitter-title"
+      name="twitter:title"
+      content="Raster2Seq: Polygon Sequence Generation for Floorplan Reconstruction"
+    />
+    <meta
+      name="twitter:description"
+      content="Polygon Sequence Generation for Floorplan Reconstruction"
+    />
+    <meta
+      name="twitter:url"
+      content="https://Cornell-VAILab/Raster2Seq.github.io/"
+    />
+    <meta name="twitter:image" content="./webpage_assets/images/teaser.png" />
+
+    <title id="page-title">
+      Raster2Seq: Polygon Sequence Generation for Floorplan Reconstruction
+    </title>
+    <link rel="icon" href="./webpage_assets/images/teaser.png" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css"
+    />
+    <link href="style.css?v=53" rel="stylesheet" type="text/css" />
+    <script
+      type="module"
+      src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"
+    ></script>
+    <script>
+      const SITE_CONFIG = Object.freeze({
+        methodName: "Raster2Seq",
+        tagline: "Polygon Sequence Generation for Floorplan Reconstruction",
+      });
+
+      const projectTitle = `${SITE_CONFIG.methodName}: ${SITE_CONFIG.tagline}`;
+
+      document.getElementById("page-title").textContent = projectTitle;
+      document
+        .getElementById("og-site-name")
+        .setAttribute("content", SITE_CONFIG.methodName);
+      document.getElementById("og-title").setAttribute("content", projectTitle);
+      document
+        .getElementById("twitter-title")
+        .setAttribute("content", projectTitle);
+
+      document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll("[data-method-name]").forEach((element) => {
+          element.textContent = SITE_CONFIG.methodName;
+        });
+
+        const teaserImage = document.querySelector("[data-method-alt]");
+        if (teaserImage) {
+          teaserImage.alt = `${SITE_CONFIG.methodName} teaser image`;
+        }
+
+        const qualitativeTabs = Array.from(
+          document.querySelectorAll(".qual-results-tab")
+        );
+        const qualitativePanels = Array.from(
+          document.querySelectorAll(".qual-results-panel")
+        );
+
+        if (qualitativeTabs.length && qualitativePanels.length) {
+          const activateQualitativeTab = (tab) => {
+            qualitativeTabs.forEach((item) => {
+              const isActive = item === tab;
+              item.classList.toggle("is-active", isActive);
+              item.setAttribute("aria-selected", isActive ? "true" : "false");
+              item.setAttribute("tabindex", isActive ? "0" : "-1");
+            });
+
+            qualitativePanels.forEach((panel) => {
+              const isActive = panel.id === tab.dataset.tabTarget;
+              panel.classList.toggle("is-active", isActive);
+              panel.hidden = !isActive;
+            });
+          };
+
+          qualitativeTabs.forEach((tab, index) => {
+            tab.addEventListener("click", () => activateQualitativeTab(tab));
+            tab.addEventListener("keydown", (event) => {
+              if (
+                event.key !== "ArrowRight" &&
+                event.key !== "ArrowLeft" &&
+                event.key !== "Home" &&
+                event.key !== "End"
+              ) {
+                return;
+              }
+
+              event.preventDefault();
+
+              let nextIndex = index;
+              if (event.key === "ArrowRight") {
+                nextIndex = (index + 1) % qualitativeTabs.length;
+              } else if (event.key === "ArrowLeft") {
+                nextIndex =
+                  (index - 1 + qualitativeTabs.length) % qualitativeTabs.length;
+              } else if (event.key === "Home") {
+                nextIndex = 0;
+              } else if (event.key === "End") {
+                nextIndex = qualitativeTabs.length - 1;
+              }
+
+              qualitativeTabs[nextIndex].focus();
+              activateQualitativeTab(qualitativeTabs[nextIndex]);
+            });
+          });
+
+          activateQualitativeTab(
+            document.querySelector(".qual-results-tab.is-active") ||
+              qualitativeTabs[0]
+          );
+        }
+
+        document.querySelectorAll("[data-quant-slider]").forEach((slider) => {
+          const tabs = Array.from(
+            slider.querySelectorAll("[data-quant-slide-target]")
+          );
+          const slides = Array.from(
+            slider.querySelectorAll(".quant-slider-slide")
+          );
+
+          const activateQuantSlide = (tab) => {
+            tabs.forEach((item) => {
+              const isActive = item === tab;
+              item.classList.toggle("is-active", isActive);
+              item.setAttribute("aria-selected", isActive ? "true" : "false");
+              item.setAttribute("tabindex", isActive ? "0" : "-1");
+            });
+
+            slides.forEach((slide) => {
+              const isActive = slide.id === tab.dataset.quantSlideTarget;
+              slide.classList.toggle("is-active", isActive);
+              slide.hidden = !isActive;
+            });
+          };
+
+          tabs.forEach((tab, index) => {
+            tab.addEventListener("click", () => activateQuantSlide(tab));
+            tab.addEventListener("keydown", (event) => {
+              if (
+                event.key !== "ArrowRight" &&
+                event.key !== "ArrowLeft" &&
+                event.key !== "Home" &&
+                event.key !== "End"
+              ) {
+                return;
+              }
+
+              event.preventDefault();
+              let nextIndex = index;
+              if (event.key === "ArrowRight") {
+                nextIndex = (index + 1) % tabs.length;
+              } else if (event.key === "ArrowLeft") {
+                nextIndex = (index - 1 + tabs.length) % tabs.length;
+              } else if (event.key === "Home") {
+                nextIndex = 0;
+              } else if (event.key === "End") {
+                nextIndex = tabs.length - 1;
+              }
+
+              tabs[nextIndex].focus();
+              activateQuantSlide(tabs[nextIndex]);
+            });
+          });
+
+          activateQuantSlide(
+            slider.querySelector(".quant-slider-tab.is-active") || tabs[0]
+          );
+        });
+
+        document.querySelectorAll("[data-vlm-carousel]").forEach((carousel) => {
+          const track = carousel.querySelector("[data-vlm-track]");
+          const cards = Array.from(
+            carousel.querySelectorAll(".vlm-refinement-card")
+          );
+          const previousButton = carousel.querySelector("[data-vlm-prev]");
+          const nextButton = carousel.querySelector("[data-vlm-next]");
+          const dotsContainer = carousel.querySelector("[data-vlm-dots]");
+
+          if (!track || cards.length === 0) {
+            return;
+          }
+
+          let activeIndex = 0;
+          let pointerStartX = null;
+
+          const dots = cards.map((_, index) => {
+            const dot = document.createElement("button");
+            dot.className = "vlm-refinement-dot";
+            dot.type = "button";
+            dot.setAttribute(
+              "aria-label",
+              `Show refinement example ${index + 1}`
+            );
+            dot.addEventListener("click", () => activateSlide(index));
+            dotsContainer?.appendChild(dot);
+            return dot;
+          });
+
+          const activateSlide = (index) => {
+            activeIndex = (index + cards.length) % cards.length;
+            track.style.transform = `translateX(${-activeIndex * 100}%)`;
+
+            cards.forEach((card, cardIndex) => {
+              card.classList.toggle("is-active", cardIndex === activeIndex);
+              card.setAttribute(
+                "aria-hidden",
+                cardIndex === activeIndex ? "false" : "true"
+              );
+            });
+
+            dots.forEach((dot, dotIndex) => {
+              const isActive = dotIndex === activeIndex;
+              dot.classList.toggle("is-active", isActive);
+              dot.setAttribute("aria-current", isActive ? "true" : "false");
+            });
+          };
+
+          previousButton?.addEventListener("click", () =>
+            activateSlide(activeIndex - 1)
+          );
+          nextButton?.addEventListener("click", () =>
+            activateSlide(activeIndex + 1)
+          );
+
+          carousel.addEventListener("keydown", (event) => {
+            if (event.key === "ArrowLeft") {
+              event.preventDefault();
+              activateSlide(activeIndex - 1);
+            } else if (event.key === "ArrowRight") {
+              event.preventDefault();
+              activateSlide(activeIndex + 1);
+            }
+          });
+
+          carousel.addEventListener("pointerdown", (event) => {
+            pointerStartX = event.clientX;
+          });
+
+          carousel.addEventListener("pointerup", (event) => {
+            if (pointerStartX === null) {
+              return;
+            }
+
+            const deltaX = event.clientX - pointerStartX;
+            pointerStartX = null;
+
+            if (Math.abs(deltaX) < 45) {
+              return;
+            }
+
+            activateSlide(activeIndex + (deltaX < 0 ? 1 : -1));
+          });
+
+          carousel.addEventListener("pointercancel", () => {
+            pointerStartX = null;
+          });
+
+          if (cards.length <= 1) {
+            previousButton?.setAttribute("hidden", "");
+            nextButton?.setAttribute("hidden", "");
+            dotsContainer?.setAttribute("hidden", "");
+          }
+
+          activateSlide(0);
+        });
+
+        const crossEvalRoot = document.getElementById("cross-eval-heatmaps");
+        const crossEvalDetail = document.getElementById("cross-eval-detail");
+
+        if (crossEvalRoot && crossEvalDetail) {
+          const trainDatasets = ["CubiCasa5K", "Raster2Graph"];
+          const evalDatasets = ["WAFFLE", "Raster2Graph", "CubiCasa5K"];
+          const metricByEvalDataset = {
+            WAFFLE: "IoU",
+            Raster2Graph: "RoomF1",
+            CubiCasa5K: "RoomF1",
+          };
+          const methods = [
+            {
+              name: "FRI-Net",
+              scores: [
+                [56.7, 50.6],
+                [66.5, 91.5],
+                [77.1, 48.4],
+              ],
+            },
+            {
+              name: "RoomFormer",
+              scores: [
+                [60.5, 32.6],
+                [71.3, 91.9],
+                [83.5, 47.3],
+              ],
+            },
+            {
+              name: "Raster2Seq",
+              scores: [
+                [73.9, 49.3],
+                [79.5, 97.0],
+                [88.7, 55.5],
+              ],
+            },
+          ];
+
+          const allScores = methods.flatMap((method) => method.scores.flat());
+          const minScore = Math.min(...allScores);
+          const maxScore = Math.max(...allScores);
+          const colorStops = [
+            { stop: 0, color: [49, 18, 97] },
+            { stop: 0.42, color: [139, 41, 129] },
+            { stop: 0.72, color: [232, 100, 73] },
+            { stop: 1, color: [185, 28, 28] },
+          ];
+
+          const interpolateColor = (score) => {
+            const value = (score - minScore) / (maxScore - minScore);
+            const upperIndex = colorStops.findIndex(
+              (item) => value <= item.stop
+            );
+            const upper = colorStops[Math.max(upperIndex, 1)];
+            const lower = colorStops[colorStops.indexOf(upper) - 1];
+            const localValue = (value - lower.stop) / (upper.stop - lower.stop);
+            const rgb = lower.color.map((channel, index) =>
+              Math.round(channel + (upper.color[index] - channel) * localValue)
+            );
+            return rgb;
+          };
+
+          const textColorFor = ([red, green, blue]) => {
+            const luminance =
+              (0.2126 * red + 0.7152 * green + 0.0722 * blue) / 255;
+            return luminance > 0.58 ? "#263044" : "#ffffff";
+          };
+
+          const setActiveCell = (cell) => {
+            crossEvalRoot
+              .querySelectorAll(".cross-eval-cell.is-active")
+              .forEach((item) => item.classList.remove("is-active"));
+            cell.classList.add("is-active");
+            crossEvalDetail.textContent = `${cell.dataset.method}: train on ${cell.dataset.train}, evaluate on ${cell.dataset.eval}, ${cell.dataset.metric} = ${cell.dataset.score}.`;
+          };
+
+          methods.forEach((method) => {
+            const card = document.createElement("article");
+            card.className = "cross-eval-card";
+
+            const title = document.createElement("h4");
+            title.className = "cross-eval-method";
+            title.textContent = method.name;
+            card.appendChild(title);
+
+            const heatmap = document.createElement("div");
+            heatmap.className = "cross-eval-map";
+            heatmap.setAttribute("role", "grid");
+            heatmap.setAttribute(
+              "aria-label",
+              `${method.name} cross-dataset generalization scores`
+            );
+
+            evalDatasets.forEach((evalDataset, rowIndex) => {
+              const rowLabel = document.createElement("span");
+              rowLabel.className = "cross-eval-axis-label cross-eval-row-label";
+              rowLabel.textContent = evalDataset;
+              heatmap.appendChild(rowLabel);
+
+              trainDatasets.forEach((trainDataset, colIndex) => {
+                const score = method.scores[rowIndex][colIndex];
+                const rgb = interpolateColor(score);
+                const cell = document.createElement("button");
+                cell.className = "cross-eval-cell";
+                cell.type = "button";
+                cell.textContent = score.toFixed(1);
+                cell.dataset.method = method.name;
+                cell.dataset.train = trainDataset;
+                cell.dataset.eval = evalDataset;
+                cell.dataset.score = score.toFixed(1);
+                cell.dataset.metric = metricByEvalDataset[evalDataset];
+                cell.style.setProperty("--cell-bg", `rgb(${rgb.join(", ")})`);
+                cell.style.setProperty("--cell-fg", textColorFor(rgb));
+                cell.setAttribute(
+                  "aria-label",
+                  `${
+                    method.name
+                  }: train on ${trainDataset}, evaluate on ${evalDataset}, ${
+                    metricByEvalDataset[evalDataset]
+                  } ${score.toFixed(1)}`
+                );
+                cell.addEventListener("mouseenter", () => setActiveCell(cell));
+                cell.addEventListener("focus", () => setActiveCell(cell));
+                cell.addEventListener("click", () => setActiveCell(cell));
+                heatmap.appendChild(cell);
+              });
+            });
+
+            const corner = document.createElement("span");
+            corner.className = "cross-eval-corner";
+            heatmap.appendChild(corner);
+
+            trainDatasets.forEach((dataset) => {
+              const label = document.createElement("span");
+              label.className = "cross-eval-axis-label cross-eval-col-label";
+              label.textContent = dataset;
+              heatmap.appendChild(label);
+            });
+
+            card.appendChild(heatmap);
+            crossEvalRoot.appendChild(card);
+          });
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <div class="page-container">
+      <!-- title -->
+      <h1 class="ourh1" align="center">
+        <span class="title-prox" data-method-name>Raster2Seq</span>
+      </h1>
+      <h2 class="ourh2" align="center">
+        Polygon Sequence Generation for Floorplan Reconstruction
+      </h2>
+
+      <!-- authors and affiliations -->
+      <section class="authors_block">
+        <div class="authors" align="center">
+          <span class="author-block"
+            ><a href="https://hao-pt.github.io/" target="_blank">Hao Phung</a>
+          </span>
+          &emsp;
+          <span class="author-block"
+            ><a href="https://www.hadarelor.com/" target="_blank"
+              >Hadar Averbuch-Elor</a
+            >
+          </span>
+        </div>
+
+        <div class="affiliations" align="center">
+          <span class="author-block">Cornell University</span>
+        </div>
+      </section>
+
+      <p class="venue-heading" align="center">SIGGRAPH 2026</p>
+
+      <!-- link buttons -->
+      <div class="header-publication-links has-text-centered">
+        <div class="publication-links" align="center">
+          <!-- arxiv link -->
+          <span class="link-block">
+            <a
+              href="https://arxiv.org/abs/2602.09016"
+              class="paper-link"
+              style="display: inline-block"
+            >
+              <button class="button">
+                <span class="icon">
+                  <i class="ai ai-arxiv"></i>
+                </span>
+                <span>arXiv</span>
+              </button>
+            </a>
+          </span>
+
+          <!-- Github Link. -->
+          <span class="link-block">
+            <a
+              href="https://github.com/Cornell-VAILab/Raster2Seq"
+              style="display: inline-block"
+            >
+              <button class="button">
+                <span class="icon">
+                  <i class="fa fa-github"></i>
+                </span>
+                <span>Code</span>
+              </button>
+            </a>
+          </span>
+        </div>
+      </div>
+
+      <div class="teaser-wrapper">
+        <div class="introvid" id="site-teaser">
+          <img
+            src="./webpage_assets/images/teaser.svg"
+            alt="Raster2Seq teaser image"
+            data-method-alt
+          />
+          <div class="teaser-hover-overlay">
+            <p class="teaser-hover-text">
+              We illustrate results on held-out CubiCasa5K test samples (left)
+              and on real-world WAFFLE floorplan images (right).
+            </p>
+            <div class="teaser-legend">
+              <span class="legend-item"
+                ><span
+                  class="legend-swatch"
+                  style="background: rgba(141, 211, 199, 0.59)"
+                ></span
+                >Outdoor</span
+              >
+              <span class="legend-item"
+                ><span
+                  class="legend-swatch"
+                  style="background: rgba(251, 128, 114, 0.59)"
+                ></span
+                >Bedroom</span
+              >
+              <span class="legend-item"
+                ><span
+                  class="legend-swatch"
+                  style="background: rgba(128, 177, 211, 0.59)"
+                ></span
+                >Bath</span
+              >
+              <span class="legend-item"
+                ><span
+                  class="legend-swatch"
+                  style="background: rgba(253, 180, 98, 0.59)"
+                ></span
+                >Entry</span
+              >
+            </div>
+            <p class="teaser-hover-footnote">
+              <sup>*</sup>3D visualizations are constructed by extending the 2D
+              boundaries vertically.
+            </p>
+          </div>
+        </div>
+        <p class="teaser-caption">
+          Our approach transforms rasterized floorplan images to vectorized
+          format, reconstructing both its
+          <span class="highlight-task">structure</span> and
+          <span class="highlight-task">semantics</span>.
+        </p>
+      </div>
+
+      <!-- intro -->
+      <section class="into-paragraph-section" width="100%">
+        <div class="intro-container has-text-justified">
+          <div class="intro-paragraph">
+            <p>
+              <br />
+              <span class="intro-paragraph_bold">TL;DR:</span> We introduce
+              <span class="highlight-method" data-method-name>Raster2Seq</span>,
+              a framework reformulating
+              <span class="highlight-task">Raster2Vector conversion</span> as
+              next-corner prediction, handling floorplans of arbitrary length.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- abstract -->
+      <section class="abstract-section" width="100%">
+        <div class="abstract-container has-text-justified">
+          <hr />
+          <h2 align="center">Abstract</h2>
+          <p class="has-text-justified">
+            Reconstructing a structured vector-graphics representation from a
+            rasterized floorplan image is typically an important prerequisite
+            for computational tasks involving floorplans such as automated
+            understanding or CAD workflows. However, existing techniques
+            struggle in faithfully generating the structure and semantics
+            conveyed by complex floorplans that depict large indoor spaces with
+            many rooms and a varying numbers of polygon corners. To this end, we
+            propose
+            <span class="highlight-method" data-method-name>Raster2Seq</span>,
+            framing floorplan reconstruction as a sequence-to-sequence task in
+            which floorplan elements—such as rooms, windows, and doors—are
+            represented as labeled polygon sequences that jointly encode
+            geometry and semantics. Our approach introduces an autoregressive
+            decoder that learns to predict the next corner conditioned on image
+            features and previously generated corners using guidance from
+            learnable anchors. These anchors represent spatial coordinates in
+            image space, hence allowing for effectively directing the attention
+            mechanism to focus on informative image regions. By embracing the
+            autoregressive mechanism, our method offers flexibility in the
+            output format, enabling for efficiently handling complex floorplans
+            with numerous rooms and diverse polygon structures. Our method
+            achieves state-of-the-art performance on standard benchmarks such as
+            Structure3D, CubiCasa5K, and Raster2Graph, while also demonstrating
+            strong generalization to more challenging datasets like WAFFLE,
+            which contain diverse room structures and complex geometric
+            variations.
+          </p>
+        </div>
+      </section>
+
+      <!-- Qualitative WAFFLE floorplan results -->
+      <section class="waffle-results-section" width="100%">
+        <div class="qual-results-container">
+          <hr />
+          <h2 align="center">
+            Qualitative Results on WAFFLE - Real-world Floorplan Images
+          </h2>
+          <p class="qual-results-intro has-text-justified">
+            Qualitative comparison with RoomFormer on unseen WAFFLE floorplan
+            images; both models are trained on CubiCasa5K. As illustrated below,
+            our model exhibits stronger generalization capabilities over the
+            structures of real-world Internet data.
+          </p>
+
+          <div
+            class="waffle-results-grid"
+            aria-label="WAFFLE qualitative comparison with RoomFormer"
+          >
+            <article class="waffle-example">
+              <p class="waffle-building-name">Church of Saint James</p>
+              <div class="waffle-example-triplet">
+                <figure class="waffle-figure">
+                  <img
+                    class="waffle-image"
+                    src="./webpage_assets/images/waffle_comp/000000859.png"
+                    alt="Church of Saint James the Greater in Rovny input floorplan image"
+                  />
+                  <figcaption class="waffle-method-label">
+                    Input Image
+                  </figcaption>
+                </figure>
+                <figure class="waffle-figure">
+                  <img
+                    class="waffle-image"
+                    src="./webpage_assets/images/waffle_comp/000000859_pred_floorplan.png"
+                    alt="RoomFormer reconstruction for Church of Saint James the Greater in Rovny"
+                  />
+                  <figcaption class="waffle-method-label">
+                    RoomFormer
+                  </figcaption>
+                </figure>
+                <figure class="waffle-figure">
+                  <img
+                    class="waffle-image"
+                    src="./webpage_assets/images/waffle_comp/000000859_pred_floorplan_ours.png"
+                    alt="Raster2Seq reconstruction for Church of Saint James the Greater in Rovny"
+                  />
+                  <figcaption class="waffle-method-label">
+                    Raster2Seq
+                  </figcaption>
+                </figure>
+              </div>
+            </article>
+
+            <article class="waffle-example">
+              <p class="waffle-building-name">Teltow Canal Power Station</p>
+              <div class="waffle-example-triplet">
+                <figure class="waffle-figure">
+                  <img
+                    class="waffle-image"
+                    src="./webpage_assets/images/waffle_comp/000001089.png"
+                    alt="Teltow Canal Power Station input floorplan image"
+                  />
+                  <figcaption class="waffle-method-label">
+                    Input Image
+                  </figcaption>
+                </figure>
+                <figure class="waffle-figure">
+                  <img
+                    class="waffle-image"
+                    src="./webpage_assets/images/waffle_comp/000001089_pred_floorplan.png"
+                    alt="RoomFormer reconstruction for Teltow Canal Power Station"
+                  />
+                  <figcaption class="waffle-method-label">
+                    RoomFormer
+                  </figcaption>
+                </figure>
+                <figure class="waffle-figure">
+                  <img
+                    class="waffle-image"
+                    src="./webpage_assets/images/waffle_comp/000001089_pred_floorplan_ours.png"
+                    alt="Raster2Seq reconstruction for Teltow Canal Power Station"
+                  />
+                  <figcaption class="waffle-method-label">
+                    Raster2Seq
+                  </figcaption>
+                </figure>
+              </div>
+            </article>
+
+            <article class="waffle-example">
+              <p class="waffle-building-name">Church of Saint Nicholas</p>
+              <div class="waffle-example-triplet">
+                <figure class="waffle-figure">
+                  <img
+                    class="waffle-image"
+                    src="./webpage_assets/images/waffle_comp/000000895.png"
+                    alt="Church of Saint Nicholas input floorplan image"
+                  />
+                  <figcaption class="waffle-method-label">
+                    Input Image
+                  </figcaption>
+                </figure>
+                <figure class="waffle-figure">
+                  <img
+                    class="waffle-image"
+                    src="./webpage_assets/images/waffle_comp/000000895_pred_floorplan.png"
+                    alt="RoomFormer reconstruction for Church of Saint Nicholas"
+                  />
+                  <figcaption class="waffle-method-label">
+                    RoomFormer
+                  </figcaption>
+                </figure>
+                <figure class="waffle-figure">
+                  <img
+                    class="waffle-image"
+                    src="./webpage_assets/images/waffle_comp/000000895_pred_floorplan_ours.png"
+                    alt="Raster2Seq reconstruction for Church of Saint Nicholas"
+                  />
+                  <figcaption class="waffle-method-label">
+                    Raster2Seq
+                  </figcaption>
+                </figure>
+              </div>
+            </article>
+
+            <article class="waffle-example">
+              <p class="waffle-building-name">Imkerhaus</p>
+              <div class="waffle-example-triplet">
+                <figure class="waffle-figure">
+                  <img
+                    class="waffle-image"
+                    src="./webpage_assets/images/waffle_comp/000001026.png"
+                    alt="Imkerhaus input floorplan image"
+                  />
+                  <figcaption class="waffle-method-label">
+                    Input Image
+                  </figcaption>
+                </figure>
+                <figure class="waffle-figure">
+                  <img
+                    class="waffle-image"
+                    src="./webpage_assets/images/waffle_comp/000001026_pred_floorplan.png"
+                    alt="RoomFormer reconstruction for Imkerhaus"
+                  />
+                  <figcaption class="waffle-method-label">
+                    RoomFormer
+                  </figcaption>
+                </figure>
+                <figure class="waffle-figure">
+                  <img
+                    class="waffle-image"
+                    src="./webpage_assets/images/waffle_comp/000001026_pred_floorplan_ours.png"
+                    alt="Raster2Seq reconstruction for Imkerhaus"
+                  />
+                  <figcaption class="waffle-method-label">
+                    Raster2Seq
+                  </figcaption>
+                </figure>
+              </div>
+            </article>
+
+            <article class="waffle-example">
+              <p class="waffle-building-name">Palais du Louvre</p>
+              <div class="waffle-example-triplet">
+                <figure class="waffle-figure">
+                  <img
+                    class="waffle-image"
+                    src="./webpage_assets/images/waffle_comp/000000300.png"
+                    alt="Palais du Louvre input floorplan image"
+                  />
+                  <figcaption class="waffle-method-label">
+                    Input Image
+                  </figcaption>
+                </figure>
+                <figure class="waffle-figure">
+                  <img
+                    class="waffle-image"
+                    src="./webpage_assets/images/waffle_comp/000000300_pred_floorplan.png"
+                    alt="RoomFormer reconstruction for Palais du Louvre"
+                  />
+                  <figcaption class="waffle-method-label">
+                    RoomFormer
+                  </figcaption>
+                </figure>
+                <figure class="waffle-figure">
+                  <img
+                    class="waffle-image"
+                    src="./webpage_assets/images/waffle_comp/000000300_pred_floorplan_ours.png"
+                    alt="Raster2Seq reconstruction for Palais du Louvre"
+                  />
+                  <figcaption class="waffle-method-label">
+                    Raster2Seq
+                  </figcaption>
+                </figure>
+              </div>
+            </article>
+
+            <article class="waffle-example">
+              <p class="waffle-building-name">Palmer Mansion</p>
+              <div class="waffle-example-triplet">
+                <figure class="waffle-figure">
+                  <img
+                    class="waffle-image"
+                    src="./webpage_assets/images/waffle_comp/000000337.png"
+                    alt="Palmer Mansion input floorplan image"
+                  />
+                  <figcaption class="waffle-method-label">
+                    Input Image
+                  </figcaption>
+                </figure>
+                <figure class="waffle-figure">
+                  <img
+                    class="waffle-image"
+                    src="./webpage_assets/images/waffle_comp/000000337_pred_floorplan.png"
+                    alt="RoomFormer reconstruction for Palmer Mansion"
+                  />
+                  <figcaption class="waffle-method-label">
+                    RoomFormer
+                  </figcaption>
+                </figure>
+                <figure class="waffle-figure">
+                  <img
+                    class="waffle-image"
+                    src="./webpage_assets/images/waffle_comp/000000337_pred_floorplan_ours.png"
+                    alt="Raster2Seq reconstruction for Palmer Mansion"
+                  />
+                  <figcaption class="waffle-method-label">
+                    Raster2Seq
+                  </figcaption>
+                </figure>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- Previous tabbed qualitative floorplan results. -->
+      <section class="qual-results-section" width="100%" hidden>
+        <div class="qual-results-container">
+          <hr />
+          <h2 align="center">More Qualitative Results</h2>
+          <p class="qual-results-intro has-text-justified">
+            Each example shows a pair of images: the input image and the output
+            reconstruction generated by
+            <span data-method-name>Raster2Seq</span>. Use the tabs to browse
+            qualitative results across Structured3D-B, CubiCasa5K, and
+            Raster2Graph dataset.
+            <br />
+            <em
+              >*Structured3D-B denotes our binary raster version of
+              Structured3D, constructed from ground-truth annotations to
+              resemble standard floorplan drawings rather than the density-map
+              inputs used in the original dataset.</em
+            >
+          </p>
+
+          <div
+            class="qual-results-tabs"
+            role="tablist"
+            aria-label="Qualitative result datasets"
+          >
+            <button
+              class="qual-results-tab is-active"
+              id="qual-tab-s3d"
+              type="button"
+              role="tab"
+              aria-selected="true"
+              aria-controls="qual-panel-s3d"
+              data-tab-target="qual-panel-s3d"
+            >
+              Structured3D-B
+            </button>
+            <button
+              class="qual-results-tab"
+              id="qual-tab-cubi"
+              type="button"
+              role="tab"
+              aria-selected="false"
+              aria-controls="qual-panel-cubi"
+              data-tab-target="qual-panel-cubi"
+              tabindex="-1"
+            >
+              CubiCasa5K
+            </button>
+            <button
+              class="qual-results-tab"
+              id="qual-tab-r2g"
+              type="button"
+              role="tab"
+              aria-selected="false"
+              aria-controls="qual-panel-r2g"
+              data-tab-target="qual-panel-r2g"
+              tabindex="-1"
+            >
+              Raster2Graph
+            </button>
+          </div>
+
+          <div class="qual-results-panels">
+            <div
+              class="qual-results-panel is-active"
+              id="qual-panel-s3d"
+              role="tabpanel"
+              aria-labelledby="qual-tab-s3d"
+            >
+              <div
+                class="s3d-color-legend"
+                aria-label="Structured3D output reconstruction color legend"
+              >
+                <div class="s3d-color-legend-rooms">
+                  <span class="s3d-legend-item">
+                    <span class="s3d-legend-swatch s3d-livingroom"></span>
+                    <span>Living Room</span>
+                  </span>
+                  <span class="s3d-legend-item">
+                    <span class="s3d-legend-swatch s3d-kitchen"></span>
+                    <span>Kitchen</span>
+                  </span>
+                  <span class="s3d-legend-item">
+                    <span class="s3d-legend-swatch s3d-bedroom"></span>
+                    <span>Bedroom</span>
+                  </span>
+                  <span class="s3d-legend-item">
+                    <span class="s3d-legend-swatch s3d-bathroom"></span>
+                    <span>Bathroom</span>
+                  </span>
+                  <span class="s3d-legend-item">
+                    <span class="s3d-legend-swatch s3d-balcony"></span>
+                    <span>Balcony</span>
+                  </span>
+                  <span class="s3d-legend-item">
+                    <span class="s3d-legend-swatch s3d-corridor"></span>
+                    <span>Corridor</span>
+                  </span>
+                  <span class="s3d-legend-item">
+                    <span class="s3d-legend-swatch s3d-diningroom"></span>
+                    <span>Dining room</span>
+                  </span>
+                  <span class="s3d-legend-item">
+                    <span class="s3d-legend-swatch s3d-study"></span>
+                    <span>Study</span>
+                  </span>
+                  <span class="s3d-legend-item">
+                    <span class="s3d-legend-swatch s3d-studio"></span>
+                    <span>Studio</span>
+                  </span>
+                  <span class="s3d-legend-item">
+                    <span class="s3d-legend-swatch s3d-storeroom"></span>
+                    <span>Store room</span>
+                  </span>
+                  <span class="s3d-legend-item">
+                    <span class="s3d-legend-swatch s3d-garden"></span>
+                    <span>Garden</span>
+                  </span>
+                  <span class="s3d-legend-item">
+                    <span class="s3d-legend-swatch s3d-laundryroom"></span>
+                    <span>Laundry room</span>
+                  </span>
+                  <span class="s3d-legend-item">
+                    <span class="s3d-legend-swatch s3d-office"></span>
+                    <span>Office</span>
+                  </span>
+                  <span class="s3d-legend-item">
+                    <span class="s3d-legend-swatch s3d-basement"></span>
+                    <span>Basement</span>
+                  </span>
+                  <span class="s3d-legend-item">
+                    <span class="s3d-legend-swatch s3d-garage"></span>
+                    <span>Garage</span>
+                  </span>
+                  <span class="s3d-legend-item">
+                    <span class="s3d-legend-swatch s3d-misc"></span>
+                    <span>Misc</span>
+                  </span>
+                </div>
+                <div class="s3d-color-legend-openings">
+                  <span class="s3d-legend-item">
+                    <span class="s3d-legend-line s3d-door"></span>
+                    <span>Door</span>
+                  </span>
+                  <span class="s3d-legend-item">
+                    <span class="s3d-legend-line s3d-window"></span>
+                    <span>Window</span>
+                  </span>
+                </div>
+              </div>
+              <div class="qual-results-grid">
+                <div class="qual-results-pair">
+                  <figure class="qual-results-figure">
+                    <img
+                      class="qual-results-image"
+                      src="./webpage_assets/images/s3d_gallery/3250_gt_image.png"
+                      alt="Structured3D sample 3250 ground-truth image"
+                    />
+                    <figcaption class="qual-results-label">
+                      Input Image
+                    </figcaption>
+                  </figure>
+                  <figure class="qual-results-figure">
+                    <img
+                      class="qual-results-image"
+                      src="./webpage_assets/images/s3d_gallery/03250_pred_floorplan.png"
+                      alt="Structured3D sample 3250 predicted floorplan"
+                    />
+                    <figcaption class="qual-results-label">
+                      Output Reconstruction
+                    </figcaption>
+                  </figure>
+                </div>
+                <div class="qual-results-pair">
+                  <figure class="qual-results-figure">
+                    <img
+                      class="qual-results-image"
+                      src="./webpage_assets/images/s3d_gallery/3253_gt_image.png"
+                      alt="Structured3D sample 3253 ground-truth image"
+                    />
+                    <figcaption class="qual-results-label">
+                      Input Image
+                    </figcaption>
+                  </figure>
+                  <figure class="qual-results-figure">
+                    <img
+                      class="qual-results-image"
+                      src="./webpage_assets/images/s3d_gallery/03253_pred_floorplan.png"
+                      alt="Structured3D sample 3253 predicted floorplan"
+                    />
+                    <figcaption class="qual-results-label">
+                      Output Reconstruction
+                    </figcaption>
+                  </figure>
+                </div>
+                <div class="qual-results-pair">
+                  <figure class="qual-results-figure">
+                    <img
+                      class="qual-results-image"
+                      src="./webpage_assets/images/s3d_gallery/3268_gt_image.png"
+                      alt="Structured3D sample 3268 ground-truth image"
+                    />
+                    <figcaption class="qual-results-label">
+                      Input Image
+                    </figcaption>
+                  </figure>
+                  <figure class="qual-results-figure">
+                    <img
+                      class="qual-results-image"
+                      src="./webpage_assets/images/s3d_gallery/03268_pred_floorplan.png"
+                      alt="Structured3D sample 3268 predicted floorplan"
+                    />
+                    <figcaption class="qual-results-label">
+                      Output Reconstruction
+                    </figcaption>
+                  </figure>
+                </div>
+                <div class="qual-results-pair">
+                  <figure class="qual-results-figure">
+                    <img
+                      class="qual-results-image"
+                      src="./webpage_assets/images/s3d_gallery/3274_gt_image.png"
+                      alt="Structured3D sample 3274 ground-truth image"
+                    />
+                    <figcaption class="qual-results-label">
+                      Input Image
+                    </figcaption>
+                  </figure>
+                  <figure class="qual-results-figure">
+                    <img
+                      class="qual-results-image"
+                      src="./webpage_assets/images/s3d_gallery/03274_pred_floorplan.png"
+                      alt="Structured3D sample 3274 predicted floorplan"
+                    />
+                    <figcaption class="qual-results-label">
+                      Output Reconstruction
+                    </figcaption>
+                  </figure>
+                </div>
+                <div class="qual-results-pair">
+                  <figure class="qual-results-figure">
+                    <img
+                      class="qual-results-image"
+                      src="./webpage_assets/images/s3d_gallery/3277_gt_image.png"
+                      alt="Structured3D sample 3277 ground-truth image"
+                    />
+                    <figcaption class="qual-results-label">
+                      Input Image
+                    </figcaption>
+                  </figure>
+                  <figure class="qual-results-figure">
+                    <img
+                      class="qual-results-image"
+                      src="./webpage_assets/images/s3d_gallery/03277_pred_floorplan.png"
+                      alt="Structured3D sample 3277 predicted floorplan"
+                    />
+                    <figcaption class="qual-results-label">
+                      Output Reconstruction
+                    </figcaption>
+                  </figure>
+                </div>
+                <div class="qual-results-pair">
+                  <figure class="qual-results-figure">
+                    <img
+                      class="qual-results-image"
+                      src="./webpage_assets/images/s3d_gallery/3301_gt_image.png"
+                      alt="Structured3D sample 3301 ground-truth image"
+                    />
+                    <figcaption class="qual-results-label">
+                      Input Image
+                    </figcaption>
+                  </figure>
+                  <figure class="qual-results-figure">
+                    <img
+                      class="qual-results-image"
+                      src="./webpage_assets/images/s3d_gallery/03301_pred_floorplan.png"
+                      alt="Structured3D sample 3301 predicted floorplan"
+                    />
+                    <figcaption class="qual-results-label">
+                      Output Reconstruction
+                    </figcaption>
+                  </figure>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="qual-results-panel"
+              id="qual-panel-cubi"
+              role="tabpanel"
+              aria-labelledby="qual-tab-cubi"
+              hidden
+            >
+              <div
+                class="cubi-color-legend"
+                aria-label="CubiCasa5K output reconstruction color legend"
+              >
+                <div class="cubi-color-legend-rooms">
+                  <span class="s3d-legend-item">
+                    <span class="s3d-legend-swatch cubi-outdoor"></span>
+                    <span>Outdoor</span>
+                  </span>
+                  <span class="s3d-legend-item">
+                    <span class="s3d-legend-swatch cubi-kitchen"></span>
+                    <span>Kitchen</span>
+                  </span>
+                  <span class="s3d-legend-item">
+                    <span class="s3d-legend-swatch cubi-livingroom"></span>
+                    <span>Living room</span>
+                  </span>
+                  <span class="s3d-legend-item">
+                    <span class="s3d-legend-swatch cubi-bedroom"></span>
+                    <span>Bed room</span>
+                  </span>
+                  <span class="s3d-legend-item">
+                    <span class="s3d-legend-swatch cubi-bath"></span>
+                    <span>Bath</span>
+                  </span>
+                  <span class="s3d-legend-item">
+                    <span class="s3d-legend-swatch cubi-entry"></span>
+                    <span>Entry</span>
+                  </span>
+                  <span class="s3d-legend-item">
+                    <span class="s3d-legend-swatch cubi-storage"></span>
+                    <span>Storage</span>
+                  </span>
+                  <span class="s3d-legend-item">
+                    <span class="s3d-legend-swatch cubi-garage"></span>
+                    <span>Garage</span>
+                  </span>
+                  <span class="s3d-legend-item">
+                    <span class="s3d-legend-swatch cubi-undefined"></span>
+                    <span>Undefined</span>
+                  </span>
+                </div>
+                <div class="cubi-color-legend-openings">
+                  <span class="s3d-legend-item">
+                    <span class="s3d-legend-line s3d-door"></span>
+                    <span>Door</span>
+                  </span>
+                  <span class="s3d-legend-item">
+                    <span class="s3d-legend-line s3d-window"></span>
+                    <span>Window</span>
+                  </span>
+                </div>
+              </div>
+              <div class="qual-results-grid">
+                <div class="qual-results-pair">
+                  <figure class="qual-results-figure">
+                    <img
+                      class="qual-results-image"
+                      src="./webpage_assets/images/cubi_gallery/6028_gt_image_rotated.png"
+                      alt="CubiCasa5K sample 6028 ground-truth image"
+                    />
+                    <figcaption class="qual-results-label">
+                      Input Image
+                    </figcaption>
+                  </figure>
+                  <figure class="qual-results-figure">
+                    <img
+                      class="qual-results-image"
+                      src="./webpage_assets/images/cubi_gallery/06028_pred_floorplan_rotated.png"
+                      alt="CubiCasa5K sample 6028 predicted floorplan"
+                    />
+                    <figcaption class="qual-results-label">
+                      Output Reconstruction
+                    </figcaption>
+                  </figure>
+                </div>
+                <div class="qual-results-pair">
+                  <figure class="qual-results-figure">
+                    <div class="qual-results-media">
+                      <img
+                        class="qual-results-image"
+                        src="./webpage_assets/images/cubi_gallery/6170_gt_image_rotated.png"
+                        alt="CubiCasa5K sample 6170 ground-truth image"
+                      />
+                    </div>
+                    <figcaption class="qual-results-label">
+                      Input Image
+                    </figcaption>
+                  </figure>
+                  <figure class="qual-results-figure">
+                    <div class="qual-results-media">
+                      <img
+                        class="qual-results-image"
+                        src="./webpage_assets/images/cubi_gallery/06170_pred_floorplan_rotated.png"
+                        alt="CubiCasa5K sample 6170 predicted floorplan"
+                      />
+                    </div>
+                    <figcaption class="qual-results-label">
+                      Output Reconstruction
+                    </figcaption>
+                  </figure>
+                </div>
+                <div class="qual-results-pair">
+                  <figure class="qual-results-figure">
+                    <div class="qual-results-media">
+                      <img
+                        class="qual-results-image"
+                        src="./webpage_assets/images/cubi_gallery/6197_gt_image_rotated.png"
+                        alt="CubiCasa5K sample 6197 ground-truth image"
+                      />
+                    </div>
+                    <figcaption class="qual-results-label">
+                      Input Image
+                    </figcaption>
+                  </figure>
+                  <figure class="qual-results-figure">
+                    <div class="qual-results-media">
+                      <img
+                        class="qual-results-image"
+                        src="./webpage_assets/images/cubi_gallery/06197_pred_floorplan_rotated.png"
+                        alt="CubiCasa5K sample 6197 predicted floorplan"
+                      />
+                    </div>
+                    <figcaption class="qual-results-label">
+                      Output Reconstruction
+                    </figcaption>
+                  </figure>
+                </div>
+                <div class="qual-results-pair">
+                  <figure class="qual-results-figure">
+                    <img
+                      class="qual-results-image"
+                      src="./webpage_assets/images/cubi_gallery/6251_gt_image.png"
+                      alt="CubiCasa5K sample 6251 ground-truth image"
+                    />
+                    <figcaption class="qual-results-label">
+                      Input Image
+                    </figcaption>
+                  </figure>
+                  <figure class="qual-results-figure">
+                    <img
+                      class="qual-results-image"
+                      src="./webpage_assets/images/cubi_gallery/06251_pred_floorplan.png"
+                      alt="CubiCasa5K sample 6251 predicted floorplan"
+                    />
+                    <figcaption class="qual-results-label">
+                      Output Reconstruction
+                    </figcaption>
+                  </figure>
+                </div>
+                <div class="qual-results-pair">
+                  <figure class="qual-results-figure">
+                    <img
+                      class="qual-results-image"
+                      src="./webpage_assets/images/cubi_gallery/6261_gt_image.png"
+                      alt="CubiCasa5K sample 6261 ground-truth image"
+                    />
+                    <figcaption class="qual-results-label">
+                      Input Image
+                    </figcaption>
+                  </figure>
+                  <figure class="qual-results-figure">
+                    <img
+                      class="qual-results-image"
+                      src="./webpage_assets/images/cubi_gallery/06261_pred_floorplan.png"
+                      alt="CubiCasa5K sample 6261 predicted floorplan"
+                    />
+                    <figcaption class="qual-results-label">
+                      Output Reconstruction
+                    </figcaption>
+                  </figure>
+                </div>
+                <div class="qual-results-pair">
+                  <figure class="qual-results-figure">
+                    <img
+                      class="qual-results-image"
+                      src="./webpage_assets/images/cubi_gallery/6265_gt_image.png"
+                      alt="CubiCasa5K sample 6265 ground-truth image"
+                    />
+                    <figcaption class="qual-results-label">
+                      Input Image
+                    </figcaption>
+                  </figure>
+                  <figure class="qual-results-figure">
+                    <img
+                      class="qual-results-image"
+                      src="./webpage_assets/images/cubi_gallery/06265_pred_floorplan.png"
+                      alt="CubiCasa5K sample 6265 predicted floorplan"
+                    />
+                    <figcaption class="qual-results-label">
+                      Output Reconstruction
+                    </figcaption>
+                  </figure>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="qual-results-panel"
+              id="qual-panel-r2g"
+              role="tabpanel"
+              aria-labelledby="qual-tab-r2g"
+              hidden
+            >
+              <div
+                class="r2g-color-legend"
+                aria-label="Raster2Graph output reconstruction color legend"
+              >
+                <div class="r2g-color-legend-rooms">
+                  <span class="s3d-legend-item">
+                    <span class="s3d-legend-swatch r2g-unknown"></span>
+                    <span>Unknown</span>
+                  </span>
+                  <span class="s3d-legend-item">
+                    <span class="s3d-legend-swatch r2g-living-room"></span>
+                    <span>Living room</span>
+                  </span>
+                  <span class="s3d-legend-item">
+                    <span class="s3d-legend-swatch r2g-kitchen"></span>
+                    <span>Kitchen</span>
+                  </span>
+                  <span class="s3d-legend-item">
+                    <span class="s3d-legend-swatch r2g-bedroom"></span>
+                    <span>Bedroom</span>
+                  </span>
+                  <span class="s3d-legend-item">
+                    <span class="s3d-legend-swatch r2g-bathroom"></span>
+                    <span>Bathroom</span>
+                  </span>
+                  <span class="s3d-legend-item">
+                    <span class="s3d-legend-swatch r2g-restroom"></span>
+                    <span>Restroom</span>
+                  </span>
+                  <span class="s3d-legend-item">
+                    <span class="s3d-legend-swatch r2g-balcony"></span>
+                    <span>Balcony</span>
+                  </span>
+                  <span class="s3d-legend-item">
+                    <span class="s3d-legend-swatch r2g-closet"></span>
+                    <span>Closet</span>
+                  </span>
+                  <span class="s3d-legend-item">
+                    <span class="s3d-legend-swatch r2g-corridor"></span>
+                    <span>Corridor</span>
+                  </span>
+                  <span class="s3d-legend-item">
+                    <span class="s3d-legend-swatch r2g-washing-room"></span>
+                    <span>Washing room</span>
+                  </span>
+                  <span class="s3d-legend-item">
+                    <span class="s3d-legend-swatch r2g-ps"></span>
+                    <span>PS</span>
+                  </span>
+                  <span class="s3d-legend-item">
+                    <span class="s3d-legend-swatch r2g-outside"></span>
+                    <span>Outside</span>
+                  </span>
+                </div>
+              </div>
+              <div class="qual-results-grid">
+                <div class="qual-results-pair">
+                  <figure class="qual-results-figure">
+                    <div class="qual-results-media">
+                      <img
+                        class="qual-results-image"
+                        src="./webpage_assets/images/r2g_gallery/010332_gt_image_rotated.png"
+                        alt="Raster2Graph sample 010332 ground-truth image"
+                      />
+                    </div>
+                    <figcaption class="qual-results-label">
+                      Input Image
+                    </figcaption>
+                  </figure>
+                  <figure class="qual-results-figure">
+                    <div class="qual-results-media">
+                      <img
+                        class="qual-results-image"
+                        src="./webpage_assets/images/r2g_gallery/010332_pred_floorplan_rotated.png"
+                        alt="Raster2Graph sample 010332 predicted floorplan"
+                      />
+                    </div>
+                    <figcaption class="qual-results-label">
+                      Output Reconstruction
+                    </figcaption>
+                  </figure>
+                </div>
+                <div class="qual-results-pair">
+                  <figure class="qual-results-figure">
+                    <div class="qual-results-media">
+                      <img
+                        class="qual-results-image"
+                        src="./webpage_assets/images/r2g_gallery/010335_gt_image_rotated.png"
+                        alt="Raster2Graph sample 010335 ground-truth image"
+                      />
+                    </div>
+                    <figcaption class="qual-results-label">
+                      Input Image
+                    </figcaption>
+                  </figure>
+                  <figure class="qual-results-figure">
+                    <div class="qual-results-media">
+                      <img
+                        class="qual-results-image"
+                        src="./webpage_assets/images/r2g_gallery/010335_pred_floorplan_rotated.png"
+                        alt="Raster2Graph sample 010335 predicted floorplan"
+                      />
+                    </div>
+                    <figcaption class="qual-results-label">
+                      Output Reconstruction
+                    </figcaption>
+                  </figure>
+                </div>
+                <div class="qual-results-pair">
+                  <figure class="qual-results-figure">
+                    <img
+                      class="qual-results-image"
+                      src="./webpage_assets/images/r2g_gallery/010338_gt_image.png"
+                      alt="Raster2Graph sample 010338 ground-truth image"
+                    />
+                    <figcaption class="qual-results-label">
+                      Input Image
+                    </figcaption>
+                  </figure>
+                  <figure class="qual-results-figure">
+                    <img
+                      class="qual-results-image"
+                      src="./webpage_assets/images/r2g_gallery/010338_pred_floorplan.png"
+                      alt="Raster2Graph sample 010338 predicted floorplan"
+                    />
+                    <figcaption class="qual-results-label">
+                      Output Reconstruction
+                    </figcaption>
+                  </figure>
+                </div>
+                <div class="qual-results-pair">
+                  <figure class="qual-results-figure">
+                    <img
+                      class="qual-results-image"
+                      src="./webpage_assets/images/r2g_gallery/010339_gt_image.png"
+                      alt="Raster2Graph sample 010339 ground-truth image"
+                    />
+                    <figcaption class="qual-results-label">
+                      Input Image
+                    </figcaption>
+                  </figure>
+                  <figure class="qual-results-figure">
+                    <img
+                      class="qual-results-image"
+                      src="./webpage_assets/images/r2g_gallery/010339_pred_floorplan.png"
+                      alt="Raster2Graph sample 010339 predicted floorplan"
+                    />
+                    <figcaption class="qual-results-label">
+                      Output Reconstruction
+                    </figcaption>
+                  </figure>
+                </div>
+                <div class="qual-results-pair">
+                  <figure class="qual-results-figure">
+                    <img
+                      class="qual-results-image"
+                      src="./webpage_assets/images/r2g_gallery/010340_gt_image.png"
+                      alt="Raster2Graph sample 010340 ground-truth image"
+                    />
+                    <figcaption class="qual-results-label">
+                      Input Image
+                    </figcaption>
+                  </figure>
+                  <figure class="qual-results-figure">
+                    <img
+                      class="qual-results-image"
+                      src="./webpage_assets/images/r2g_gallery/010340_pred_floorplan.png"
+                      alt="Raster2Graph sample 010340 predicted floorplan"
+                    />
+                    <figcaption class="qual-results-label">
+                      Output Reconstruction
+                    </figcaption>
+                  </figure>
+                </div>
+                <div class="qual-results-pair">
+                  <figure class="qual-results-figure">
+                    <div class="qual-results-media">
+                      <img
+                        class="qual-results-image"
+                        src="./webpage_assets/images/r2g_gallery/010341_gt_image_rotated.png"
+                        alt="Raster2Graph sample 010341 ground-truth image"
+                      />
+                    </div>
+                    <figcaption class="qual-results-label">
+                      Input Image
+                    </figcaption>
+                  </figure>
+                  <figure class="qual-results-figure">
+                    <div class="qual-results-media">
+                      <img
+                        class="qual-results-image"
+                        src="./webpage_assets/images/r2g_gallery/010341_pred_floorplan_rotated.png"
+                        alt="Raster2Graph sample 010341 predicted floorplan"
+                      />
+                    </div>
+                    <figcaption class="qual-results-label">
+                      Output Reconstruction
+                    </figcaption>
+                  </figure>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Quantitative floorplan results -->
+      <section class="quant-results-section" width="100%">
+        <div class="quant-results-container">
+          <hr />
+          <h2 align="center">Quantitative Results</h2>
+          <h3 class="cross-eval-title">Results on Standard Benchmarks</h3>
+          <p class="quant-results-intro has-text-justified">
+            Quantitative comparison on Structured3D, CubiCasa5K, and
+            Raster2Graph datasets, evaluating F1 scores across geometric
+            predictions (Room, Corner, Angle) and semantic predictions (Room
+            Semantic, Window &amp; Door).
+          </p>
+
+          <div class="quant-slider" data-quant-slider>
+            <div
+              class="quant-slider-controls"
+              role="tablist"
+              aria-label="Standard benchmark result tables"
+            >
+              <button
+                class="quant-slider-tab is-active"
+                type="button"
+                role="tab"
+                aria-selected="true"
+                aria-controls="quant-slide-standard"
+                data-quant-slide-target="quant-slide-standard"
+              >
+                Raster-to-Vector Benchmarks
+              </button>
+              <button
+                class="quant-slider-tab"
+                type="button"
+                role="tab"
+                aria-selected="false"
+                aria-controls="quant-slide-s3d-density"
+                data-quant-slide-target="quant-slide-s3d-density"
+              >
+                Structured3D-Density Maps
+              </button>
+            </div>
+
+            <div
+              class="quant-slider-slide is-active"
+              id="quant-slide-standard"
+              role="tabpanel"
+            >
+              <p class="quant-results-intro has-text-justified">
+                We compare performance over the raster-to-vector conversion task
+                across three datasets. Overall, our method achieves
+                state-of-the-art performance on both structural metrics (Room
+                and Corner) and semantic metrics (RoomSem and WindowDoor).
+              </p>
+              <div class="quant-table-wrap">
+                <table class="quant-results-table">
+                  <caption>
+                    Note that not all models include semantic predictions, and
+                    Raster2Graph does not include Window &amp; Door annotations.
+                    The Raster2Graph model can only be evaluated on its own
+                    dataset because it requires per-corner neighboring
+                    room-class annotations.
+                  </caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Method</th>
+                      <th scope="col">Room</th>
+                      <th scope="col">Corner</th>
+                      <th scope="col">Angle</th>
+                      <th scope="col">Room Semantic</th>
+                      <th scope="col">Window &amp; Door</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                      class="quant-dataset-row"
+                      tabindex="0"
+                      data-note="Structured3D contains 3,000/250/250 training/validation/test samples with 16 room types; we convert its annotations into binary raster floorplans and refer to this setting as Structured3D-B."
+                    >
+                      <th scope="rowgroup" colspan="6">Structured3D-B</th>
+                    </tr>
+                    <tr>
+                      <th scope="row">HEAT</th>
+                      <td>94.7</td>
+                      <td>84.5</td>
+                      <td>79.6</td>
+                      <td>-</td>
+                      <td>-</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">PolyRoom</th>
+                      <td>98.9</td>
+                      <td>96.0</td>
+                      <td>91.9</td>
+                      <td>-</td>
+                      <td>-</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">FRI-Net</th>
+                      <td>96.5</td>
+                      <td>85.4</td>
+                      <td>83.3</td>
+                      <td>-</td>
+                      <td>-</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">RoomFormer</th>
+                      <td>95.1</td>
+                      <td>91.7</td>
+                      <td>83.2</td>
+                      <td>74.2</td>
+                      <td>94.1</td>
+                    </tr>
+                    <tr class="quant-ours-row">
+                      <th scope="row">Ours</th>
+                      <td><strong>99.6</strong></td>
+                      <td><strong>98.3</strong></td>
+                      <td><strong>92.7</strong></td>
+                      <td><strong>76.9</strong></td>
+                      <td><strong>98.5</strong></td>
+                    </tr>
+
+                    <tr
+                      class="quant-dataset-row"
+                      tabindex="0"
+                      data-note="CubiCasa5K is a raster floorplan dataset with 11 classes; after splitting images that contain multiple floorplans into separate samples, we obtain 5,267/503/511 training/validation/test samples."
+                    >
+                      <th scope="rowgroup" colspan="6">CubiCasa5K</th>
+                    </tr>
+                    <tr>
+                      <th scope="row">HEAT</th>
+                      <td>78.2</td>
+                      <td>53.7</td>
+                      <td>32.3</td>
+                      <td>-</td>
+                      <td>-</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">PolyRoom</th>
+                      <td>54.1</td>
+                      <td>37.1</td>
+                      <td>23.0</td>
+                      <td>-</td>
+                      <td>-</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">FRI-Net</th>
+                      <td>77.1</td>
+                      <td>50.8</td>
+                      <td><strong>38.0</strong></td>
+                      <td>-</td>
+                      <td>-</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">RoomFormer</th>
+                      <td>83.5</td>
+                      <td>55.5</td>
+                      <td>34.1</td>
+                      <td>63.0</td>
+                      <td><strong>78.5</strong></td>
+                    </tr>
+                    <tr class="quant-ours-row">
+                      <th scope="row">Ours</th>
+                      <td><strong>88.7</strong></td>
+                      <td><strong>59.4</strong></td>
+                      <td><span class="quant-second-best">37.4</span></td>
+                      <td><strong>63.8</strong></td>
+                      <td>77.8</td>
+                    </tr>
+
+                    <tr
+                      class="quant-dataset-row"
+                      tabindex="0"
+                      data-note="Raster2Graph has 9,803/500/499 training/validation/test samples, annotated with 12 classes."
+                    >
+                      <th scope="rowgroup" colspan="6">Raster2Graph</th>
+                    </tr>
+                    <tr>
+                      <th scope="row">HEAT</th>
+                      <td>95.9</td>
+                      <td>79.7</td>
+                      <td>50.9</td>
+                      <td>-</td>
+                      <td>-</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">PolyRoom</th>
+                      <td>56.9</td>
+                      <td>42.4</td>
+                      <td>23.8</td>
+                      <td>-</td>
+                      <td>-</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">FRI-Net</th>
+                      <td>91.5</td>
+                      <td>72.3</td>
+                      <td>52.8</td>
+                      <td>-</td>
+                      <td>-</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">RoomFormer</th>
+                      <td>91.9</td>
+                      <td>74.5</td>
+                      <td>51.1</td>
+                      <td>79.5</td>
+                      <td>-</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Raster2Graph</th>
+                      <td>95.0</td>
+                      <td>78.3</td>
+                      <td><strong>67.3</strong></td>
+                      <td>83.4</td>
+                      <td>-</td>
+                    </tr>
+                    <tr class="quant-ours-row">
+                      <th scope="row">Ours</th>
+                      <td><strong>97.0</strong></td>
+                      <td><strong>80.3</strong></td>
+                      <td><span class="quant-second-best">66.6</span></td>
+                      <td><strong>85.1</strong></td>
+                      <td>-</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div
+              class="quant-slider-slide"
+              id="quant-slide-s3d-density"
+              role="tabpanel"
+              hidden
+            >
+              <p class="quant-results-intro has-text-justified">
+                We conduct a comparison on the standard Structured3D benchmark,
+                providing our model with density map inputs for both training
+                and testing. Each density map is generated from top-view
+                projection of the 3D point cloud. The bottom rows report
+                performance after applying PolyDiffuse (PD), a recent refinement
+                method. As shown, our method demonstrates competitive
+                performance on this benchmark, and is compatible with existing
+                refinement methods, which enable further performance gains.
+              </p>
+              <div class="quant-table-wrap">
+                <table class="quant-results-table">
+                  <caption>
+                    Notably, when semantic room types are included, RoomFormer
+                    exhibits a significant performance drop of 2–5 points. By
+                    contrast, our model effectively captures both spatial and
+                    semantic attributes without compromising performance.
+                  </caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Method</th>
+                      <th scope="col">Room</th>
+                      <th scope="col">Corner</th>
+                      <th scope="col">Angle</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <th scope="row">MonteFloor</th>
+                      <td>95.0</td>
+                      <td>82.5</td>
+                      <td>80.5</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">HEAT</th>
+                      <td>95.4</td>
+                      <td>82.5</td>
+                      <td>78.3</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">PolyRoom</th>
+                      <td>98.3</td>
+                      <td><strong>90.2</strong></td>
+                      <td>85.2</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">FRI-Net</th>
+                      <td><strong>99.1</strong></td>
+                      <td>87.8</td>
+                      <td><strong>86.9</strong></td>
+                    </tr>
+                    <tr>
+                      <th scope="row">RoomFormer</th>
+                      <td>97.5</td>
+                      <td>87.4</td>
+                      <td>81.4</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">RoomFormer (w/ semantic)</th>
+                      <td>94.4<small>(-3.1)</small></td>
+                      <td>83.7<small>(-3.7)</small></td>
+                      <td>76.2<small>(-5.2)</small></td>
+                    </tr>
+                    <tr class="quant-ours-row">
+                      <th scope="row">Ours</th>
+                      <td>98.7</td>
+                      <td>89.4</td>
+                      <td>82.5</td>
+                    </tr>
+                    <tr class="quant-ours-row">
+                      <th scope="row">Ours (w/ semantic)</th>
+                      <td><span class="quant-second-best">98.8</span></td>
+                      <td><span class="quant-second-best">90.0</span></td>
+                      <td>84.2</td>
+                    </tr>
+                    <tr class="quant-refinement-row quant-refinement-start">
+                      <th scope="row">FRI-Net + PD</th>
+                      <td>99.1</td>
+                      <td>91.1</td>
+                      <td><strong>89.2</strong></td>
+                    </tr>
+                    <tr class="quant-refinement-row">
+                      <th scope="row">RoomFormer + PD</th>
+                      <td>98.4</td>
+                      <td>91.0</td>
+                      <td>89.1</td>
+                    </tr>
+                    <tr class="quant-refinement-row quant-ours-row">
+                      <th scope="row">Ours + PD</th>
+                      <td><strong>99.2</strong></td>
+                      <td><strong>91.2</strong></td>
+                      <td>89.0</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="cross-eval-panel">
+            <h3 class="cross-eval-title">Model Generalization</h3>
+            <p class="cross-eval-note">
+              We perform a cross-evaluation experiment across different
+              train-test dataset configurations. We evaluate performance using
+              metrics reported previously, using RoomF1 for the CubiCasa5K and
+              Raster2Graph datasets and IoU for WAFFLE. Cross-evaluation
+              heatmaps show performance across evaluation datasets (rows) and
+              training datasets (columns), with hotter colors denoting higher
+              performance.
+            </p>
+            <div
+              id="cross-eval-heatmaps"
+              class="cross-eval-heatmaps"
+              aria-label="Cross-dataset generalization heatmaps"
+            ></div>
+            <div class="cross-eval-footer">
+              <div class="cross-eval-scale" aria-hidden="true">
+                <span>Lower</span>
+                <span class="cross-eval-scale-bar"></span>
+                <span>Higher</span>
+              </div>
+              <p
+                id="cross-eval-detail"
+                class="cross-eval-detail"
+                aria-live="polite"
+              >
+                Hover or focus a heatmap cell to view its training dataset,
+                evaluation dataset, and metric.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- motivation -->
+      <section class="motivation-section" width="100%">
+        <div class="method-container">
+          <hr />
+          <h2 align="center">Why sequential prediction?</h2>
+          <br />
+          <div class="floorplan-complexity-figure">
+            <iframe
+              class="floorplan-complexity-frame"
+              src="./webpage_assets/html/floorplan_complexity.html"
+              title="Performance versus floorplan complexity"
+              loading="lazy"
+            ></iframe>
+            <p class="floorplan-complexity-caption">
+              Performance vs. floorplan complexity&mdash;as approximated by the
+              total number of polygons (left) and the total number of corners
+              (right). As illustrated above over Structured3D-B (top) and
+              CubiCasa5K (bottom), our approach yields larger gains as the
+              floorplan complexity increases.
+            </p>
+          </div>
+
+          <p class="has-text-justified motivation-complexity-text">
+            Reconstructing a structured vector-graphics representation from a
+            rasterized floorplan image is a fundamental prerequisite for
+            computational tasks involving floorplans such as automated
+            understanding or CAD workflows. However, existing techniques
+            struggle to faithfully generate the structure and semantics conveyed
+            by complex floorplans that depict large indoor spaces with many
+            rooms and varying numbers of polygon corners. One popular paradigm
+            is to simultaneously predict all structural floorplan elements, as
+            in RoomFormer and FRI-Net. While these models perform similarly on
+            simpler cases, RoomFormer and FRI-Net exhibit a notable performance
+            drop in complex scenes with more than 15 polygons or 150 corners. As
+            shown in Figure above, our method remains more robust as floorplan
+            complexity increases. Particularly, RoomFormer relies on a fixed
+            number of room queries (e.g., 2800); exceeding this capacity can
+            trigger out-of-memory errors and increase computation due to
+            quadratic attention costs. By contrast, our method formulates
+            floorplan conversion as a sequence-to-sequence task, generating
+            polygon coordinates autoregressively. This naturally handles
+            variable-length polygons while allowing us to decompose floorplan
+            reconstruction into interpretable, sequential predictions mirroring
+            the natural CAD design workflow.
+          </p>
+        </div>
+      </section>
+
+      <!-- method -->
+      <section class="method-section" width="100%">
+        <div class="method-container">
+          <hr />
+          <h2 align="center">How does it work?</h2>
+          <br />
+
+          <p class="has-text-justified">
+            📜 <strong>Labeled corner sequence representation.</strong>
+            Each polygon is represented as a sequence of labeled corners —
+            spatial coordinates paired with semantic labels (rooms, windows,
+            doors) — and polygons are sorted left-to-right across the floorplan.
+            This representation naturally accommodates inputs and outputs of
+            variable lengths.
+          </p>
+          <br />
+
+          <p class="has-text-justified">
+            🔗 <strong>Anchor-based autoregressive decoder.</strong>
+            The core of our framework predicts the next labeled corner by fusing
+            image features and previously generated corners, guided by learnable
+            anchors that steer attention toward informative image regions for
+            efficient handling of complex floorplans.
+          </p>
+          <br />
+
+          <p class="has-text-justified">
+            🏷️ <strong>Token-level semantic supervision.</strong>
+            A per-corner semantic classification loss applied to individual
+            corner embeddings preserves semantic fidelity throughout
+            autoregressive generation.
+          </p>
+          <br />
+
+          <div
+            class="im_container im_container_wide method-structure-frame has-text-justified"
+            align="center"
+          >
+            <img
+              src="./webpage_assets/images/raster2seq_system.svg"
+              alt="Raster2Seq System"
+            />
+          </div>
+          <br />
+
+          <p class="has-text-justified">
+            Given a rasterized floorplan image (left), Raster2Seq converts it
+            into a vectorized representation as a labeled polygon sequence, with
+            polygons delimited by special &lt;SEP&gt; tokens. The core component
+            is an anchor-based autoregressive decoder that predicts the next
+            token from image features (\(f_\text{img}\)), learnable anchors
+            (\(v_\text{anc}\)), and previously generated tokens. Above, we
+            visualize the first two predicted labeled polygons (in
+            <span style="color: rgb(251, 128, 114); font-weight: 600"
+              >orange</span
+            >
+            and
+            <span style="color: rgb(255, 0, 255); font-weight: 600">pink</span>,
+            respectively).
+          </p>
+        </div>
+      </section>
+
+      <!-- applications -->
+      <section class="motivation-section" width="100%">
+        <div class="method-container">
+          <hr />
+          <h2 align="center">Downstream Applications</h2>
+          <h3 align="center" class="cross-eval-title">
+            VLM-based Floorplan Refinement
+          </h3>
+          <br />
+
+          <div class="application-overview-card">
+            <p class="has-text-justified motivation-complexity-text">
+              While our method outperforms existing works across various
+              metrics, it does not directly enforce geometric constraints, which
+              can cause predicted outputs to exhibit artifacts on noisy datasets
+              such as CubiCasa5K (see results below). To address this, we
+              introduce a VLM-based vectorization refinement procedure that
+              naturally builds on our polygon sequence representation and
+              further improves reconstruction accuracy, highlighting the
+              flexibility of our representation for integrating higher-level
+              reasoning modules.
+            </p>
+            <br />
+            <div class="floorplan-complexity-figure">
+              <img
+                src="./webpage_assets/images/vlm_refinement.svg"
+                alt="VLM-based Refinement"
+              />
+              <p class="floorplan-complexity-caption">
+                Given an input JSON
+                <button class="prompt-info-btn" aria-label="Show input JSON structure" onclick="document.getElementById('json-modal').showModal()">ⓘ</button>
+                specifying the vectorized floorplan
+                predicted by our method, a VLM refines it using the rasterized
+                floorplan, the vectorized overlay, the vectorized floorplan
+                alone, and the adjacency graph as additional inputs. Users can
+                specify geometric constraints in the refinement prompt
+                <button class="prompt-info-btn" aria-label="Show refinement prompt" onclick="document.getElementById('prompt-modal').showModal()">ⓘ</button>;
+                the VLM then outputs the refined JSON.
+              </p>
+            </div>
+          </div>
+
+          <dialog id="json-modal" class="prompt-modal">
+            <div class="prompt-modal-header">
+              <h3>Input JSON Structure</h3>
+              <button class="prompt-modal-close" onclick="document.getElementById('json-modal').close()" aria-label="Close">✕</button>
+            </div>
+            <pre class="prompt-modal-body json-structure-body">{
+  <span class="json-key">"room_count"</span>: <span class="json-num">7</span>,
+  <span class="json-key">"room_area"</span>: <span class="json-num">25517.0</span>,
+  <span class="json-key">"spaces"</span>: [
+    {
+      <span class="json-key">"id"</span>: <span class="json-str">"Undefined|0"</span>,
+      <span class="json-key">"room_type"</span>: <span class="json-str">"Undefined"</span>,
+      <span class="json-key">"floor_polygon"</span>: [{ <span class="json-key">"x"</span>: <span class="json-num">49.0</span>, <span class="json-key">"y"</span>: <span class="json-num">12.0</span> }, …, { <span class="json-key">"x"</span>: <span class="json-num">145.0</span>, <span class="json-key">"y"</span>: <span class="json-num">12.0</span> }],
+      <span class="json-key">"area"</span>: <span class="json-num">10561.0</span>,
+      <span class="json-key">"graph"</span>: [<span class="json-str">"Kitchen|1"</span>, <span class="json-str">"Bed Room|2"</span>, <span class="json-str">"Bath|3"</span>, <span class="json-str">"Kitchen|4"</span>, <span class="json-str">"Bed Room|6"</span>]
+    },
+    …
+  ]
+}</pre>
+          </dialog>
+
+          <dialog id="prompt-modal" class="prompt-modal">
+            <div class="prompt-modal-header">
+              <h3>Refinement Prompt</h3>
+              <button class="prompt-modal-close" onclick="document.getElementById('prompt-modal').close()" aria-label="Close">✕</button>
+            </div>
+            <pre class="prompt-modal-body">You are a specialized Architectural Geometry AI. Your expertise lies in topological refinement: transforming JSON specifications and visual raster data-including bubble diagrams and vectorized drafts-into precise, non-overlapping floorplans by generating optimized xy coordinates.
+
+Goal: Produce an optimal arrangement of floorplan elements that maximizes area utilization. The algorithm must prioritize the spatial logic of the Floorplan Raster while using the Draft JSON only as a topological and proportional guide.
+
+Inputs:
+- JSON Specification: Contains preliminary room dimensions, labels, and connectivity requirements. Note: These numerical values (area, height, width) are derived from a rough draft and serve only as a proportional guide. They should be refined to match the visual scale and alignment of the Original Floorplan Raster.
+- Original Floorplan Raster (Image A): The architectural blueprint for alignment and scale.
+- Vectorized floorplan rendering (Image B): Shows the spatial arrangement and room IDs where each floorplan object is colored with type|id labels.
+- Vectorized floorplan rendering overlaid (Image C): Shows the spatial arrangement and room IDs overlaid on top of original floorplan raster.
+- Adjacency Graph (Image D): Defines the topological connections.
+
+Output: JSON file containing refined polygons.
+The JSON object must contain 'output' key storing these attributes:
+- 'room_count': the total number of room entries
+- 'spaces': a list of refined rooms. Each room entry must include:
+  - 'id': formatted as &lt;room_type&gt;|&lt;unique_index&gt; (e.g. "bedroom|2" or "interior_door|0")
+  - 'room_type': the room type (e.g. "living_room", "kitchen", etc.)
+  - 'area' in square meters (all positive numbers)
+  - 'floor_polygon': an ordered list of {x, y} vertices defining a polygon after refinement
+  - 'graph': store a list of adjacent space object 'id'
+
+Spatial Reference System:
+- Coordinate Space: All vertex calculations must be performed within a fixed [0, 256] coordinate system.
+- Origin: (0,0) represents the top-left corner of the Original Floorplan Raster.
+- Polygons in JSON are ordered by counter-clockwise direction.
+
+Refinement Constraints:
+- Contextual Overlaps: While polygons should generally avoid unwarranted intersections, minor overlaps are permitted if supported by the Original Floorplan Raster.
+- Watertight Adjacency: Rooms sharing a boundary must use exact same coordinate values for the shared edge.
+- Identity Preservation: Every id must be preserved and accurately repositioned.
+- Scale Fidelity: The final area should approximate width × height to match the Original Raster's proportions.
+- Truth Hierarchy: In conflicts between Draft JSON and Floorplan Raster, the Raster is the primary source of truth.
+- Manhattan Style: All edges must be axis-aligned unless the Raster explicitly shows a non-90° angle.
+
+Procedure (Mandatory):
+1. Problem analysis — identify geometric failures (overlaps, disconnected rooms, scale mismatches).
+2. Reasoning Plan — outline coordinate adjustments needed.
+3. Step-by-Step Execution — refine room-by-room with explicit coordinate traces and area checks.
+4. Final Answer — output the refined JSON inside a \boxed{} block.</pre>
+          </dialog>
+
+          <div class="application-results-label">Results</div>
+
+          <div
+            class="cubi-color-legend vlm-refinement-legend"
+            aria-label="VLM refinement color legend"
+          >
+            <div class="cubi-color-legend-rooms">
+              <span class="s3d-legend-item"
+                ><span class="s3d-legend-swatch cubi-outdoor"></span
+                >Outdoor</span
+              >
+              <span class="s3d-legend-item"
+                ><span class="s3d-legend-swatch cubi-kitchen"></span
+                >Kitchen</span
+              >
+              <span class="s3d-legend-item"
+                ><span class="s3d-legend-swatch cubi-livingroom"></span>Living
+                room</span
+              >
+              <span class="s3d-legend-item"
+                ><span class="s3d-legend-swatch cubi-bedroom"></span
+                >Bedroom</span
+              >
+              <span class="s3d-legend-item"
+                ><span class="s3d-legend-swatch cubi-bath"></span>Bath</span
+              >
+              <span class="s3d-legend-item"
+                ><span class="s3d-legend-swatch cubi-entry"></span>Entry</span
+              >
+              <span class="s3d-legend-item"
+                ><span class="s3d-legend-swatch cubi-storage"></span
+                >Storage</span
+              >
+              <span class="s3d-legend-item"
+                ><span class="s3d-legend-swatch cubi-garage"></span>Garage</span
+              >
+              <span class="s3d-legend-item"
+                ><span class="s3d-legend-swatch cubi-undefined"></span
+                >Undefined</span
+              >
+            </div>
+            <div class="cubi-color-legend-openings">
+              <span class="s3d-legend-item"
+                ><span class="s3d-legend-line s3d-door"></span>Door</span
+              >
+              <span class="s3d-legend-item"
+                ><span class="s3d-legend-line s3d-window"></span>Window</span
+              >
+            </div>
+          </div>
+
+          <div
+            class="vlm-refinement-carousel"
+            data-vlm-carousel
+            tabindex="0"
+            aria-label="VLM-based floorplan refinement examples"
+          >
+            <button
+              class="vlm-refinement-nav vlm-refinement-nav-prev"
+              type="button"
+              data-vlm-prev
+              aria-label="Show previous refinement example"
+            >
+              ‹
+            </button>
+            <div class="vlm-refinement-viewport">
+              <div class="vlm-refinement-grid" data-vlm-track>
+                <article class="vlm-refinement-card">
+                  <figure class="vlm-refinement-figure">
+                    <img
+                      class="vlm-refinement-image"
+                      src="./webpage_assets/images/vlm_refinement_images/05930_raster.png"
+                      alt="VLM refinement sample 05930 input image"
+                      loading="lazy"
+                    />
+                    <figcaption>Input Image</figcaption>
+                  </figure>
+                  <figure class="vlm-refinement-figure">
+                    <img
+                      class="vlm-refinement-image"
+                      src="./webpage_assets/images/vlm_refinement_images/05930_gt_floorplan_sem.png"
+                      alt="VLM refinement sample 05930 ground-truth floorplan"
+                      loading="lazy"
+                    />
+                    <figcaption>GT</figcaption>
+                  </figure>
+                  <figure class="vlm-refinement-figure">
+                    <img
+                      class="vlm-refinement-image"
+                      src="./webpage_assets/images/vlm_refinement_images/05930_pred_floorplan_sem.png"
+                      alt="VLM refinement sample 05930 before refinement"
+                      loading="lazy"
+                    />
+                    <figcaption>Before Refinement</figcaption>
+                  </figure>
+                  <figure class="vlm-refinement-figure">
+                    <img
+                      class="vlm-refinement-image"
+                      src="./webpage_assets/images/vlm_refinement_images/05930_pred_floorplan_sem_pass1.png"
+                      alt="VLM refinement sample 05930 after refinement"
+                      loading="lazy"
+                    />
+                    <figcaption>After Refinement</figcaption>
+                  </figure>
+                </article>
+
+                <article class="vlm-refinement-card">
+                  <figure class="vlm-refinement-figure">
+                    <img
+                      class="vlm-refinement-image"
+                      src="./webpage_assets/images/vlm_refinement_images/05940_raster.png"
+                      alt="VLM refinement sample 05940 input image"
+                      loading="lazy"
+                    />
+                    <figcaption>Input Image</figcaption>
+                  </figure>
+                  <figure class="vlm-refinement-figure">
+                    <img
+                      class="vlm-refinement-image"
+                      src="./webpage_assets/images/vlm_refinement_images/05940_gt_floorplan_sem.png"
+                      alt="VLM refinement sample 05940 ground-truth floorplan"
+                      loading="lazy"
+                    />
+                    <figcaption>GT</figcaption>
+                  </figure>
+                  <figure class="vlm-refinement-figure">
+                    <img
+                      class="vlm-refinement-image"
+                      src="./webpage_assets/images/vlm_refinement_images/05940_pred_floorplan_sem.png"
+                      alt="VLM refinement sample 05940 before refinement"
+                      loading="lazy"
+                    />
+                    <figcaption>Before Refinement</figcaption>
+                  </figure>
+                  <figure class="vlm-refinement-figure">
+                    <img
+                      class="vlm-refinement-image"
+                      src="./webpage_assets/images/vlm_refinement_images/05940_pred_floorplan_sem_pass1.png"
+                      alt="VLM refinement sample 05940 after refinement"
+                      loading="lazy"
+                    />
+                    <figcaption>After Refinement</figcaption>
+                  </figure>
+                </article>
+
+                <article class="vlm-refinement-card">
+                  <figure class="vlm-refinement-figure">
+                    <img
+                      class="vlm-refinement-image"
+                      src="./webpage_assets/images/vlm_refinement_images/05948_raster.png"
+                      alt="VLM refinement sample 05948 input image"
+                      loading="lazy"
+                    />
+                    <figcaption>Input Image</figcaption>
+                  </figure>
+                  <figure class="vlm-refinement-figure">
+                    <img
+                      class="vlm-refinement-image"
+                      src="./webpage_assets/images/vlm_refinement_images/05948_gt_floorplan_sem.png"
+                      alt="VLM refinement sample 05948 ground-truth floorplan"
+                      loading="lazy"
+                    />
+                    <figcaption>GT</figcaption>
+                  </figure>
+                  <figure class="vlm-refinement-figure">
+                    <img
+                      class="vlm-refinement-image"
+                      src="./webpage_assets/images/vlm_refinement_images/05948_pred_floorplan_sem.png"
+                      alt="VLM refinement sample 05948 before refinement"
+                      loading="lazy"
+                    />
+                    <figcaption>Before Refinement</figcaption>
+                  </figure>
+                  <figure class="vlm-refinement-figure">
+                    <img
+                      class="vlm-refinement-image"
+                      src="./webpage_assets/images/vlm_refinement_images/05948_pred_floorplan_sem_pass1.png"
+                      alt="VLM refinement sample 05948 after refinement"
+                      loading="lazy"
+                    />
+                    <figcaption>After Refinement</figcaption>
+                  </figure>
+                </article>
+
+                <article class="vlm-refinement-card">
+                  <figure class="vlm-refinement-figure">
+                    <img
+                      class="vlm-refinement-image"
+                      src="./webpage_assets/images/vlm_refinement_images/05960_raster.png"
+                      alt="VLM refinement sample 05960 input image"
+                      loading="lazy"
+                    />
+                    <figcaption>Input Image</figcaption>
+                  </figure>
+                  <figure class="vlm-refinement-figure">
+                    <img
+                      class="vlm-refinement-image"
+                      src="./webpage_assets/images/vlm_refinement_images/05960_gt_floorplan_sem.png"
+                      alt="VLM refinement sample 05960 ground-truth floorplan"
+                      loading="lazy"
+                    />
+                    <figcaption>GT</figcaption>
+                  </figure>
+                  <figure class="vlm-refinement-figure">
+                    <img
+                      class="vlm-refinement-image"
+                      src="./webpage_assets/images/vlm_refinement_images/05960_pred_floorplan_sem.png"
+                      alt="VLM refinement sample 05960 before refinement"
+                      loading="lazy"
+                    />
+                    <figcaption>Before Refinement</figcaption>
+                  </figure>
+                  <figure class="vlm-refinement-figure">
+                    <img
+                      class="vlm-refinement-image"
+                      src="./webpage_assets/images/vlm_refinement_images/05960_pred_floorplan_sem_pass1.png"
+                      alt="VLM refinement sample 05960 after refinement"
+                      loading="lazy"
+                    />
+                    <figcaption>After Refinement</figcaption>
+                  </figure>
+                </article>
+
+                <article class="vlm-refinement-card">
+                  <figure class="vlm-refinement-figure">
+                    <img
+                      class="vlm-refinement-image"
+                      src="./webpage_assets/images/vlm_refinement_images/05984_raster.png"
+                      alt="VLM refinement sample 05984 input image"
+                      loading="lazy"
+                    />
+                    <figcaption>Input Image</figcaption>
+                  </figure>
+                  <figure class="vlm-refinement-figure">
+                    <img
+                      class="vlm-refinement-image"
+                      src="./webpage_assets/images/vlm_refinement_images/05984_gt_floorplan_sem.png"
+                      alt="VLM refinement sample 05984 ground-truth floorplan"
+                      loading="lazy"
+                    />
+                    <figcaption>GT</figcaption>
+                  </figure>
+                  <figure class="vlm-refinement-figure">
+                    <img
+                      class="vlm-refinement-image"
+                      src="./webpage_assets/images/vlm_refinement_images/05984_pred_floorplan_sem.png"
+                      alt="VLM refinement sample 05984 before refinement"
+                      loading="lazy"
+                    />
+                    <figcaption>Before Refinement</figcaption>
+                  </figure>
+                  <figure class="vlm-refinement-figure">
+                    <img
+                      class="vlm-refinement-image"
+                      src="./webpage_assets/images/vlm_refinement_images/05984_pred_floorplan_sem_pass1.png"
+                      alt="VLM refinement sample 05984 after refinement"
+                      loading="lazy"
+                    />
+                    <figcaption>After Refinement</figcaption>
+                  </figure>
+                </article>
+
+                <article class="vlm-refinement-card">
+                  <figure class="vlm-refinement-figure">
+                    <img
+                      class="vlm-refinement-image"
+                      src="./webpage_assets/images/vlm_refinement_images/06001_raster.png"
+                      alt="VLM refinement sample 06001 input image"
+                      loading="lazy"
+                    />
+                    <figcaption>Input Image</figcaption>
+                  </figure>
+                  <figure class="vlm-refinement-figure">
+                    <img
+                      class="vlm-refinement-image"
+                      src="./webpage_assets/images/vlm_refinement_images/06001_gt_floorplan_sem.png"
+                      alt="VLM refinement sample 06001 ground-truth floorplan"
+                      loading="lazy"
+                    />
+                    <figcaption>GT</figcaption>
+                  </figure>
+                  <figure class="vlm-refinement-figure">
+                    <img
+                      class="vlm-refinement-image"
+                      src="./webpage_assets/images/vlm_refinement_images/06001_pred_floorplan_sem.png"
+                      alt="VLM refinement sample 06001 before refinement"
+                      loading="lazy"
+                    />
+                    <figcaption>Before Refinement</figcaption>
+                  </figure>
+                  <figure class="vlm-refinement-figure">
+                    <img
+                      class="vlm-refinement-image"
+                      src="./webpage_assets/images/vlm_refinement_images/06001_pred_floorplan_sem_pass1.png"
+                      alt="VLM refinement sample 06001 after refinement"
+                      loading="lazy"
+                    />
+                    <figcaption>After Refinement</figcaption>
+                  </figure>
+                </article>
+              </div>
+            </div>
+            <button
+              class="vlm-refinement-nav vlm-refinement-nav-next"
+              type="button"
+              data-vlm-next
+              aria-label="Show next refinement example"
+            >
+              ›
+            </button>
+            <div
+              class="vlm-refinement-dots"
+              data-vlm-dots
+              aria-label="VLM refinement example selector"
+            ></div>
+          </div>
+        </div>
+      </section>
+
+      <!--     BibTex-->
+      <section class="bib-section" width="100%">
+        <div class="bib-container">
+          <hr />
+          <h2 align="center">BibTeX</h2>
+          <div class="code-container" align="left">
+            <code>
+              @inproceedings{phung2026raster2seq,<br />
+              &emsp; title = {Raster2Seq: Polygon Sequence Generation for
+              Floorplan Reconstruction},<br />
+              &emsp; author = {Phung, Hao and Averbuch-Elor, Hadar},<br />
+              &emsp; booktitle={Special Interest Group on Computer Graphics and
+              Interactive Techniques Conference Conference Papers},<br />
+              &emsp; year = {2026},<br />
+              }
+            </code>
+          </div>
+        </div>
+      </section>
+
+      <!--    Acknowledgements -->
+      <!-- <section class="ack-section" width="100%">
+        <div class="ack-container">
+          <hr />
+          <h2 align="center">Acknowledgements</h2>
+          <p>Acknowledgements will be updated for the camera-ready version.</p>
+        </div>
+      </section> -->
+
+      <p><br /></p>
+      <p>&nbsp;</p>
+      <p>&nbsp;</p>
+      <p>&nbsp;</p>
+    </div>
+  </body>
+</html>
