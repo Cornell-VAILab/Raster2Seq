@@ -67,7 +67,7 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css"
     />
-    <link href="style.css?v=53" rel="stylesheet" type="text/css" />
+    <link href="style.css?v=58" rel="stylesheet" type="text/css" />
     <script
       type="module"
       src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"
@@ -156,6 +156,51 @@
           activateQualitativeTab(
             document.querySelector(".qual-results-tab.is-active") ||
               qualitativeTabs[0]
+          );
+        }
+
+        const appTabs = Array.from(document.querySelectorAll(".app-tab"));
+        const appPanels = Array.from(document.querySelectorAll(".app-panel"));
+
+        if (appTabs.length && appPanels.length) {
+          const activateAppTab = (tab) => {
+            appTabs.forEach((item) => {
+              const isActive = item === tab;
+              item.classList.toggle("is-active", isActive);
+              item.setAttribute("aria-selected", isActive ? "true" : "false");
+              item.setAttribute("tabindex", isActive ? "0" : "-1");
+            });
+            appPanels.forEach((panel) => {
+              const isActive = panel.id === tab.dataset.tabTarget;
+              panel.hidden = !isActive;
+            });
+          };
+
+          appTabs.forEach((tab, index) => {
+            tab.addEventListener("click", () => activateAppTab(tab));
+            tab.addEventListener("keydown", (event) => {
+              if (
+                event.key !== "ArrowRight" &&
+                event.key !== "ArrowLeft" &&
+                event.key !== "Home" &&
+                event.key !== "End"
+              )
+                return;
+              event.preventDefault();
+              let nextIndex = index;
+              if (event.key === "ArrowRight")
+                nextIndex = (index + 1) % appTabs.length;
+              else if (event.key === "ArrowLeft")
+                nextIndex = (index - 1 + appTabs.length) % appTabs.length;
+              else if (event.key === "Home") nextIndex = 0;
+              else if (event.key === "End") nextIndex = appTabs.length - 1;
+              appTabs[nextIndex].focus();
+              activateAppTab(appTabs[nextIndex]);
+            });
+          });
+
+          activateAppTab(
+            document.querySelector(".app-tab.is-active") || appTabs[0]
           );
         }
 
@@ -537,41 +582,86 @@
             <p class="teaser-hover-text">
               We illustrate results on held-out CubiCasa5K test samples (left)
               and on real-world WAFFLE floorplan images (right).
-            </p>
-            <div class="teaser-legend">
-              <span class="legend-item"
-                ><span
-                  class="legend-swatch"
-                  style="background: rgba(141, 211, 199, 0.59)"
-                ></span
-                >Outdoor</span
-              >
-              <span class="legend-item"
-                ><span
-                  class="legend-swatch"
-                  style="background: rgba(251, 128, 114, 0.59)"
-                ></span
-                >Bedroom</span
-              >
-              <span class="legend-item"
-                ><span
-                  class="legend-swatch"
-                  style="background: rgba(128, 177, 211, 0.59)"
-                ></span
-                >Bath</span
-              >
-              <span class="legend-item"
-                ><span
-                  class="legend-swatch"
-                  style="background: rgba(253, 180, 98, 0.59)"
-                ></span
-                >Entry</span
-              >
-            </div>
-            <p class="teaser-hover-footnote">
+              <br />
               <sup>*</sup>3D visualizations are constructed by extending the 2D
               boundaries vertically.
             </p>
+            <div class="teaser-legend" aria-label="CubiCasa5K color legend">
+              <div class="teaser-legend-row">
+                <span class="legend-item"
+                  ><span
+                    class="legend-swatch"
+                    style="background: rgba(141, 211, 199, 0.59)"
+                  ></span
+                  >Outdoor</span
+                >
+                <span class="legend-item"
+                  ><span
+                    class="legend-swatch"
+                    style="background: rgba(255, 255, 179, 0.59)"
+                  ></span
+                  >Kitchen</span
+                >
+                <span class="legend-item"
+                  ><span
+                    class="legend-swatch"
+                    style="background: rgba(190, 186, 218, 0.59)"
+                  ></span
+                  >Living room</span
+                >
+                <span class="legend-item"
+                  ><span
+                    class="legend-swatch"
+                    style="background: rgba(251, 128, 114, 0.59)"
+                  ></span
+                  >Bedroom</span
+                >
+                <span class="legend-item"
+                  ><span
+                    class="legend-swatch"
+                    style="background: rgba(128, 177, 211, 0.59)"
+                  ></span
+                  >Bath</span
+                >
+                <span class="legend-item"
+                  ><span
+                    class="legend-swatch"
+                    style="background: rgba(253, 180, 98, 0.59)"
+                  ></span
+                  >Entry</span
+                >
+                <span class="legend-item"
+                  ><span
+                    class="legend-swatch"
+                    style="background: rgba(179, 222, 105, 0.59)"
+                  ></span
+                  >Storage</span
+                >
+                <span class="legend-item"
+                  ><span
+                    class="legend-swatch"
+                    style="background: rgba(252, 205, 229, 0.59)"
+                  ></span
+                  >Garage</span
+                >
+                <span class="legend-item"
+                  ><span
+                    class="legend-swatch"
+                    style="background: rgba(217, 217, 217, 0.59)"
+                  ></span
+                  >Undefined</span
+                >
+              </div>
+              <div class="teaser-legend-row teaser-legend-row-openings">
+                <span class="legend-item"
+                  ><span class="legend-line legend-line-door"></span>Door</span
+                >
+                <span class="legend-item"
+                  ><span class="legend-line legend-line-window"></span
+                  >Window</span
+                >
+              </div>
+            </div>
           </div>
         </div>
         <p class="teaser-caption">
@@ -638,9 +728,7 @@
       <section class="waffle-results-section" width="100%">
         <div class="qual-results-container">
           <hr />
-          <h2 align="center">
-            Qualitative Results on WAFFLE - Real-world Floorplan Images
-          </h2>
+          <h2 align="center">Qualitative Results on WAFFLE</h2>
           <p class="qual-results-intro has-text-justified">
             Qualitative comparison with RoomFormer on unseen WAFFLE floorplan
             images; both models are trained on CubiCasa5K. As illustrated below,
@@ -883,11 +971,13 @@
             qualitative results across Structured3D-B, CubiCasa5K, and
             Raster2Graph dataset.
             <br />
-            <em
-              >*Structured3D-B denotes our binary raster version of
-              Structured3D, constructed from ground-truth annotations to
-              resemble standard floorplan drawings rather than the density-map
-              inputs used in the original dataset.</em
+            <small
+              ><em
+                >*Structured3D-B denotes our binary raster version of
+                Structured3D, constructed from ground-truth annotations to
+                resemble standard floorplan drawings rather than the density-map
+                inputs used in the original dataset.</em
+              ></small
             >
           </p>
 
@@ -1242,25 +1332,21 @@
                 </div>
                 <div class="qual-results-pair">
                   <figure class="qual-results-figure">
-                    <div class="qual-results-media">
-                      <img
-                        class="qual-results-image"
-                        src="./webpage_assets/images/cubi_gallery/6170_gt_image_rotated.png"
-                        alt="CubiCasa5K sample 6170 ground-truth image"
-                      />
-                    </div>
+                    <img
+                      class="qual-results-image"
+                      src="./webpage_assets/images/cubi_gallery/6170_gt_image_rotated.png"
+                      alt="CubiCasa5K sample 6170 ground-truth image"
+                    />
                     <figcaption class="qual-results-label">
                       Input Image
                     </figcaption>
                   </figure>
                   <figure class="qual-results-figure">
-                    <div class="qual-results-media">
-                      <img
-                        class="qual-results-image"
-                        src="./webpage_assets/images/cubi_gallery/06170_pred_floorplan_rotated.png"
-                        alt="CubiCasa5K sample 6170 predicted floorplan"
-                      />
-                    </div>
+                    <img
+                      class="qual-results-image"
+                      src="./webpage_assets/images/cubi_gallery/06170_pred_floorplan_rotated.png"
+                      alt="CubiCasa5K sample 6170 predicted floorplan"
+                    />
                     <figcaption class="qual-results-label">
                       Output Reconstruction
                     </figcaption>
@@ -1268,25 +1354,21 @@
                 </div>
                 <div class="qual-results-pair">
                   <figure class="qual-results-figure">
-                    <div class="qual-results-media">
-                      <img
-                        class="qual-results-image"
-                        src="./webpage_assets/images/cubi_gallery/6197_gt_image_rotated.png"
-                        alt="CubiCasa5K sample 6197 ground-truth image"
-                      />
-                    </div>
+                    <img
+                      class="qual-results-image"
+                      src="./webpage_assets/images/cubi_gallery/6197_gt_image_rotated.png"
+                      alt="CubiCasa5K sample 6197 ground-truth image"
+                    />
                     <figcaption class="qual-results-label">
                       Input Image
                     </figcaption>
                   </figure>
                   <figure class="qual-results-figure">
-                    <div class="qual-results-media">
-                      <img
-                        class="qual-results-image"
-                        src="./webpage_assets/images/cubi_gallery/06197_pred_floorplan_rotated.png"
-                        alt="CubiCasa5K sample 6197 predicted floorplan"
-                      />
-                    </div>
+                    <img
+                      class="qual-results-image"
+                      src="./webpage_assets/images/cubi_gallery/06197_pred_floorplan_rotated.png"
+                      alt="CubiCasa5K sample 6197 predicted floorplan"
+                    />
                     <figcaption class="qual-results-label">
                       Output Reconstruction
                     </figcaption>
@@ -1426,25 +1508,21 @@
               <div class="qual-results-grid">
                 <div class="qual-results-pair">
                   <figure class="qual-results-figure">
-                    <div class="qual-results-media">
-                      <img
-                        class="qual-results-image"
-                        src="./webpage_assets/images/r2g_gallery/010332_gt_image_rotated.png"
-                        alt="Raster2Graph sample 010332 ground-truth image"
-                      />
-                    </div>
+                    <img
+                      class="qual-results-image"
+                      src="./webpage_assets/images/r2g_gallery/010332_gt_image_rotated.png"
+                      alt="Raster2Graph sample 010332 ground-truth image"
+                    />
                     <figcaption class="qual-results-label">
                       Input Image
                     </figcaption>
                   </figure>
                   <figure class="qual-results-figure">
-                    <div class="qual-results-media">
-                      <img
-                        class="qual-results-image"
-                        src="./webpage_assets/images/r2g_gallery/010332_pred_floorplan_rotated.png"
-                        alt="Raster2Graph sample 010332 predicted floorplan"
-                      />
-                    </div>
+                    <img
+                      class="qual-results-image"
+                      src="./webpage_assets/images/r2g_gallery/010332_pred_floorplan_rotated.png"
+                      alt="Raster2Graph sample 010332 predicted floorplan"
+                    />
                     <figcaption class="qual-results-label">
                       Output Reconstruction
                     </figcaption>
@@ -1452,25 +1530,21 @@
                 </div>
                 <div class="qual-results-pair">
                   <figure class="qual-results-figure">
-                    <div class="qual-results-media">
-                      <img
-                        class="qual-results-image"
-                        src="./webpage_assets/images/r2g_gallery/010335_gt_image_rotated.png"
-                        alt="Raster2Graph sample 010335 ground-truth image"
-                      />
-                    </div>
+                    <img
+                      class="qual-results-image"
+                      src="./webpage_assets/images/r2g_gallery/010335_gt_image_rotated.png"
+                      alt="Raster2Graph sample 010335 ground-truth image"
+                    />
                     <figcaption class="qual-results-label">
                       Input Image
                     </figcaption>
                   </figure>
                   <figure class="qual-results-figure">
-                    <div class="qual-results-media">
-                      <img
-                        class="qual-results-image"
-                        src="./webpage_assets/images/r2g_gallery/010335_pred_floorplan_rotated.png"
-                        alt="Raster2Graph sample 010335 predicted floorplan"
-                      />
-                    </div>
+                    <img
+                      class="qual-results-image"
+                      src="./webpage_assets/images/r2g_gallery/010335_pred_floorplan_rotated.png"
+                      alt="Raster2Graph sample 010335 predicted floorplan"
+                    />
                     <figcaption class="qual-results-label">
                       Output Reconstruction
                     </figcaption>
@@ -1544,25 +1618,21 @@
                 </div>
                 <div class="qual-results-pair">
                   <figure class="qual-results-figure">
-                    <div class="qual-results-media">
-                      <img
-                        class="qual-results-image"
-                        src="./webpage_assets/images/r2g_gallery/010341_gt_image_rotated.png"
-                        alt="Raster2Graph sample 010341 ground-truth image"
-                      />
-                    </div>
+                    <img
+                      class="qual-results-image"
+                      src="./webpage_assets/images/r2g_gallery/010341_gt_image_rotated.png"
+                      alt="Raster2Graph sample 010341 ground-truth image"
+                    />
                     <figcaption class="qual-results-label">
                       Input Image
                     </figcaption>
                   </figure>
                   <figure class="qual-results-figure">
-                    <div class="qual-results-media">
-                      <img
-                        class="qual-results-image"
-                        src="./webpage_assets/images/r2g_gallery/010341_pred_floorplan_rotated.png"
-                        alt="Raster2Graph sample 010341 predicted floorplan"
-                      />
-                    </div>
+                    <img
+                      class="qual-results-image"
+                      src="./webpage_assets/images/r2g_gallery/010341_pred_floorplan_rotated.png"
+                      alt="Raster2Graph sample 010341 predicted floorplan"
+                    />
                     <figcaption class="qual-results-label">
                       Output Reconstruction
                     </figcaption>
@@ -1624,7 +1694,8 @@
                 We compare performance over the raster-to-vector conversion task
                 across three datasets. Overall, our method achieves
                 state-of-the-art performance on both structural metrics (Room
-                and Corner) and semantic metrics (RoomSem and WindowDoor).
+                and Corner) and semantic metrics (Room Semantic and Window &amp;
+                Door).
               </p>
               <div class="quant-table-wrap">
                 <table class="quant-results-table">
@@ -1909,7 +1980,7 @@
 
           <div class="cross-eval-panel">
             <h3 class="cross-eval-title">Model Generalization</h3>
-            <p class="cross-eval-note">
+            <p class="cross-eval-note has-text-justified">
               We perform a cross-evaluation experiment across different
               train-test dataset configurations. We evaluate performance using
               metrics reported previously, using RoomF1 for the CubiCasa5K and
@@ -2058,49 +2129,98 @@
         <div class="method-container">
           <hr />
           <h2 align="center">Downstream Applications</h2>
-          <h3 align="center" class="cross-eval-title">
-            VLM-based Floorplan Refinement
-          </h3>
-          <br />
 
-          <div class="application-overview-card">
-            <p class="has-text-justified motivation-complexity-text">
-              While our method outperforms existing works across various
-              metrics, it does not directly enforce geometric constraints, which
-              can cause predicted outputs to exhibit artifacts on noisy datasets
-              such as CubiCasa5K (see results below). To address this, we
-              introduce a VLM-based vectorization refinement procedure that
-              naturally builds on our polygon sequence representation and
-              further improves reconstruction accuracy, highlighting the
-              flexibility of our representation for integrating higher-level
-              reasoning modules.
-            </p>
-            <br />
-            <div class="floorplan-complexity-figure">
-              <img
-                src="./webpage_assets/images/vlm_refinement.svg"
-                alt="VLM-based Refinement"
-              />
-              <p class="floorplan-complexity-caption">
-                Given an input JSON
-                <button class="prompt-info-btn" aria-label="Show input JSON structure" onclick="document.getElementById('json-modal').showModal()">ⓘ</button>
-                specifying the vectorized floorplan
-                predicted by our method, a VLM refines it using the rasterized
-                floorplan, the vectorized overlay, the vectorized floorplan
-                alone, and the adjacency graph as additional inputs. Users can
-                specify geometric constraints in the refinement prompt
-                <button class="prompt-info-btn" aria-label="Show refinement prompt" onclick="document.getElementById('prompt-modal').showModal()">ⓘ</button>;
-                the VLM then outputs the refined JSON.
-              </p>
-            </div>
+          <div
+            class="app-tabs"
+            role="tablist"
+            aria-label="Downstream application examples"
+          >
+            <button
+              class="app-tab is-active"
+              id="app-tab-vlm"
+              type="button"
+              role="tab"
+              aria-selected="true"
+              aria-controls="app-panel-vlm"
+              data-tab-target="app-panel-vlm"
+            >
+              VLM-based Floorplan Refinement
+            </button>
+            <button
+              class="app-tab"
+              id="app-tab-3d"
+              type="button"
+              role="tab"
+              aria-selected="false"
+              aria-controls="app-panel-3d"
+              data-tab-target="app-panel-3d"
+              tabindex="-1"
+            >
+              Controllable 3D Scene Generation
+            </button>
           </div>
 
-          <dialog id="json-modal" class="prompt-modal">
-            <div class="prompt-modal-header">
-              <h3>Input JSON Structure</h3>
-              <button class="prompt-modal-close" onclick="document.getElementById('json-modal').close()" aria-label="Close">✕</button>
+          <div
+            id="app-panel-vlm"
+            class="app-panel"
+            role="tabpanel"
+            aria-labelledby="app-tab-vlm"
+          >
+            <div class="application-overview-card">
+              <p class="has-text-justified motivation-complexity-text">
+                While our method outperforms existing works across various
+                metrics, it does not directly enforce geometric constraints,
+                which can cause predicted outputs to exhibit artifacts on noisy
+                datasets such as CubiCasa5K (see results below). To address
+                this, we introduce a VLM-based vectorization refinement
+                procedure that naturally builds on our polygon sequence
+                representation and further improves reconstruction accuracy,
+                highlighting the flexibility of our representation for
+                integrating higher-level reasoning modules.
+              </p>
+              <br />
+              <div class="floorplan-complexity-figure">
+                <img
+                  src="./webpage_assets/images/vlm_refinement.svg"
+                  alt="VLM-based Refinement"
+                />
+                <p class="floorplan-complexity-caption">
+                  Given an input JSON
+                  <button
+                    class="prompt-info-btn"
+                    aria-label="Show input JSON structure"
+                    onclick="document.getElementById('json-modal').showModal()"
+                  >
+                    ⓘ
+                  </button>
+                  specifying the vectorized floorplan predicted by our method, a
+                  VLM refines it using the rasterized floorplan, the vectorized
+                  overlay, the vectorized floorplan alone, and the adjacency
+                  graph as additional inputs. Users can specify geometric
+                  constraints in the refinement prompt
+                  <button
+                    class="prompt-info-btn"
+                    aria-label="Show refinement prompt"
+                    onclick="document.getElementById('prompt-modal').showModal()"
+                  >
+                    ⓘ</button
+                  >; the VLM then outputs the refined JSON.
+                </p>
+              </div>
             </div>
-            <pre class="prompt-modal-body json-structure-body">{
+
+            <dialog id="json-modal" class="prompt-modal">
+              <div class="prompt-modal-header">
+                <h3>Input JSON Structure</h3>
+                <button
+                  class="prompt-modal-close"
+                  onclick="document.getElementById('json-modal').close()"
+                  aria-label="Close"
+                >
+                  ✕
+                </button>
+              </div>
+              <pre class="prompt-modal-body json-structure-body">{
   <span class="json-key">"room_count"</span>: <span class="json-num">7</span>,
   <span class="json-key">"room_area"</span>: <span class="json-num">25517.0</span>,
   <span class="json-key">"spaces"</span>: [
@@ -2114,14 +2234,21 @@
     …
   ]
 }</pre>
-          </dialog>
+            </dialog>
 
-          <dialog id="prompt-modal" class="prompt-modal">
-            <div class="prompt-modal-header">
-              <h3>Refinement Prompt</h3>
-              <button class="prompt-modal-close" onclick="document.getElementById('prompt-modal').close()" aria-label="Close">✕</button>
-            </div>
-            <pre class="prompt-modal-body">You are a specialized Architectural Geometry AI. Your expertise lies in topological refinement: transforming JSON specifications and visual raster data-including bubble diagrams and vectorized drafts-into precise, non-overlapping floorplans by generating optimized xy coordinates.
+            <dialog id="prompt-modal" class="prompt-modal">
+              <div class="prompt-modal-header">
+                <h3>Refinement Prompt</h3>
+                <button
+                  class="prompt-modal-close"
+                  onclick="document.getElementById('prompt-modal').close()"
+                  aria-label="Close"
+                >
+                  ✕
+                </button>
+              </div>
+              <pre class="prompt-modal-body">
+You are a specialized Architectural Geometry AI. Your expertise lies in topological refinement: transforming JSON specifications and visual raster data-including bubble diagrams and vectorized drafts-into precise, non-overlapping floorplans by generating optimized xy coordinates.
 
 Goal: Produce an optimal arrangement of floorplan elements that maximizes area utilization. The algorithm must prioritize the spatial logic of the Floorplan Raster while using the Draft JSON only as a topological and proportional guide.
 
@@ -2159,325 +2286,360 @@ Procedure (Mandatory):
 1. Problem analysis — identify geometric failures (overlaps, disconnected rooms, scale mismatches).
 2. Reasoning Plan — outline coordinate adjustments needed.
 3. Step-by-Step Execution — refine room-by-room with explicit coordinate traces and area checks.
-4. Final Answer — output the refined JSON inside a \boxed{} block.</pre>
-          </dialog>
+4. Final Answer — output the refined JSON inside a \boxed{} block.</pre
+              >
+            </dialog>
 
-          <div class="application-results-label">Results</div>
+            <div class="application-results-label">Results</div>
 
-          <div
-            class="cubi-color-legend vlm-refinement-legend"
-            aria-label="VLM refinement color legend"
-          >
-            <div class="cubi-color-legend-rooms">
-              <span class="s3d-legend-item"
-                ><span class="s3d-legend-swatch cubi-outdoor"></span
-                >Outdoor</span
-              >
-              <span class="s3d-legend-item"
-                ><span class="s3d-legend-swatch cubi-kitchen"></span
-                >Kitchen</span
-              >
-              <span class="s3d-legend-item"
-                ><span class="s3d-legend-swatch cubi-livingroom"></span>Living
-                room</span
-              >
-              <span class="s3d-legend-item"
-                ><span class="s3d-legend-swatch cubi-bedroom"></span
-                >Bedroom</span
-              >
-              <span class="s3d-legend-item"
-                ><span class="s3d-legend-swatch cubi-bath"></span>Bath</span
-              >
-              <span class="s3d-legend-item"
-                ><span class="s3d-legend-swatch cubi-entry"></span>Entry</span
-              >
-              <span class="s3d-legend-item"
-                ><span class="s3d-legend-swatch cubi-storage"></span
-                >Storage</span
-              >
-              <span class="s3d-legend-item"
-                ><span class="s3d-legend-swatch cubi-garage"></span>Garage</span
-              >
-              <span class="s3d-legend-item"
-                ><span class="s3d-legend-swatch cubi-undefined"></span
-                >Undefined</span
-              >
-            </div>
-            <div class="cubi-color-legend-openings">
-              <span class="s3d-legend-item"
-                ><span class="s3d-legend-line s3d-door"></span>Door</span
-              >
-              <span class="s3d-legend-item"
-                ><span class="s3d-legend-line s3d-window"></span>Window</span
-              >
-            </div>
-          </div>
-
-          <div
-            class="vlm-refinement-carousel"
-            data-vlm-carousel
-            tabindex="0"
-            aria-label="VLM-based floorplan refinement examples"
-          >
-            <button
-              class="vlm-refinement-nav vlm-refinement-nav-prev"
-              type="button"
-              data-vlm-prev
-              aria-label="Show previous refinement example"
+            <div
+              class="cubi-color-legend vlm-refinement-legend"
+              aria-label="VLM refinement color legend"
             >
-              ‹
-            </button>
-            <div class="vlm-refinement-viewport">
-              <div class="vlm-refinement-grid" data-vlm-track>
-                <article class="vlm-refinement-card">
-                  <figure class="vlm-refinement-figure">
-                    <img
-                      class="vlm-refinement-image"
-                      src="./webpage_assets/images/vlm_refinement_images/05930_raster.png"
-                      alt="VLM refinement sample 05930 input image"
-                      loading="lazy"
-                    />
-                    <figcaption>Input Image</figcaption>
-                  </figure>
-                  <figure class="vlm-refinement-figure">
-                    <img
-                      class="vlm-refinement-image"
-                      src="./webpage_assets/images/vlm_refinement_images/05930_gt_floorplan_sem.png"
-                      alt="VLM refinement sample 05930 ground-truth floorplan"
-                      loading="lazy"
-                    />
-                    <figcaption>GT</figcaption>
-                  </figure>
-                  <figure class="vlm-refinement-figure">
-                    <img
-                      class="vlm-refinement-image"
-                      src="./webpage_assets/images/vlm_refinement_images/05930_pred_floorplan_sem.png"
-                      alt="VLM refinement sample 05930 before refinement"
-                      loading="lazy"
-                    />
-                    <figcaption>Before Refinement</figcaption>
-                  </figure>
-                  <figure class="vlm-refinement-figure">
-                    <img
-                      class="vlm-refinement-image"
-                      src="./webpage_assets/images/vlm_refinement_images/05930_pred_floorplan_sem_pass1.png"
-                      alt="VLM refinement sample 05930 after refinement"
-                      loading="lazy"
-                    />
-                    <figcaption>After Refinement</figcaption>
-                  </figure>
-                </article>
-
-                <article class="vlm-refinement-card">
-                  <figure class="vlm-refinement-figure">
-                    <img
-                      class="vlm-refinement-image"
-                      src="./webpage_assets/images/vlm_refinement_images/05940_raster.png"
-                      alt="VLM refinement sample 05940 input image"
-                      loading="lazy"
-                    />
-                    <figcaption>Input Image</figcaption>
-                  </figure>
-                  <figure class="vlm-refinement-figure">
-                    <img
-                      class="vlm-refinement-image"
-                      src="./webpage_assets/images/vlm_refinement_images/05940_gt_floorplan_sem.png"
-                      alt="VLM refinement sample 05940 ground-truth floorplan"
-                      loading="lazy"
-                    />
-                    <figcaption>GT</figcaption>
-                  </figure>
-                  <figure class="vlm-refinement-figure">
-                    <img
-                      class="vlm-refinement-image"
-                      src="./webpage_assets/images/vlm_refinement_images/05940_pred_floorplan_sem.png"
-                      alt="VLM refinement sample 05940 before refinement"
-                      loading="lazy"
-                    />
-                    <figcaption>Before Refinement</figcaption>
-                  </figure>
-                  <figure class="vlm-refinement-figure">
-                    <img
-                      class="vlm-refinement-image"
-                      src="./webpage_assets/images/vlm_refinement_images/05940_pred_floorplan_sem_pass1.png"
-                      alt="VLM refinement sample 05940 after refinement"
-                      loading="lazy"
-                    />
-                    <figcaption>After Refinement</figcaption>
-                  </figure>
-                </article>
-
-                <article class="vlm-refinement-card">
-                  <figure class="vlm-refinement-figure">
-                    <img
-                      class="vlm-refinement-image"
-                      src="./webpage_assets/images/vlm_refinement_images/05948_raster.png"
-                      alt="VLM refinement sample 05948 input image"
-                      loading="lazy"
-                    />
-                    <figcaption>Input Image</figcaption>
-                  </figure>
-                  <figure class="vlm-refinement-figure">
-                    <img
-                      class="vlm-refinement-image"
-                      src="./webpage_assets/images/vlm_refinement_images/05948_gt_floorplan_sem.png"
-                      alt="VLM refinement sample 05948 ground-truth floorplan"
-                      loading="lazy"
-                    />
-                    <figcaption>GT</figcaption>
-                  </figure>
-                  <figure class="vlm-refinement-figure">
-                    <img
-                      class="vlm-refinement-image"
-                      src="./webpage_assets/images/vlm_refinement_images/05948_pred_floorplan_sem.png"
-                      alt="VLM refinement sample 05948 before refinement"
-                      loading="lazy"
-                    />
-                    <figcaption>Before Refinement</figcaption>
-                  </figure>
-                  <figure class="vlm-refinement-figure">
-                    <img
-                      class="vlm-refinement-image"
-                      src="./webpage_assets/images/vlm_refinement_images/05948_pred_floorplan_sem_pass1.png"
-                      alt="VLM refinement sample 05948 after refinement"
-                      loading="lazy"
-                    />
-                    <figcaption>After Refinement</figcaption>
-                  </figure>
-                </article>
-
-                <article class="vlm-refinement-card">
-                  <figure class="vlm-refinement-figure">
-                    <img
-                      class="vlm-refinement-image"
-                      src="./webpage_assets/images/vlm_refinement_images/05960_raster.png"
-                      alt="VLM refinement sample 05960 input image"
-                      loading="lazy"
-                    />
-                    <figcaption>Input Image</figcaption>
-                  </figure>
-                  <figure class="vlm-refinement-figure">
-                    <img
-                      class="vlm-refinement-image"
-                      src="./webpage_assets/images/vlm_refinement_images/05960_gt_floorplan_sem.png"
-                      alt="VLM refinement sample 05960 ground-truth floorplan"
-                      loading="lazy"
-                    />
-                    <figcaption>GT</figcaption>
-                  </figure>
-                  <figure class="vlm-refinement-figure">
-                    <img
-                      class="vlm-refinement-image"
-                      src="./webpage_assets/images/vlm_refinement_images/05960_pred_floorplan_sem.png"
-                      alt="VLM refinement sample 05960 before refinement"
-                      loading="lazy"
-                    />
-                    <figcaption>Before Refinement</figcaption>
-                  </figure>
-                  <figure class="vlm-refinement-figure">
-                    <img
-                      class="vlm-refinement-image"
-                      src="./webpage_assets/images/vlm_refinement_images/05960_pred_floorplan_sem_pass1.png"
-                      alt="VLM refinement sample 05960 after refinement"
-                      loading="lazy"
-                    />
-                    <figcaption>After Refinement</figcaption>
-                  </figure>
-                </article>
-
-                <article class="vlm-refinement-card">
-                  <figure class="vlm-refinement-figure">
-                    <img
-                      class="vlm-refinement-image"
-                      src="./webpage_assets/images/vlm_refinement_images/05984_raster.png"
-                      alt="VLM refinement sample 05984 input image"
-                      loading="lazy"
-                    />
-                    <figcaption>Input Image</figcaption>
-                  </figure>
-                  <figure class="vlm-refinement-figure">
-                    <img
-                      class="vlm-refinement-image"
-                      src="./webpage_assets/images/vlm_refinement_images/05984_gt_floorplan_sem.png"
-                      alt="VLM refinement sample 05984 ground-truth floorplan"
-                      loading="lazy"
-                    />
-                    <figcaption>GT</figcaption>
-                  </figure>
-                  <figure class="vlm-refinement-figure">
-                    <img
-                      class="vlm-refinement-image"
-                      src="./webpage_assets/images/vlm_refinement_images/05984_pred_floorplan_sem.png"
-                      alt="VLM refinement sample 05984 before refinement"
-                      loading="lazy"
-                    />
-                    <figcaption>Before Refinement</figcaption>
-                  </figure>
-                  <figure class="vlm-refinement-figure">
-                    <img
-                      class="vlm-refinement-image"
-                      src="./webpage_assets/images/vlm_refinement_images/05984_pred_floorplan_sem_pass1.png"
-                      alt="VLM refinement sample 05984 after refinement"
-                      loading="lazy"
-                    />
-                    <figcaption>After Refinement</figcaption>
-                  </figure>
-                </article>
-
-                <article class="vlm-refinement-card">
-                  <figure class="vlm-refinement-figure">
-                    <img
-                      class="vlm-refinement-image"
-                      src="./webpage_assets/images/vlm_refinement_images/06001_raster.png"
-                      alt="VLM refinement sample 06001 input image"
-                      loading="lazy"
-                    />
-                    <figcaption>Input Image</figcaption>
-                  </figure>
-                  <figure class="vlm-refinement-figure">
-                    <img
-                      class="vlm-refinement-image"
-                      src="./webpage_assets/images/vlm_refinement_images/06001_gt_floorplan_sem.png"
-                      alt="VLM refinement sample 06001 ground-truth floorplan"
-                      loading="lazy"
-                    />
-                    <figcaption>GT</figcaption>
-                  </figure>
-                  <figure class="vlm-refinement-figure">
-                    <img
-                      class="vlm-refinement-image"
-                      src="./webpage_assets/images/vlm_refinement_images/06001_pred_floorplan_sem.png"
-                      alt="VLM refinement sample 06001 before refinement"
-                      loading="lazy"
-                    />
-                    <figcaption>Before Refinement</figcaption>
-                  </figure>
-                  <figure class="vlm-refinement-figure">
-                    <img
-                      class="vlm-refinement-image"
-                      src="./webpage_assets/images/vlm_refinement_images/06001_pred_floorplan_sem_pass1.png"
-                      alt="VLM refinement sample 06001 after refinement"
-                      loading="lazy"
-                    />
-                    <figcaption>After Refinement</figcaption>
-                  </figure>
-                </article>
+              <div class="cubi-color-legend-rooms">
+                <span class="s3d-legend-item"
+                  ><span class="s3d-legend-swatch cubi-outdoor"></span
+                  >Outdoor</span
+                >
+                <span class="s3d-legend-item"
+                  ><span class="s3d-legend-swatch cubi-kitchen"></span
+                  >Kitchen</span
+                >
+                <span class="s3d-legend-item"
+                  ><span class="s3d-legend-swatch cubi-livingroom"></span>Living
+                  room</span
+                >
+                <span class="s3d-legend-item"
+                  ><span class="s3d-legend-swatch cubi-bedroom"></span
+                  >Bedroom</span
+                >
+                <span class="s3d-legend-item"
+                  ><span class="s3d-legend-swatch cubi-bath"></span>Bath</span
+                >
+                <span class="s3d-legend-item"
+                  ><span class="s3d-legend-swatch cubi-entry"></span>Entry</span
+                >
+                <span class="s3d-legend-item"
+                  ><span class="s3d-legend-swatch cubi-storage"></span
+                  >Storage</span
+                >
+                <span class="s3d-legend-item"
+                  ><span class="s3d-legend-swatch cubi-garage"></span
+                  >Garage</span
+                >
+                <span class="s3d-legend-item"
+                  ><span class="s3d-legend-swatch cubi-undefined"></span
+                  >Undefined</span
+                >
+              </div>
+              <div class="cubi-color-legend-openings">
+                <span class="s3d-legend-item"
+                  ><span class="s3d-legend-line s3d-door"></span>Door</span
+                >
+                <span class="s3d-legend-item"
+                  ><span class="s3d-legend-line s3d-window"></span>Window</span
+                >
               </div>
             </div>
-            <button
-              class="vlm-refinement-nav vlm-refinement-nav-next"
-              type="button"
-              data-vlm-next
-              aria-label="Show next refinement example"
-            >
-              ›
-            </button>
+
             <div
-              class="vlm-refinement-dots"
-              data-vlm-dots
-              aria-label="VLM refinement example selector"
-            ></div>
+              class="vlm-refinement-carousel"
+              data-vlm-carousel
+              tabindex="0"
+              aria-label="VLM-based floorplan refinement examples"
+            >
+              <button
+                class="vlm-refinement-nav vlm-refinement-nav-prev"
+                type="button"
+                data-vlm-prev
+                aria-label="Show previous refinement example"
+              >
+                ‹
+              </button>
+              <div class="vlm-refinement-viewport">
+                <div class="vlm-refinement-grid" data-vlm-track>
+                  <article class="vlm-refinement-card">
+                    <figure class="vlm-refinement-figure">
+                      <img
+                        class="vlm-refinement-image"
+                        src="./webpage_assets/images/vlm_refinement_images/05930_raster.png"
+                        alt="VLM refinement sample 05930 input image"
+                        loading="lazy"
+                      />
+                      <figcaption>Input Image</figcaption>
+                    </figure>
+                    <figure class="vlm-refinement-figure">
+                      <img
+                        class="vlm-refinement-image"
+                        src="./webpage_assets/images/vlm_refinement_images/05930_gt_floorplan_sem.png"
+                        alt="VLM refinement sample 05930 ground-truth floorplan"
+                        loading="lazy"
+                      />
+                      <figcaption>GT</figcaption>
+                    </figure>
+                    <figure class="vlm-refinement-figure">
+                      <img
+                        class="vlm-refinement-image"
+                        src="./webpage_assets/images/vlm_refinement_images/05930_pred_floorplan_sem.png"
+                        alt="VLM refinement sample 05930 before refinement"
+                        loading="lazy"
+                      />
+                      <figcaption>Before Refinement</figcaption>
+                    </figure>
+                    <figure class="vlm-refinement-figure">
+                      <img
+                        class="vlm-refinement-image"
+                        src="./webpage_assets/images/vlm_refinement_images/05930_pred_floorplan_sem_pass1.png"
+                        alt="VLM refinement sample 05930 after refinement"
+                        loading="lazy"
+                      />
+                      <figcaption>After Refinement</figcaption>
+                    </figure>
+                  </article>
+
+                  <article class="vlm-refinement-card">
+                    <figure class="vlm-refinement-figure">
+                      <img
+                        class="vlm-refinement-image"
+                        src="./webpage_assets/images/vlm_refinement_images/05940_raster.png"
+                        alt="VLM refinement sample 05940 input image"
+                        loading="lazy"
+                      />
+                      <figcaption>Input Image</figcaption>
+                    </figure>
+                    <figure class="vlm-refinement-figure">
+                      <img
+                        class="vlm-refinement-image"
+                        src="./webpage_assets/images/vlm_refinement_images/05940_gt_floorplan_sem.png"
+                        alt="VLM refinement sample 05940 ground-truth floorplan"
+                        loading="lazy"
+                      />
+                      <figcaption>GT</figcaption>
+                    </figure>
+                    <figure class="vlm-refinement-figure">
+                      <img
+                        class="vlm-refinement-image"
+                        src="./webpage_assets/images/vlm_refinement_images/05940_pred_floorplan_sem.png"
+                        alt="VLM refinement sample 05940 before refinement"
+                        loading="lazy"
+                      />
+                      <figcaption>Before Refinement</figcaption>
+                    </figure>
+                    <figure class="vlm-refinement-figure">
+                      <img
+                        class="vlm-refinement-image"
+                        src="./webpage_assets/images/vlm_refinement_images/05940_pred_floorplan_sem_pass1.png"
+                        alt="VLM refinement sample 05940 after refinement"
+                        loading="lazy"
+                      />
+                      <figcaption>After Refinement</figcaption>
+                    </figure>
+                  </article>
+
+                  <article class="vlm-refinement-card">
+                    <figure class="vlm-refinement-figure">
+                      <img
+                        class="vlm-refinement-image"
+                        src="./webpage_assets/images/vlm_refinement_images/05948_raster.png"
+                        alt="VLM refinement sample 05948 input image"
+                        loading="lazy"
+                      />
+                      <figcaption>Input Image</figcaption>
+                    </figure>
+                    <figure class="vlm-refinement-figure">
+                      <img
+                        class="vlm-refinement-image"
+                        src="./webpage_assets/images/vlm_refinement_images/05948_gt_floorplan_sem.png"
+                        alt="VLM refinement sample 05948 ground-truth floorplan"
+                        loading="lazy"
+                      />
+                      <figcaption>GT</figcaption>
+                    </figure>
+                    <figure class="vlm-refinement-figure">
+                      <img
+                        class="vlm-refinement-image"
+                        src="./webpage_assets/images/vlm_refinement_images/05948_pred_floorplan_sem.png"
+                        alt="VLM refinement sample 05948 before refinement"
+                        loading="lazy"
+                      />
+                      <figcaption>Before Refinement</figcaption>
+                    </figure>
+                    <figure class="vlm-refinement-figure">
+                      <img
+                        class="vlm-refinement-image"
+                        src="./webpage_assets/images/vlm_refinement_images/05948_pred_floorplan_sem_pass1.png"
+                        alt="VLM refinement sample 05948 after refinement"
+                        loading="lazy"
+                      />
+                      <figcaption>After Refinement</figcaption>
+                    </figure>
+                  </article>
+
+                  <article class="vlm-refinement-card">
+                    <figure class="vlm-refinement-figure">
+                      <img
+                        class="vlm-refinement-image"
+                        src="./webpage_assets/images/vlm_refinement_images/05960_raster.png"
+                        alt="VLM refinement sample 05960 input image"
+                        loading="lazy"
+                      />
+                      <figcaption>Input Image</figcaption>
+                    </figure>
+                    <figure class="vlm-refinement-figure">
+                      <img
+                        class="vlm-refinement-image"
+                        src="./webpage_assets/images/vlm_refinement_images/05960_gt_floorplan_sem.png"
+                        alt="VLM refinement sample 05960 ground-truth floorplan"
+                        loading="lazy"
+                      />
+                      <figcaption>GT</figcaption>
+                    </figure>
+                    <figure class="vlm-refinement-figure">
+                      <img
+                        class="vlm-refinement-image"
+                        src="./webpage_assets/images/vlm_refinement_images/05960_pred_floorplan_sem.png"
+                        alt="VLM refinement sample 05960 before refinement"
+                        loading="lazy"
+                      />
+                      <figcaption>Before Refinement</figcaption>
+                    </figure>
+                    <figure class="vlm-refinement-figure">
+                      <img
+                        class="vlm-refinement-image"
+                        src="./webpage_assets/images/vlm_refinement_images/05960_pred_floorplan_sem_pass1.png"
+                        alt="VLM refinement sample 05960 after refinement"
+                        loading="lazy"
+                      />
+                      <figcaption>After Refinement</figcaption>
+                    </figure>
+                  </article>
+
+                  <article class="vlm-refinement-card">
+                    <figure class="vlm-refinement-figure">
+                      <img
+                        class="vlm-refinement-image"
+                        src="./webpage_assets/images/vlm_refinement_images/05984_raster.png"
+                        alt="VLM refinement sample 05984 input image"
+                        loading="lazy"
+                      />
+                      <figcaption>Input Image</figcaption>
+                    </figure>
+                    <figure class="vlm-refinement-figure">
+                      <img
+                        class="vlm-refinement-image"
+                        src="./webpage_assets/images/vlm_refinement_images/05984_gt_floorplan_sem.png"
+                        alt="VLM refinement sample 05984 ground-truth floorplan"
+                        loading="lazy"
+                      />
+                      <figcaption>GT</figcaption>
+                    </figure>
+                    <figure class="vlm-refinement-figure">
+                      <img
+                        class="vlm-refinement-image"
+                        src="./webpage_assets/images/vlm_refinement_images/05984_pred_floorplan_sem.png"
+                        alt="VLM refinement sample 05984 before refinement"
+                        loading="lazy"
+                      />
+                      <figcaption>Before Refinement</figcaption>
+                    </figure>
+                    <figure class="vlm-refinement-figure">
+                      <img
+                        class="vlm-refinement-image"
+                        src="./webpage_assets/images/vlm_refinement_images/05984_pred_floorplan_sem_pass1.png"
+                        alt="VLM refinement sample 05984 after refinement"
+                        loading="lazy"
+                      />
+                      <figcaption>After Refinement</figcaption>
+                    </figure>
+                  </article>
+
+                  <article class="vlm-refinement-card">
+                    <figure class="vlm-refinement-figure">
+                      <img
+                        class="vlm-refinement-image"
+                        src="./webpage_assets/images/vlm_refinement_images/06001_raster.png"
+                        alt="VLM refinement sample 06001 input image"
+                        loading="lazy"
+                      />
+                      <figcaption>Input Image</figcaption>
+                    </figure>
+                    <figure class="vlm-refinement-figure">
+                      <img
+                        class="vlm-refinement-image"
+                        src="./webpage_assets/images/vlm_refinement_images/06001_gt_floorplan_sem.png"
+                        alt="VLM refinement sample 06001 ground-truth floorplan"
+                        loading="lazy"
+                      />
+                      <figcaption>GT</figcaption>
+                    </figure>
+                    <figure class="vlm-refinement-figure">
+                      <img
+                        class="vlm-refinement-image"
+                        src="./webpage_assets/images/vlm_refinement_images/06001_pred_floorplan_sem.png"
+                        alt="VLM refinement sample 06001 before refinement"
+                        loading="lazy"
+                      />
+                      <figcaption>Before Refinement</figcaption>
+                    </figure>
+                    <figure class="vlm-refinement-figure">
+                      <img
+                        class="vlm-refinement-image"
+                        src="./webpage_assets/images/vlm_refinement_images/06001_pred_floorplan_sem_pass1.png"
+                        alt="VLM refinement sample 06001 after refinement"
+                        loading="lazy"
+                      />
+                      <figcaption>After Refinement</figcaption>
+                    </figure>
+                  </article>
+                </div>
+              </div>
+              <button
+                class="vlm-refinement-nav vlm-refinement-nav-next"
+                type="button"
+                data-vlm-next
+                aria-label="Show next refinement example"
+              >
+                ›
+              </button>
+              <div
+                class="vlm-refinement-dots"
+                data-vlm-dots
+                aria-label="VLM refinement example selector"
+              ></div>
+            </div>
           </div>
+          <!-- end app-panel-vlm -->
+
+          <div
+            id="app-panel-3d"
+            class="app-panel"
+            role="tabpanel"
+            aria-labelledby="app-tab-3d"
+            hidden
+          >
+            <div class="application-overview-card">
+              <p class="has-text-justified motivation-complexity-text">
+                Floorplan vectorization unlocks a range of computational tasks
+                that are difficult or impossible in pixel space. We demonstrate
+                this for controllable 3D scene generation: the vectorized
+                floorplan is extruded into a coarse 3D volume, which guides
+                TRELLIS--3D Generative Backbone--using a test-time approach,
+                SpaceControl. The results show that floorplan vectorization
+                provides a strong geometric prior, allowing the 3D generative
+                model to faithfully reproduce complex architectural layouts from
+                a single input RGB image, while maintaining global structural
+                consistency.
+              </p>
+              <br />
+              <div class="floorplan-complexity-figure">
+                <img
+                  src="./webpage_assets/images/trellis_samples.svg"
+                  alt="Controllable 3D scene generation examples using TRELLIS and SpaceControl"
+                />
+              </div>
+            </div>
+          </div>
+          <!-- end app-panel-3d -->
         </div>
       </section>
 
