@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Raster2Seq Interactive Visualization</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Indie+Flower&family=Space+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+    <link href="../style.css?v=58" rel="stylesheet" type="text/css" />
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: radial-gradient(
+            circle at top,
+            rgba(224, 122, 95, 0.12),
+            transparent 34%
+          ),
+          linear-gradient(180deg, #fffdfb 0%, #ffffff 38%, #f7f9fc 100%);
+      }
+
+      .visualization-page {
+        padding: 36px 0 72px;
+      }
+
+      .viz-hero {
+        text-align: center;
+        margin-bottom: 28px;
+      }
+
+      .viz-kicker {
+        font-family: "Space Mono", monospace;
+        font-size: 14px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: var(--secondary-accent);
+        margin-bottom: 10px;
+      }
+
+      .viz-title {
+        margin-top: 0;
+        margin-bottom: 12px;
+      }
+
+      .viz-subtitle {
+        max-width: 900px;
+        margin: 0 auto 14px;
+      }
+
+      .viz-summary {
+        max-width: 980px;
+        margin: 0 auto 22px;
+      }
+
+      .viz-panel {
+        background: rgba(255, 255, 255, 0.92);
+        border: 1px solid var(--border-subtle);
+        border-radius: 28px;
+        box-shadow: 0 18px 50px rgba(43, 45, 66, 0.08);
+        padding: 28px clamp(18px, 3vw, 36px);
+        margin-bottom: 24px;
+      }
+
+      .viz-notes {
+        margin: 0;
+        padding-left: 22px;
+        text-align: left;
+      }
+
+      .viz-notes li {
+        font-size: 15px;
+        color: var(--text-secondary);
+        margin-bottom: 10px;
+      }
+
+      .viz-notes li:last-child {
+        margin-bottom: 0;
+      }
+
+      .inline-legend-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+      }
+
+      .inline-legend-swatch {
+        width: 12px;
+        height: 12px;
+        display: inline-block;
+        border-radius: 2px;
+        border: 1px solid rgba(43, 45, 66, 0.18);
+        background: #ffd700;
+        vertical-align: middle;
+      }
+
+      .filters {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(220px, 1fr));
+        gap: 16px;
+        margin: 24px 0 20px;
+      }
+
+      .filter-field {
+        text-align: left;
+      }
+
+      .filter-field label {
+        display: block;
+        font-family: "Space Mono", monospace;
+        font-size: 12px;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+        color: var(--secondary-accent);
+        margin-bottom: 6px;
+      }
+
+      .filter-field select {
+        width: 100%;
+        border: 1px solid #ddd6cb;
+        border-radius: 16px;
+        padding: 8px 14px;
+        background: #fff;
+        color: var(--text-primary);
+        font: inherit;
+        box-shadow: 0 10px 24px rgba(61, 90, 128, 0.08);
+      }
+
+      .filter-field select:focus {
+        outline: 2px solid rgba(61, 90, 128, 0.18);
+        border-color: var(--secondary-accent);
+      }
+
+      .navigation {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .nav-button {
+        min-width: 160px;
+        padding: 8px 12px;
+      }
+
+      .nav-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        border-color: #d4cec6;
+      }
+
+      .nav-info {
+        font-family: "Space Mono", monospace;
+        font-size: 14px;
+        color: var(--text-primary);
+        background: #f6f1ea;
+        border: 1px solid #e7ddd2;
+        border-radius: 999px;
+        padding: 8px 14px;
+        min-width: 140px;
+        text-align: center;
+      }
+
+      .keyboard-hint {
+        margin-top: 14px;
+        font-size: 13px;
+        color: var(--text-secondary);
+      }
+
+      .viz-legend-stack {
+        margin-top: 18px;
+      }
+
+      .viz-legend-shell {
+        background: linear-gradient(180deg, #fffdf9 0%, #f8fafc 100%);
+        border: 1px solid #ebe4da;
+        border-radius: 22px;
+        padding: 16px 18px;
+        margin-bottom: 12px;
+      }
+
+      .viz-legend-shell:last-child {
+        margin-bottom: 0;
+      }
+
+      .viz-legend-shell[hidden] {
+        display: none;
+      }
+
+      .viz-legend-title {
+        font-family: "Space Mono", monospace;
+        font-size: 12px;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+        color: var(--secondary-accent);
+        text-align: center;
+        margin-bottom: 12px;
+      }
+
+      .viz-legend-shell .s3d-color-legend,
+      .viz-legend-shell .cubi-color-legend,
+      .viz-legend-shell .r2g-color-legend {
+        margin-bottom: 0;
+      }
+
+      .image-container {
+        display: flex;
+        justify-content: center;
+        align-items: stretch;
+        margin-top: 20px;
+      }
+
+      .image-card {
+        width: 100%;
+        border: 1px solid var(--border-subtle);
+        border-radius: 28px;
+        padding: 18px;
+        background: linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%);
+        box-shadow: 0 22px 55px rgba(43, 45, 66, 0.09);
+      }
+
+      .sample-info {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+
+      .sample-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        border: 1px solid #e8ddd2;
+        background: #f7f3ed;
+        color: var(--text-primary);
+        font-size: 13px;
+      }
+
+      .sample-chip-label {
+        font-family: "Space Mono", monospace;
+        font-size: 12px;
+        color: var(--secondary-accent);
+        text-transform: uppercase;
+      }
+
+      .side-by-side {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+        align-items: start;
+      }
+
+      .result-panel {
+        background: #fff;
+        border: 1px solid #ece6df;
+        border-radius: 24px;
+        padding: 14px;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+      }
+
+      .labels {
+        font-family: "Space Mono", monospace;
+        font-size: 13px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: var(--secondary-accent);
+        margin-bottom: 10px;
+      }
+
+      .result-panel img {
+        display: block;
+        width: 100%;
+        max-height: 256px;
+        object-fit: contain;
+        margin: 0 auto;
+        border-radius: 14px;
+        background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+      }
+
+      .metrics {
+        margin-top: 16px;
+        padding: 14px;
+        border: 1px solid #ece3d7;
+        border-radius: 24px;
+        background: linear-gradient(180deg, #fffaf4 0%, #ffffff 100%);
+      }
+
+      .metrics-title {
+        font-family: "Space Mono", monospace;
+        font-size: 13px;
+        letter-spacing: 1.3px;
+        text-transform: uppercase;
+        color: var(--secondary-accent);
+        margin-bottom: 10px;
+      }
+
+      .metric-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .metric-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 10px;
+        background: #fff;
+        border: 1px solid #eadfd4;
+        border-radius: 16px;
+        font-size: 13px;
+        color: var(--text-primary);
+      }
+
+      .metric-pill strong {
+        color: var(--secondary-accent);
+      }
+
+      .loading,
+      .error {
+        width: 100%;
+        padding: 28px;
+        border-radius: 24px;
+        border: 1px solid #eadfd4;
+        background: #fff;
+        text-align: center;
+      }
+
+      .loading {
+        color: var(--text-secondary);
+      }
+
+      .error {
+        color: #b42318;
+      }
+
+      @media (max-width: 960px) {
+        .filters,
+        .side-by-side {
+          grid-template-columns: 1fr;
+        }
+
+        .image-card {
+          padding: 16px;
+        }
+
+        .result-panel img {
+          max-height: 300px;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .visualization-page {
+          padding-top: 24px;
+        }
+
+        .nav-button,
+        .nav-info {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <main class="page-container visualization-page">
+      <section class="viz-hero">
+        <!-- <p class="viz-kicker">Raster2Seq Project Companion</p> -->
+        <h1 class="ourh1 viz-title">Raster2Seq: Interactive Visualization</h1>
+        <!-- <h2 class="ourh2 viz-subtitle">
+          Browse sample-level floorplan reconstruction results across datasets
+          and models in the same visual language as the main project page.
+        </h2> -->
+        <p class="viz-summary">
+          This explorer surfaces paired raster inputs and vectorized floorplan
+          outputs from Structured3D, CubiCasa5K, and Raster2Graph, together with
+          per-sample structural and semantic metrics.
+        </p>
+
+        <div class="header-publication-links has-text-centered">
+          <div class="publication-links" align="center">
+            <span class="link-block">
+              <a href="../" style="display: inline-block">
+                <button class="button" type="button">
+                  <span class="icon">
+                    <i class="fa fa-home"></i>
+                  </span>
+                  <span>Main Project Page</span>
+                </button>
+              </a>
+            </span>
+
+            <span class="link-block">
+              <a
+                href="https://github.com/Cornell-VAILab/Raster2Seq"
+                style="display: inline-block"
+              >
+                <button class="button" type="button">
+                  <span class="icon">
+                    <i class="fa fa-github"></i>
+                  </span>
+                  <span>Code</span>
+                </button>
+              </a>
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <section class="viz-panel">
+        <h3 class="method-subheading">Quick Notes</h3>
+        <ul class="viz-notes">
+          <li>
+            Each sample compares the rasterized input against the predicted
+            vectorized floorplan, so you can inspect reconstruction quality at
+            the example level.
+          </li>
+          <li>
+            FRI-Net performs structural reconstruction only. When a model does
+            not predict semantics, the rendered output floorplan is shown in
+            <span class="inline-legend-chip"
+              ><span>yellow</span>
+              <span
+                class="inline-legend-swatch"
+                aria-hidden="true"
+              ></span></span
+            >.
+          </li>
+        </ul>
+      </section>
+
+      <section class="viz-panel">
+        <h3 class="method-subheading">Browse Results</h3>
+        <p>
+          Choose a dataset and model to inspect matching samples. When you
+          switch models, the viewer tries to keep you on the same input image so
+          comparisons stay grounded.
+        </p>
+
+        <div class="filters">
+          <div class="filter-field">
+            <label for="dataset">Dataset</label>
+            <select id="dataset" onchange="onDatasetChange()">
+              <option value="all">All</option>
+            </select>
+          </div>
+
+          <div class="filter-field">
+            <label for="model">Model</label>
+            <select id="model" onchange="onModelChange()">
+              <option value="all">All</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="navigation">
+          <button
+            class="button nav-button"
+            id="prevBtn"
+            type="button"
+            onclick="previousSample()"
+          >
+            ← Previous
+          </button>
+          <span class="nav-info" id="navInfo">No data</span>
+          <button
+            class="button nav-button"
+            id="nextBtn"
+            type="button"
+            onclick="nextSample()"
+          >
+            Next →
+          </button>
+        </div>
+        <div class="viz-legend-stack" id="legendStack">
+          <div
+            class="viz-legend-shell"
+            data-legend-dataset="Structured3D"
+            id="legend-structured3d"
+          >
+            <div class="viz-legend-title">Structured3D Room Label Legend</div>
+            <div
+              class="s3d-color-legend"
+              aria-label="Structured3D output reconstruction color legend"
+            >
+              <div class="s3d-color-legend-rooms">
+                <span class="s3d-legend-item">
+                  <span class="s3d-legend-swatch s3d-livingroom"></span>
+                  <span>Living Room</span>
+                </span>
+                <span class="s3d-legend-item">
+                  <span class="s3d-legend-swatch s3d-kitchen"></span>
+                  <span>Kitchen</span>
+                </span>
+                <span class="s3d-legend-item">
+                  <span class="s3d-legend-swatch s3d-bedroom"></span>
+                  <span>Bedroom</span>
+                </span>
+                <span class="s3d-legend-item">
+                  <span class="s3d-legend-swatch s3d-bathroom"></span>
+                  <span>Bathroom</span>
+                </span>
+                <span class="s3d-legend-item">
+                  <span class="s3d-legend-swatch s3d-balcony"></span>
+                  <span>Balcony</span>
+                </span>
+                <span class="s3d-legend-item">
+                  <span class="s3d-legend-swatch s3d-corridor"></span>
+                  <span>Corridor</span>
+                </span>
+                <span class="s3d-legend-item">
+                  <span class="s3d-legend-swatch s3d-diningroom"></span>
+                  <span>Dining room</span>
+                </span>
+                <span class="s3d-legend-item">
+                  <span class="s3d-legend-swatch s3d-study"></span>
+                  <span>Study</span>
+                </span>
+                <span class="s3d-legend-item">
+                  <span class="s3d-legend-swatch s3d-studio"></span>
+                  <span>Studio</span>
+                </span>
+                <span class="s3d-legend-item">
+                  <span class="s3d-legend-swatch s3d-storeroom"></span>
+                  <span>Store room</span>
+                </span>
+                <span class="s3d-legend-item">
+                  <span class="s3d-legend-swatch s3d-garden"></span>
+                  <span>Garden</span>
+                </span>
+                <span class="s3d-legend-item">
+                  <span class="s3d-legend-swatch s3d-laundryroom"></span>
+                  <span>Laundry room</span>
+                </span>
+                <span class="s3d-legend-item">
+                  <span class="s3d-legend-swatch s3d-office"></span>
+                  <span>Office</span>
+                </span>
+                <span class="s3d-legend-item">
+                  <span class="s3d-legend-swatch s3d-basement"></span>
+                  <span>Basement</span>
+                </span>
+                <span class="s3d-legend-item">
+                  <span class="s3d-legend-swatch s3d-garage"></span>
+                  <span>Garage</span>
+                </span>
+                <span class="s3d-legend-item">
+                  <span class="s3d-legend-swatch s3d-misc"></span>
+                  <span>Misc</span>
+                </span>
+              </div>
+              <div class="s3d-color-legend-openings">
+                <span class="s3d-legend-item">
+                  <span class="s3d-legend-line s3d-door"></span>
+                  <span>Door</span>
+                </span>
+                <span class="s3d-legend-item">
+                  <span class="s3d-legend-line s3d-window"></span>
+                  <span>Window</span>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="viz-legend-shell"
+            data-legend-dataset="CubiCasa5K"
+            id="legend-cubicasa5k"
+          >
+            <div class="viz-legend-title">CubiCasa5K Room Label Legend</div>
+            <div
+              class="cubi-color-legend"
+              aria-label="CubiCasa5K output reconstruction color legend"
+            >
+              <div class="cubi-color-legend-rooms">
+                <span class="s3d-legend-item">
+                  <span class="s3d-legend-swatch cubi-outdoor"></span>
+                  <span>Outdoor</span>
+                </span>
+                <span class="s3d-legend-item">
+                  <span class="s3d-legend-swatch cubi-kitchen"></span>
+                  <span>Kitchen</span>
+                </span>
+                <span class="s3d-legend-item">
+                  <span class="s3d-legend-swatch cubi-livingroom"></span>
+                  <span>Living room</span>
+                </span>
+                <span class="s3d-legend-item">
+                  <span class="s3d-legend-swatch cubi-bedroom"></span>
+                  <span>Bed room</span>
+                </span>
+                <span class="s3d-legend-item">
+                  <span class="s3d-legend-swatch cubi-bath"></span>
+                  <span>Bath</span>
+                </span>
+                <span class="s3d-legend-item">
+                  <span class="s3d-legend-swatch cubi-entry"></span>
+                  <span>Entry</span>
+                </span>
+                <span class="s3d-legend-item">
+                  <span class="s3d-legend-swatch cubi-storage"></span>
+                  <span>Storage</span>
+                </span>
+                <span class="s3d-legend-item">
+                  <span class="s3d-legend-swatch cubi-garage"></span>
+                  <span>Garage</span>
+                </span>
+                <span class="s3d-legend-item">
+                  <span class="s3d-legend-swatch cubi-undefined"></span>
+                  <span>Undefined</span>
+                </span>
+              </div>
+              <div class="cubi-color-legend-openings">
+                <span class="s3d-legend-item">
+                  <span class="s3d-legend-line s3d-door"></span>
+                  <span>Door</span>
+                </span>
+                <span class="s3d-legend-item">
+                  <span class="s3d-legend-line s3d-window"></span>
+                  <span>Window</span>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="viz-legend-shell"
+            data-legend-dataset="Raster2Graph"
+            id="legend-raster2graph"
+          >
+            <div class="viz-legend-title">Raster2Graph Room Label Legend</div>
+            <div
+              class="r2g-color-legend"
+              aria-label="Raster2Graph output reconstruction color legend"
+            >
+              <div class="r2g-color-legend-rooms">
+                <span class="s3d-legend-item">
+                  <span class="s3d-legend-swatch r2g-unknown"></span>
+                  <span>Unknown</span>
+                </span>
+                <span class="s3d-legend-item">
+                  <span class="s3d-legend-swatch r2g-living-room"></span>
+                  <span>Living room</span>
+                </span>
+                <span class="s3d-legend-item">
+                  <span class="s3d-legend-swatch r2g-kitchen"></span>
+                  <span>Kitchen</span>
+                </span>
+                <span class="s3d-legend-item">
+                  <span class="s3d-legend-swatch r2g-bedroom"></span>
+                  <span>Bedroom</span>
+                </span>
+                <span class="s3d-legend-item">
+                  <span class="s3d-legend-swatch r2g-bathroom"></span>
+                  <span>Bathroom</span>
+                </span>
+                <span class="s3d-legend-item">
+                  <span class="s3d-legend-swatch r2g-restroom"></span>
+                  <span>Restroom</span>
+                </span>
+                <span class="s3d-legend-item">
+                  <span class="s3d-legend-swatch r2g-balcony"></span>
+                  <span>Balcony</span>
+                </span>
+                <span class="s3d-legend-item">
+                  <span class="s3d-legend-swatch r2g-closet"></span>
+                  <span>Closet</span>
+                </span>
+                <span class="s3d-legend-item">
+                  <span class="s3d-legend-swatch r2g-corridor"></span>
+                  <span>Corridor</span>
+                </span>
+                <span class="s3d-legend-item">
+                  <span class="s3d-legend-swatch r2g-washing-room"></span>
+                  <span>Washing room</span>
+                </span>
+                <span class="s3d-legend-item">
+                  <span class="s3d-legend-swatch r2g-ps"></span>
+                  <span>PS</span>
+                </span>
+                <span class="s3d-legend-item">
+                  <span class="s3d-legend-swatch r2g-outside"></span>
+                  <span>Outside</span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- <div class="keyboard-hint">
+          Use the left and right arrow keys to navigate.
+        </div> -->
+        <div id="results" class="image-container"></div>
+      </section>
+    </main>
+
+    <!-- Load external data file -->
+    <script src="static_data.js"></script>
+    <script>
+      let filteredData = [];
+      let currentIndex = 0;
+      let availableDatasets = [];
+      let availableModels = {};
+      let currentInputImage = null; // Track current input image for model switching
+
+      // Configuration for your folder structure
+      const FOLDER_CONFIG = {
+        datasets: ["Structured3D", "CubiCasa5K", "Raster2Graph"],
+        models: {
+          Structured3D: ["Raster2Seq", "RoomFormer", "FRI-Net"],
+          CubiCasa5K: ["Raster2Seq", "RoomFormer", "FRI-Net"],
+          Raster2Graph: ["Raster2Seq", "RoomFormer", "Raster2Graph"],
+          // 'WAFFLE': ['Raster2Seq', 'RoomFormer']
+        },
+      };
+
+      // Initialize available options from config
+      function initializeOptions() {
+        availableDatasets = FOLDER_CONFIG.datasets;
+        availableModels = FOLDER_CONFIG.models;
+        populateDatasetFilter();
+        populateModelFilter("all");
+      }
+
+      // Populate dataset filter
+      function populateDatasetFilter() {
+        const datasetSelect = document.getElementById("dataset");
+        datasetSelect.innerHTML = '<option value="all">All</option>';
+
+        availableDatasets.forEach((dataset) => {
+          const option = document.createElement("option");
+          option.value = dataset;
+          option.textContent = dataset;
+          datasetSelect.appendChild(option);
+        });
+      }
+
+      // Populate model filter based on selected dataset
+      function populateModelFilter(selectedDataset) {
+        const modelSelect = document.getElementById("model");
+        modelSelect.innerHTML = '<option value="all">All</option>';
+
+        if (selectedDataset === "all") {
+          // Show all models from all datasets
+          const allModels = new Set();
+          Object.values(availableModels).forEach((models) => {
+            models.forEach((model) => allModels.add(model));
+          });
+
+          allModels.forEach((model) => {
+            const option = document.createElement("option");
+            option.value = model;
+            option.textContent = model;
+            modelSelect.appendChild(option);
+          });
+        } else if (availableModels[selectedDataset]) {
+          availableModels[selectedDataset].forEach((model) => {
+            const option = document.createElement("option");
+            option.value = model;
+            option.textContent = model;
+            modelSelect.appendChild(option);
+          });
+        }
+      }
+
+      // Handle dataset selection change
+      function onDatasetChange() {
+        const selectedDataset = document.getElementById("dataset").value;
+        populateModelFilter(selectedDataset);
+        currentIndex = 0;
+        currentInputImage = null;
+        filterResults();
+      }
+
+      // Handle model selection change - try to keep same input image
+      function onModelChange() {
+        const selectedDataset = document.getElementById("dataset").value;
+        const selectedModel = document.getElementById("model").value;
+
+        // Try to find the same input image in the new model selection
+        let newIndex = 0;
+        if (currentInputImage && filteredData.length > 0) {
+          // Get current input image info
+          const currentDataset = filteredData[currentIndex]?.dataset;
+          const currentImageIndex = filteredData[currentIndex]?.index;
+
+          // Filter new data
+          const newFilteredData = STATIC_DATA.filter(
+            (item) =>
+              (selectedDataset === "all" || item.dataset === selectedDataset) &&
+              (selectedModel === "all" || item.model === selectedModel)
+          );
+
+          // Try to find same input image in new filtered data
+          const sameImageIndex = newFilteredData.findIndex(
+            (item) =>
+              item.dataset === currentDataset &&
+              item.index === currentImageIndex
+          );
+
+          if (sameImageIndex !== -1) {
+            newIndex = sameImageIndex;
+          }
+        }
+
+        currentIndex = newIndex;
+        filterResults();
+      }
+
+      function filterResults() {
+        const selectedDataset = document.getElementById("dataset").value;
+        const selectedModel = document.getElementById("model").value;
+
+        filteredData = STATIC_DATA.filter(
+          (item) =>
+            (selectedDataset === "all" || item.dataset === selectedDataset) &&
+            (selectedModel === "all" || item.model === selectedModel)
+        );
+
+        // Ensure currentIndex is within bounds
+        if (currentIndex >= filteredData.length) {
+          currentIndex = 0;
+        }
+
+        const displayedItem = filteredData[currentIndex];
+        updateLegendVisibility(
+          displayedItem
+            ? displayedItem.dataset
+            : selectedDataset === "all"
+            ? ""
+            : selectedDataset
+        );
+        updateNavigation();
+        renderCurrentSample();
+      }
+
+      function updateLegendVisibility(activeDataset) {
+        document.querySelectorAll("[data-legend-dataset]").forEach((legend) => {
+          const legendDataset = legend.dataset.legendDataset;
+          legend.hidden = !activeDataset || legendDataset !== activeDataset;
+        });
+      }
+
+      function updateNavigation() {
+        const navInfo = document.getElementById("navInfo");
+        const prevBtn = document.getElementById("prevBtn");
+        const nextBtn = document.getElementById("nextBtn");
+
+        if (filteredData.length === 0) {
+          navInfo.textContent = "No data found";
+          prevBtn.disabled = true;
+          nextBtn.disabled = true;
+        } else {
+          navInfo.textContent = `${currentIndex + 1} of ${filteredData.length}`;
+          prevBtn.disabled = currentIndex === 0;
+          nextBtn.disabled = currentIndex === filteredData.length - 1;
+        }
+      }
+
+      function renderCurrentSample() {
+        const container = document.getElementById("results");
+        container.innerHTML = "";
+
+        if (filteredData.length === 0) {
+          container.innerHTML =
+            '<div class="loading">No data found for the selected combination.</div>';
+          return;
+        }
+
+        const item = filteredData[currentIndex];
+        updateLegendVisibility(item.dataset);
+        currentInputImage = {
+          dataset: item.dataset,
+          index: item.index,
+        };
+
+        const card = document.createElement("div");
+        card.className = "image-card";
+
+        // Format metrics for display
+        let metricsHtml = "";
+        if (item.metrics && Object.keys(item.metrics).length > 0) {
+          const metricsEntries = Object.entries(item.metrics)
+            .map(
+              ([key, value]) =>
+                `<span class="metric-pill"><strong>${key}</strong><span>${
+                  typeof value === "number" ? value.toFixed(1) : value
+                }</span></span>`
+            )
+            .join("");
+          metricsHtml = `
+            <div class="metrics">
+              <div class="metrics-title">Sample Metrics</div>
+              <div class="metric-grid">${metricsEntries}</div>
+            </div>
+          `;
+        }
+
+        card.innerHTML = `
+          <div class="sample-info">
+            <span class="sample-chip">
+              <span class="sample-chip-label">Dataset</span>
+              <span>${item.dataset}</span>
+            </span>
+            <span class="sample-chip">
+              <span class="sample-chip-label">Model</span>
+              <span>${item.model}</span>
+            </span>
+            <span class="sample-chip">
+              <span class="sample-chip-label">Sample</span>
+              <span>${item.index}</span>
+            </span>
+          </div>
+          <div class="side-by-side">
+            <div class="result-panel">
+              <div class="labels">Input Rasterized Image</div>
+              <img src="${item.result_source_dir}" alt="Rasterized image" onerror="this.parentElement.innerHTML='<div class=error>Input image not found: ${item.result_source_dir}</div>'">
+            </div>
+            <div class="result-panel">
+              <div class="labels">Output Vectorized Floorplan</div>
+              <img src="${item.result_target_dir}" alt="Output floorplan" onerror="this.parentElement.innerHTML='<div class=error>Output image not found: ${item.result_target_dir}</div>'">
+            </div>
+          </div>
+          ${metricsHtml}
+        `;
+
+        container.appendChild(card);
+      }
+
+      function previousSample() {
+        if (currentIndex > 0) {
+          currentIndex--;
+          updateNavigation();
+          renderCurrentSample();
+        }
+      }
+
+      function nextSample() {
+        if (currentIndex < filteredData.length - 1) {
+          currentIndex++;
+          updateNavigation();
+          renderCurrentSample();
+        }
+      }
+
+      // Keyboard navigation
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "ArrowLeft") {
+          previousSample();
+        } else if (event.key === "ArrowRight") {
+          nextSample();
+        }
+      });
+
+      window.onload = function () {
+        // Check if STATIC_DATA is loaded
+        if (typeof STATIC_DATA === "undefined") {
+          document.getElementById("results").innerHTML =
+            '<div class="error">Error: static_data.js not found. Please make sure the file exists.</div>';
+          return;
+        }
+
+        initializeOptions();
+        filterResults();
+      };
+    </script>
+  </body>
+</html>

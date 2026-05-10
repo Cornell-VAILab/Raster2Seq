@@ -1,0 +1,1104 @@
+{
+  "items": [
+    {
+      "input_image": "000000.png",
+      "output_image": "000000.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 84.1,
+        "AngleF1": 70.5,
+        "RoomSemF1": 85.7,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000001.png",
+      "output_image": "000001.png",
+      "results": {
+        "RoomF1": 90.9,
+        "CornerF1": 64.8,
+        "AngleF1": 47.9,
+        "RoomSemF1": 90.9,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000002.png",
+      "output_image": "000002.png",
+      "results": {
+        "RoomF1": 90.0,
+        "CornerF1": 75.8,
+        "AngleF1": 61.3,
+        "RoomSemF1": 80.0,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000003.png",
+      "output_image": "000003.png",
+      "results": {
+        "RoomF1": 96.0,
+        "CornerF1": 78.7,
+        "AngleF1": 55.0,
+        "RoomSemF1": 72.0,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000004.png",
+      "output_image": "000004.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 83.7,
+        "AngleF1": 57.1,
+        "RoomSemF1": 100.0,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000005.png",
+      "output_image": "000005.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 86.1,
+        "AngleF1": 58.2,
+        "RoomSemF1": 100.0,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000006.png",
+      "output_image": "000006.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 82.2,
+        "AngleF1": 44.2,
+        "RoomSemF1": 92.3,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000007.png",
+      "output_image": "000007.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 82.5,
+        "AngleF1": 63.2,
+        "RoomSemF1": 88.9,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000008.png",
+      "output_image": "000008.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 83.5,
+        "AngleF1": 50.6,
+        "RoomSemF1": 91.7,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000009.png",
+      "output_image": "000009.png",
+      "results": {
+        "RoomF1": 66.7,
+        "CornerF1": 40.0,
+        "AngleF1": 35.0,
+        "RoomSemF1": 66.7,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000010.png",
+      "output_image": "000010.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 83.5,
+        "AngleF1": 55.1,
+        "RoomSemF1": 90.0,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000011.png",
+      "output_image": "000011.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 84.4,
+        "AngleF1": 66.7,
+        "RoomSemF1": 100.0,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000012.png",
+      "output_image": "000012.png",
+      "results": {
+        "RoomF1": 88.9,
+        "CornerF1": 76.6,
+        "AngleF1": 46.7,
+        "RoomSemF1": 77.8,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000013.png",
+      "output_image": "000013.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 80.4,
+        "AngleF1": 65.2,
+        "RoomSemF1": 87.5,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000014.png",
+      "output_image": "000014.png",
+      "results": {
+        "RoomF1": 90.9,
+        "CornerF1": 75.0,
+        "AngleF1": 47.2,
+        "RoomSemF1": 72.7,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000015.png",
+      "output_image": "000015.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 83.2,
+        "AngleF1": 72.6,
+        "RoomSemF1": 88.9,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000016.png",
+      "output_image": "000016.png",
+      "results": {
+        "RoomF1": 92.3,
+        "CornerF1": 76.5,
+        "AngleF1": 47.0,
+        "RoomSemF1": 92.3,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000017.png",
+      "output_image": "000017.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 83.8,
+        "AngleF1": 54.1,
+        "RoomSemF1": 100.0,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000018.png",
+      "output_image": "000018.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 82.2,
+        "AngleF1": 57.8,
+        "RoomSemF1": 100.0,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000019.png",
+      "output_image": "000019.png",
+      "results": {
+        "RoomF1": 88.9,
+        "CornerF1": 76.6,
+        "AngleF1": 46.7,
+        "RoomSemF1": 77.8,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000020.png",
+      "output_image": "000020.png",
+      "results": {
+        "RoomF1": 72.7,
+        "CornerF1": 56.8,
+        "AngleF1": 33.8,
+        "RoomSemF1": 45.5,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000021.png",
+      "output_image": "000021.png",
+      "results": {
+        "RoomF1": 90.9,
+        "CornerF1": 75.0,
+        "AngleF1": 47.2,
+        "RoomSemF1": 72.7,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000022.png",
+      "output_image": "000022.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 78.6,
+        "AngleF1": 42.9,
+        "RoomSemF1": 88.9,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000023.png",
+      "output_image": "000023.png",
+      "results": {
+        "RoomF1": 83.3,
+        "CornerF1": 60.5,
+        "AngleF1": 39.5,
+        "RoomSemF1": 83.3,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000024.png",
+      "output_image": "000024.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 83.3,
+        "AngleF1": 52.8,
+        "RoomSemF1": 83.3,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000025.png",
+      "output_image": "000025.png",
+      "results": {
+        "RoomF1": 88.9,
+        "CornerF1": 70.4,
+        "AngleF1": 40.7,
+        "RoomSemF1": 88.9,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000026.png",
+      "output_image": "000026.png",
+      "results": {
+        "RoomF1": 85.7,
+        "CornerF1": 62.7,
+        "AngleF1": 33.7,
+        "RoomSemF1": 57.1,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000027.png",
+      "output_image": "000027.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 83.3,
+        "AngleF1": 62.5,
+        "RoomSemF1": 75.0,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000028.png",
+      "output_image": "000028.png",
+      "results": {
+        "RoomF1": 94.1,
+        "CornerF1": 76.9,
+        "AngleF1": 55.8,
+        "RoomSemF1": 70.6,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000029.png",
+      "output_image": "000029.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 83.3,
+        "AngleF1": 55.6,
+        "RoomSemF1": 100.0,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000030.png",
+      "output_image": "000030.png",
+      "results": {
+        "RoomF1": 95.7,
+        "CornerF1": 76.8,
+        "AngleF1": 59.6,
+        "RoomSemF1": 87.0,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000031.png",
+      "output_image": "000031.png",
+      "results": {
+        "RoomF1": 88.9,
+        "CornerF1": 68.3,
+        "AngleF1": 52.4,
+        "RoomSemF1": 81.5,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000032.png",
+      "output_image": "000032.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 82.9,
+        "AngleF1": 68.5,
+        "RoomSemF1": 55.6,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000033.png",
+      "output_image": "000033.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 83.4,
+        "AngleF1": 46.6,
+        "RoomSemF1": 92.3,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000034.png",
+      "output_image": "000034.png",
+      "results": {
+        "RoomF1": 85.7,
+        "CornerF1": 65.0,
+        "AngleF1": 45.0,
+        "RoomSemF1": 28.6,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000035.png",
+      "output_image": "000035.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 83.3,
+        "AngleF1": 55.6,
+        "RoomSemF1": 100.0,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000036.png",
+      "output_image": "000036.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 82.9,
+        "AngleF1": 46.3,
+        "RoomSemF1": 100.0,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000037.png",
+      "output_image": "000037.png",
+      "results": {
+        "RoomF1": 75.0,
+        "CornerF1": 55.1,
+        "AngleF1": 46.9,
+        "RoomSemF1": 75.0,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000038.png",
+      "output_image": "000038.png",
+      "results": {
+        "RoomF1": 75.0,
+        "CornerF1": 55.1,
+        "AngleF1": 46.9,
+        "RoomSemF1": 75.0,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000039.png",
+      "output_image": "000039.png",
+      "results": {
+        "RoomF1": 93.3,
+        "CornerF1": 77.0,
+        "AngleF1": 40.0,
+        "RoomSemF1": 80.0,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000040.png",
+      "output_image": "000040.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 83.1,
+        "AngleF1": 46.5,
+        "RoomSemF1": 90.9,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000041.png",
+      "output_image": "000041.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 83.3,
+        "AngleF1": 62.5,
+        "RoomSemF1": 75.0,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000042.png",
+      "output_image": "000042.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 80.6,
+        "AngleF1": 48.4,
+        "RoomSemF1": 77.8,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000043.png",
+      "output_image": "000043.png",
+      "results": {
+        "RoomF1": 50.0,
+        "CornerF1": 40.6,
+        "AngleF1": 29.7,
+        "RoomSemF1": 40.0,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000044.png",
+      "output_image": "000044.png",
+      "results": {
+        "RoomF1": 54.5,
+        "CornerF1": 27.8,
+        "AngleF1": 19.4,
+        "RoomSemF1": 36.4,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000045.png",
+      "output_image": "000045.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 83.9,
+        "AngleF1": 64.5,
+        "RoomSemF1": 90.0,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000046.png",
+      "output_image": "000046.png",
+      "results": {
+        "RoomF1": 90.9,
+        "CornerF1": 71.4,
+        "AngleF1": 48.6,
+        "RoomSemF1": 90.9,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000047.png",
+      "output_image": "000047.png",
+      "results": {
+        "RoomF1": 72.7,
+        "CornerF1": 52.2,
+        "AngleF1": 31.9,
+        "RoomSemF1": 54.5,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000048.png",
+      "output_image": "000048.png",
+      "results": {
+        "RoomF1": 81.5,
+        "CornerF1": 67.5,
+        "AngleF1": 35.5,
+        "RoomSemF1": 81.5,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000049.png",
+      "output_image": "000049.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 82.8,
+        "AngleF1": 58.6,
+        "RoomSemF1": 100.0,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000050.png",
+      "output_image": "000050.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 82.9,
+        "AngleF1": 60.0,
+        "RoomSemF1": 100.0,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000051.png",
+      "output_image": "000051.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 83.5,
+        "AngleF1": 55.7,
+        "RoomSemF1": 83.3,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000052.png",
+      "output_image": "000052.png",
+      "results": {
+        "RoomF1": 66.7,
+        "CornerF1": 45.6,
+        "AngleF1": 35.3,
+        "RoomSemF1": 57.1,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000053.png",
+      "output_image": "000053.png",
+      "results": {
+        "RoomF1": 82.4,
+        "CornerF1": 69.4,
+        "AngleF1": 32.7,
+        "RoomSemF1": 70.6,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000054.png",
+      "output_image": "000054.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 82.4,
+        "AngleF1": 76.5,
+        "RoomSemF1": 100.0,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000055.png",
+      "output_image": "000055.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 82.4,
+        "AngleF1": 76.5,
+        "RoomSemF1": 100.0,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000056.png",
+      "output_image": "000056.png",
+      "results": {
+        "RoomF1": 61.5,
+        "CornerF1": 47.4,
+        "AngleF1": 39.5,
+        "RoomSemF1": 61.5,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000057.png",
+      "output_image": "000057.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 83.5,
+        "AngleF1": 64.6,
+        "RoomSemF1": 90.0,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000058.png",
+      "output_image": "000058.png",
+      "results": {
+        "RoomF1": 92.3,
+        "CornerF1": 74.4,
+        "AngleF1": 30.2,
+        "RoomSemF1": 92.3,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000059.png",
+      "output_image": "000059.png",
+      "results": {
+        "RoomF1": 72.7,
+        "CornerF1": 52.2,
+        "AngleF1": 31.9,
+        "RoomSemF1": 54.5,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000060.png",
+      "output_image": "000060.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 82.4,
+        "AngleF1": 60.1,
+        "RoomSemF1": 84.6,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000061.png",
+      "output_image": "000061.png",
+      "results": {
+        "RoomF1": 88.9,
+        "CornerF1": 68.3,
+        "AngleF1": 52.4,
+        "RoomSemF1": 81.5,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000062.png",
+      "output_image": "000062.png",
+      "results": {
+        "RoomF1": 94.7,
+        "CornerF1": 77.5,
+        "AngleF1": 52.3,
+        "RoomSemF1": 73.7,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000063.png",
+      "output_image": "000063.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 79.4,
+        "AngleF1": 55.9,
+        "RoomSemF1": 100.0,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000064.png",
+      "output_image": "000064.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 82.6,
+        "AngleF1": 54.3,
+        "RoomSemF1": 87.5,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000065.png",
+      "output_image": "000065.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 83.9,
+        "AngleF1": 64.5,
+        "RoomSemF1": 90.0,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000066.png",
+      "output_image": "000066.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 83.8,
+        "AngleF1": 55.9,
+        "RoomSemF1": 90.9,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000067.png",
+      "output_image": "000067.png",
+      "results": {
+        "RoomF1": 85.7,
+        "CornerF1": 68.7,
+        "AngleF1": 31.3,
+        "RoomSemF1": 66.7,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000068.png",
+      "output_image": "000068.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 84.2,
+        "AngleF1": 68.4,
+        "RoomSemF1": 91.7,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000069.png",
+      "output_image": "000069.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 79.5,
+        "AngleF1": 41.1,
+        "RoomSemF1": 100.0,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000070.png",
+      "output_image": "000070.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 82.5,
+        "AngleF1": 67.5,
+        "RoomSemF1": 100.0,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000071.png",
+      "output_image": "000071.png",
+      "results": {
+        "RoomF1": 90.9,
+        "CornerF1": 74.6,
+        "AngleF1": 40.7,
+        "RoomSemF1": 54.5,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000072.png",
+      "output_image": "000072.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 82.0,
+        "AngleF1": 59.0,
+        "RoomSemF1": 70.0,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000073.png",
+      "output_image": "000073.png",
+      "results": {
+        "RoomF1": 93.3,
+        "CornerF1": 72.1,
+        "AngleF1": 55.8,
+        "RoomSemF1": 80.0,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000074.png",
+      "output_image": "000074.png",
+      "results": {
+        "RoomF1": 92.3,
+        "CornerF1": 75.6,
+        "AngleF1": 53.7,
+        "RoomSemF1": 92.3,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000075.png",
+      "output_image": "000075.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 81.8,
+        "AngleF1": 45.5,
+        "RoomSemF1": 100.0,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000076.png",
+      "output_image": "000076.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 83.9,
+        "AngleF1": 48.3,
+        "RoomSemF1": 100.0,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000077.png",
+      "output_image": "000077.png",
+      "results": {
+        "RoomF1": 93.3,
+        "CornerF1": 77.0,
+        "AngleF1": 40.0,
+        "RoomSemF1": 80.0,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000078.png",
+      "output_image": "000078.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 83.4,
+        "AngleF1": 46.6,
+        "RoomSemF1": 92.3,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000079.png",
+      "output_image": "000079.png",
+      "results": {
+        "RoomF1": 61.5,
+        "CornerF1": 47.4,
+        "AngleF1": 39.5,
+        "RoomSemF1": 61.5,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000080.png",
+      "output_image": "000080.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 83.2,
+        "AngleF1": 72.6,
+        "RoomSemF1": 88.9,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000081.png",
+      "output_image": "000081.png",
+      "results": {
+        "RoomF1": 80.0,
+        "CornerF1": 57.1,
+        "AngleF1": 23.5,
+        "RoomSemF1": 60.0,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000082.png",
+      "output_image": "000082.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 81.5,
+        "AngleF1": 51.9,
+        "RoomSemF1": 90.9,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000083.png",
+      "output_image": "000083.png",
+      "results": {
+        "RoomF1": 88.9,
+        "CornerF1": 70.9,
+        "AngleF1": 50.9,
+        "RoomSemF1": 88.9,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000084.png",
+      "output_image": "000084.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 82.4,
+        "AngleF1": 66.7,
+        "RoomSemF1": 75.0,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000085.png",
+      "output_image": "000085.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 82.8,
+        "AngleF1": 51.7,
+        "RoomSemF1": 100.0,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000086.png",
+      "output_image": "000086.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 84.1,
+        "AngleF1": 70.5,
+        "RoomSemF1": 85.7,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000087.png",
+      "output_image": "000087.png",
+      "results": {
+        "RoomF1": 50.0,
+        "CornerF1": 40.6,
+        "AngleF1": 29.7,
+        "RoomSemF1": 40.0,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000088.png",
+      "output_image": "000088.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 82.9,
+        "AngleF1": 61.0,
+        "RoomSemF1": 100.0,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000089.png",
+      "output_image": "000089.png",
+      "results": {
+        "RoomF1": 93.3,
+        "CornerF1": 72.1,
+        "AngleF1": 55.8,
+        "RoomSemF1": 93.3,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000090.png",
+      "output_image": "000090.png",
+      "results": {
+        "RoomF1": 92.3,
+        "CornerF1": 76.2,
+        "AngleF1": 59.5,
+        "RoomSemF1": 92.3,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000091.png",
+      "output_image": "000091.png",
+      "results": {
+        "RoomF1": 70.6,
+        "CornerF1": 52.6,
+        "AngleF1": 33.3,
+        "RoomSemF1": 58.8,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000092.png",
+      "output_image": "000092.png",
+      "results": {
+        "RoomF1": 92.3,
+        "CornerF1": 72.8,
+        "AngleF1": 54.3,
+        "RoomSemF1": 84.6,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000093.png",
+      "output_image": "000093.png",
+      "results": {
+        "RoomF1": 83.3,
+        "CornerF1": 71.6,
+        "AngleF1": 32.4,
+        "RoomSemF1": 83.3,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000094.png",
+      "output_image": "000094.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 79.6,
+        "AngleF1": 58.3,
+        "RoomSemF1": 75.0,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000095.png",
+      "output_image": "000095.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 79.5,
+        "AngleF1": 48.7,
+        "RoomSemF1": 100.0,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000096.png",
+      "output_image": "000096.png",
+      "results": {
+        "RoomF1": 66.7,
+        "CornerF1": 54.7,
+        "AngleF1": 35.8,
+        "RoomSemF1": 55.6,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000097.png",
+      "output_image": "000097.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 82.6,
+        "AngleF1": 52.2,
+        "RoomSemF1": 75.0,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000098.png",
+      "output_image": "000098.png",
+      "results": {
+        "RoomF1": 100.0,
+        "CornerF1": 82.0,
+        "AngleF1": 55.9,
+        "RoomSemF1": 69.2,
+        "WindowDoorF1": "N/A"
+      }
+    },
+    {
+      "input_image": "000099.png",
+      "output_image": "000099.png",
+      "results": {
+        "RoomF1": 88.9,
+        "CornerF1": 75.9,
+        "AngleF1": 53.7,
+        "RoomSemF1": 66.7,
+        "WindowDoorF1": "N/A"
+      }
+    }
+  ]
+}

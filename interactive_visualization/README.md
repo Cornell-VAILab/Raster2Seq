@@ -1,0 +1,1 @@
+To launch the visualization, double-click index.html to open it in a web browser.

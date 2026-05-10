@@ -432,7 +432,7 @@ p {
 }
 
 .floorplan-complexity-figure {
-    --floorplan-complexity-height: 80vh;
+    --floorplan-complexity-height: 620px;
     width: min(1120px, 92vw);
     max-width: none;
     margin: 0 0 24px 50%;
@@ -754,6 +754,53 @@ p {
     color: var(--text-secondary);
     margin: 12px auto 24px auto;
     max-width: 960px;
+}
+
+.qual-results-note {
+    max-width: 760px;
+    margin: 28px auto 0 auto;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    border: 1px solid rgba(61, 90, 128, 0.18);
+    border-radius: 18px;
+    background: linear-gradient(135deg, rgba(61, 90, 128, 0.08), rgba(224, 122, 95, 0.1));
+    box-shadow: 0 10px 24px rgba(43, 45, 66, 0.06);
+}
+
+.qual-results-note-icon {
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--secondary-accent);
+    color: #ffffff;
+    font-size: 18px;
+}
+
+.qual-results-note-text {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--text-primary);
+    text-align: left;
+}
+
+.qual-results-note-text a {
+    color: var(--secondary-accent);
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.qual-results-note-text a:hover,
+.qual-results-note-text a:focus-visible {
+    color: var(--primary-accent);
 }
 
 .qual-results-tabs,
@@ -1756,6 +1803,11 @@ p {
         --qual-results-media-height: 145px;
     }
 
+    .qual-results-note {
+        padding: 14px 16px;
+        align-items: flex-start;
+    }
+
     .edit3d-example {
         flex: 1 1 100%;
         max-width: none;
@@ -1794,6 +1846,22 @@ p {
 
     .waffle-image {
         height: 120px;
+    }
+
+    .qual-results-note {
+        gap: 10px;
+        border-radius: 16px;
+    }
+
+    .qual-results-note-icon {
+        width: 30px;
+        height: 30px;
+        flex-basis: 30px;
+        font-size: 16px;
+    }
+
+    .qual-results-note-text {
+        font-size: 14px;
     }
 
     .waffle-method-label {
@@ -2040,7 +2108,7 @@ hr {
     }
 
     .floorplan-complexity-figure {
-        --floorplan-complexity-height: 500px;
+        --floorplan-complexity-height: 460px;
     }
 
     .cubi-color-legend.vlm-refinement-legend {
