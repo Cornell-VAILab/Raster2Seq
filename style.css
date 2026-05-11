@@ -2,6 +2,7 @@
 /* A warm, sophisticated aesthetic with terracotta and deep teal accents */
 
 :root {
+    color-scheme: light;
     --primary-dark: #1a1a2e;
     --primary-accent: #e07a5f;  /* Terracotta */
     --secondary-accent: #3d5a80; /* Deep blue-teal */
@@ -319,7 +320,6 @@ p {
     align-items: center;
     margin-top: 18px;
     padding-top: 12px;
-    border-top: 1px solid #e0e0e0;
     width: 100%;
     max-width: 860px;
 }
@@ -2097,6 +2097,10 @@ p {
 .method-structure-frame img {
     box-shadow: none;
     border-radius: 6px;
+}
+
+img[src$=".svg"] {
+    background-color: #ffffff;
 }
 
 /* Shrink the card to the image (e.g. motivation) instead of full column + im_container_wide */

@@ -11,6 +11,7 @@
     />
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script
       id="MathJax-script"
@@ -67,7 +68,7 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css"
     />
-    <link href="style.css?v=60" rel="stylesheet" type="text/css" />
+    <link href="style.css?v=61" rel="stylesheet" type="text/css" />
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
@@ -2008,13 +2009,14 @@
         </div>
       </section>
 
-      <!-- motivation -->
-      <section class="motivation-section" width="100%">
+      <!-- method -->
+      <section class="method-section" width="100%">
         <div class="method-container">
           <hr />
-          <h2 align="center">Why sequential prediction?</h2>
-          <p class="has-text-justified motivation-complexity-text">
-            One popular paradigm predicts all structural floorplan elements
+          <h2 align="center">How does it work?</h2>
+          <br />
+          <p class="has-text-justified">
+            Existing methods predicts all structural floorplan elements
             simultaneously, which makes them struggled to faithfully reconstruct
             structure and semantics of complex floorplan. Our key observation,
             motivating our framework design, is that floorplan elements can be
@@ -2024,16 +2026,7 @@
             mirror the natural CAD design workflow, while naturally handling
             variable-length polygons.
           </p>
-        </div>
-      </section>
-
-      <!-- method -->
-      <section class="method-section" width="100%">
-        <div class="method-container">
-          <hr />
-          <h2 align="center">How does it work?</h2>
           <br />
-
           <p class="has-text-justified">
             📜 <strong>Labeled corner sequence representation.</strong>
             Each polygon is represented as a sequence of labeled corners —

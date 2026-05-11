@@ -979,6 +979,13 @@
 
         initializeOptions();
         filterResults();
+
+        // Start on a random card instead of always the first one
+        if (filteredData.length > 1) {
+          currentIndex = Math.floor(Math.random() * filteredData.length);
+          updateNavigation();
+          renderCurrentSample();
+        }
       };
     </script>
   </body>
