@@ -244,7 +244,7 @@ p {
     max-width: 100%;
     margin: 0 auto;
     margin-top: 6px;
-    margin-bottom: -10px;
+    margin-bottom: 0;
     border-radius: 12px;
     overflow: hidden;
 }
@@ -315,8 +315,13 @@ p {
     flex-direction: column;
     gap: 7px;
     font-size: 0.82rem;
-    color: #ffffff;
+    color: #000;
     align-items: center;
+    margin-top: 18px;
+    padding-top: 12px;
+    border-top: 1px solid #e0e0e0;
+    width: 100%;
+    max-width: 860px;
 }
 
 .teaser-legend-row {
@@ -374,7 +379,6 @@ p {
     max-width: 100%;
     height: var(--teaser-height);
     max-height: var(--teaser-height);
-    vertical-align: bottom;
 }
 
 /* Placeholder styling for results */
@@ -803,6 +807,103 @@ p {
     color: var(--primary-accent);
 }
 
+/* ── Qualitative swiper ──────────────────────────────────────────────────── */
+.qual-results-swiper {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+}
+
+.qual-results-swiper .swiper-slide {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+
+/* Label strip (dataset legend) */
+.qual-swiper-labels {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin: 0 auto 20px auto;
+}
+
+.qual-swiper-label {
+    appearance: none;
+    border: 1px solid var(--border-subtle);
+    border-radius: 999px;
+    background: #f7f3ef;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    padding: 8px 18px;
+    transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.15s;
+}
+
+.qual-swiper-label:hover {
+    border-color: var(--primary-accent);
+    color: var(--text-primary);
+    transform: translateY(-1px);
+}
+
+.qual-swiper-label.is-active {
+    background: var(--secondary-accent);
+    border-color: var(--secondary-accent);
+    color: #fff;
+}
+
+.qual-swiper-label--waffle {
+    border-color: var(--primary-accent);
+    color: var(--primary-accent);
+}
+
+.qual-swiper-label--waffle.is-active {
+    background: var(--primary-accent);
+    border-color: var(--primary-accent);
+    color: #fff;
+}
+
+/* Prev / Next buttons */
+.qual-swiper-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 1px solid var(--border-subtle);
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(4px);
+    color: var(--text-primary);
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, box-shadow 0.15s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    appearance: none;
+}
+
+.qual-swiper-btn:hover {
+    background: #fff;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.13);
+}
+
+.qual-swiper-prev { left: 6px; }
+.qual-swiper-next { right: 6px; }
+
+.qual-swiper-btn.swiper-button-disabled {
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+/* ── Legacy tab / app tabs ───────────────────────────────────────────────── */
 .qual-results-tabs,
 .app-tabs {
     display: flex;
@@ -847,6 +948,39 @@ p {
 .qual-results-panel[hidden],
 .app-panel[hidden] {
     display: none;
+}
+
+.qual-results-panel.is-active {
+    animation: panel-slide-in 0.25s ease;
+}
+
+@keyframes panel-slide-in {
+    from { opacity: 0; transform: translateX(20px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+.qual-results-tab--waffle {
+    border-color: var(--primary-accent);
+    color: var(--primary-accent);
+}
+
+.qual-results-tab--waffle.is-active {
+    background: var(--primary-accent);
+    border-color: var(--primary-accent);
+    color: #ffffff;
+}
+
+.qual-results-tab-inline {
+    appearance: none;
+    background: none;
+    border: none;
+    border-bottom: 1.5px solid var(--primary-accent);
+    color: var(--primary-accent);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: 600;
+    padding: 0 1px;
 }
 
 .s3d-color-legend {

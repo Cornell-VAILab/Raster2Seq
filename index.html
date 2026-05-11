@@ -67,7 +67,12 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css"
     />
-    <link href="style.css?v=58" rel="stylesheet" type="text/css" />
+    <link href="style.css?v=60" rel="stylesheet" type="text/css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script
       type="module"
       src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"
@@ -99,64 +104,29 @@
           teaserImage.alt = `${SITE_CONFIG.methodName} teaser image`;
         }
 
-        const qualitativeTabs = Array.from(
-          document.querySelectorAll(".qual-results-tab")
-        );
-        const qualitativePanels = Array.from(
-          document.querySelectorAll(".qual-results-panel")
-        );
-
-        if (qualitativeTabs.length && qualitativePanels.length) {
-          const activateQualitativeTab = (tab) => {
-            qualitativeTabs.forEach((item) => {
-              const isActive = item === tab;
-              item.classList.toggle("is-active", isActive);
-              item.setAttribute("aria-selected", isActive ? "true" : "false");
-              item.setAttribute("tabindex", isActive ? "0" : "-1");
-            });
-
-            qualitativePanels.forEach((panel) => {
-              const isActive = panel.id === tab.dataset.tabTarget;
-              panel.classList.toggle("is-active", isActive);
-              panel.hidden = !isActive;
-            });
-          };
-
-          qualitativeTabs.forEach((tab, index) => {
-            tab.addEventListener("click", () => activateQualitativeTab(tab));
-            tab.addEventListener("keydown", (event) => {
-              if (
-                event.key !== "ArrowRight" &&
-                event.key !== "ArrowLeft" &&
-                event.key !== "Home" &&
-                event.key !== "End"
-              ) {
-                return;
-              }
-
-              event.preventDefault();
-
-              let nextIndex = index;
-              if (event.key === "ArrowRight") {
-                nextIndex = (index + 1) % qualitativeTabs.length;
-              } else if (event.key === "ArrowLeft") {
-                nextIndex =
-                  (index - 1 + qualitativeTabs.length) % qualitativeTabs.length;
-              } else if (event.key === "Home") {
-                nextIndex = 0;
-              } else if (event.key === "End") {
-                nextIndex = qualitativeTabs.length - 1;
-              }
-
-              qualitativeTabs[nextIndex].focus();
-              activateQualitativeTab(qualitativeTabs[nextIndex]);
-            });
+        const qualSwiperEl = document.querySelector(".qual-results-swiper");
+        if (qualSwiperEl) {
+          const qualSwiper = new Swiper(qualSwiperEl, {
+            slidesPerView: 1,
+            speed: 380,
+            grabCursor: true,
+            keyboard: { enabled: true },
+            navigation: {
+              nextEl: ".qual-swiper-next",
+              prevEl: ".qual-swiper-prev",
+            },
+            on: {
+              slideChange() {
+                document.querySelectorAll(".qual-swiper-label").forEach((l, i) => {
+                  l.classList.toggle("is-active", i === this.activeIndex);
+                });
+              },
+            },
           });
 
-          activateQualitativeTab(
-            document.querySelector(".qual-results-tab.is-active") ||
-              qualitativeTabs[0]
-          );
+          document.querySelectorAll(".qual-swiper-label").forEach((label, i) => {
+            label.addEventListener("click", () => qualSwiper.slideTo(i));
+          });
         }
 
         const appTabs = Array.from(document.querySelectorAll(".app-tab"));
@@ -598,93 +568,91 @@
               We illustrate results on held-out CubiCasa5K test samples (left)
               and on real-world WAFFLE floorplan images (right).
               <br />
-              <sup>*</sup>3D visualizations are constructed by extending the 2D
-              boundaries vertically.
             </p>
-            <div class="teaser-legend" aria-label="CubiCasa5K color legend">
-              <div class="teaser-legend-row">
-                <span class="legend-item"
-                  ><span
-                    class="legend-swatch"
-                    style="background: rgba(141, 211, 199, 0.59)"
-                  ></span
-                  >Outdoor</span
-                >
-                <span class="legend-item"
-                  ><span
-                    class="legend-swatch"
-                    style="background: rgba(255, 255, 179, 0.59)"
-                  ></span
-                  >Kitchen</span
-                >
-                <span class="legend-item"
-                  ><span
-                    class="legend-swatch"
-                    style="background: rgba(190, 186, 218, 0.59)"
-                  ></span
-                  >Living room</span
-                >
-                <span class="legend-item"
-                  ><span
-                    class="legend-swatch"
-                    style="background: rgba(251, 128, 114, 0.59)"
-                  ></span
-                  >Bedroom</span
-                >
-                <span class="legend-item"
-                  ><span
-                    class="legend-swatch"
-                    style="background: rgba(128, 177, 211, 0.59)"
-                  ></span
-                  >Bath</span
-                >
-                <span class="legend-item"
-                  ><span
-                    class="legend-swatch"
-                    style="background: rgba(253, 180, 98, 0.59)"
-                  ></span
-                  >Entry</span
-                >
-                <span class="legend-item"
-                  ><span
-                    class="legend-swatch"
-                    style="background: rgba(179, 222, 105, 0.59)"
-                  ></span
-                  >Storage</span
-                >
-                <span class="legend-item"
-                  ><span
-                    class="legend-swatch"
-                    style="background: rgba(252, 205, 229, 0.59)"
-                  ></span
-                  >Garage</span
-                >
-                <span class="legend-item"
-                  ><span
-                    class="legend-swatch"
-                    style="background: rgba(217, 217, 217, 0.59)"
-                  ></span
-                  >Undefined</span
-                >
-              </div>
-              <div class="teaser-legend-row teaser-legend-row-openings">
-                <span class="legend-item"
-                  ><span class="legend-line legend-line-door"></span>Door</span
-                >
-                <span class="legend-item"
-                  ><span class="legend-line legend-line-window"></span
-                  >Window</span
-                >
-              </div>
-            </div>
           </div>
         </div>
-        <p class="teaser-caption">
+        <div class="teaser-legend" aria-label="CubiCasa5K color legend">
+          <p>CubiCasa5K Semantic Categories</p>
+          <div class="teaser-legend-row">
+            <span class="legend-item"
+              ><span
+                class="legend-swatch"
+                style="background: rgba(141, 211, 199, 0.59)"
+              ></span
+              >Outdoor</span
+            >
+            <span class="legend-item"
+              ><span
+                class="legend-swatch"
+                style="background: rgba(255, 255, 179, 0.59)"
+              ></span
+              >Kitchen</span
+            >
+            <span class="legend-item"
+              ><span
+                class="legend-swatch"
+                style="background: rgba(190, 186, 218, 0.59)"
+              ></span
+              >Living room</span
+            >
+            <span class="legend-item"
+              ><span
+                class="legend-swatch"
+                style="background: rgba(251, 128, 114, 0.59)"
+              ></span
+              >Bedroom</span
+            >
+            <span class="legend-item"
+              ><span
+                class="legend-swatch"
+                style="background: rgba(128, 177, 211, 0.59)"
+              ></span
+              >Bath</span
+            >
+            <span class="legend-item"
+              ><span
+                class="legend-swatch"
+                style="background: rgba(253, 180, 98, 0.59)"
+              ></span
+              >Entry</span
+            >
+            <span class="legend-item"
+              ><span
+                class="legend-swatch"
+                style="background: rgba(179, 222, 105, 0.59)"
+              ></span
+              >Storage</span
+            >
+            <span class="legend-item"
+              ><span
+                class="legend-swatch"
+                style="background: rgba(252, 205, 229, 0.59)"
+              ></span
+              >Garage</span
+            >
+            <span class="legend-item"
+              ><span
+                class="legend-swatch"
+                style="background: rgba(217, 217, 217, 0.59)"
+              ></span
+              >Undefined</span
+            >
+          </div>
+          <div class="teaser-legend-row teaser-legend-row-openings">
+            <span class="legend-item"
+              ><span class="legend-line legend-line-door"></span>Door</span
+            >
+            <span class="legend-item"
+              ><span class="legend-line legend-line-window"></span>Window</span
+            >
+          </div>
+        </div>
+        <!-- <p class="teaser-caption">
           Our approach transforms rasterized floorplan images to vectorized
           format, reconstructing both its
           <span class="highlight-task">structure</span> and
           <span class="highlight-task">semantics</span>.
-        </p>
+        </p> -->
       </div>
 
       <!-- intro -->
@@ -695,9 +663,11 @@
               <br />
               <span class="intro-paragraph_bold">TL;DR:</span> We introduce
               <span class="highlight-method" data-method-name>Raster2Seq</span>,
-              a framework reformulating
-              <span class="highlight-task">Raster2Vector conversion</span> as
-              next-corner prediction, handling floorplans of arbitrary length.
+              an approach that transforms rasterized floorplan images to
+              vectorized format using a
+              <span class="highlight-task"
+                >labeled polygon sequence representation</span
+              >.
             </p>
           </div>
         </div>
@@ -739,311 +709,40 @@
         </div>
       </section>
 
-      <!-- Qualitative WAFFLE floorplan results -->
-      <section class="waffle-results-section" width="100%">
+      <!-- Qualitative results on held-out CubiCasa5K test samples. -->
+      <section class="qual-results-section" width="100%">
         <div class="qual-results-container">
           <hr />
-          <h2 align="center">Qualitative Results on WAFFLE</h2>
-          <p class="qual-results-intro has-text-justified">
-            Qualitative comparison with RoomFormer on unseen WAFFLE floorplan
-            images; both models are trained on CubiCasa5K. As illustrated below,
-            our model exhibits stronger generalization capabilities over the
-            structures of real-world Internet data.
-          </p>
-
-          <div
-            class="waffle-results-grid"
-            aria-label="WAFFLE qualitative comparison with RoomFormer"
-          >
-            <article class="waffle-example">
-              <p class="waffle-building-name">Church of Saint James</p>
-              <div class="waffle-example-triplet">
-                <figure class="waffle-figure">
-                  <img
-                    class="waffle-image"
-                    src="./webpage_assets/images/waffle_comp/000000859.png"
-                    alt="Church of Saint James the Greater in Rovny input floorplan image"
-                  />
-                  <figcaption class="waffle-method-label">
-                    Input Image
-                  </figcaption>
-                </figure>
-                <figure class="waffle-figure">
-                  <img
-                    class="waffle-image"
-                    src="./webpage_assets/images/waffle_comp/000000859_pred_floorplan.png"
-                    alt="RoomFormer reconstruction for Church of Saint James the Greater in Rovny"
-                  />
-                  <figcaption class="waffle-method-label">
-                    RoomFormer
-                  </figcaption>
-                </figure>
-                <figure class="waffle-figure">
-                  <img
-                    class="waffle-image"
-                    src="./webpage_assets/images/waffle_comp/000000859_pred_floorplan_ours.png"
-                    alt="Raster2Seq reconstruction for Church of Saint James the Greater in Rovny"
-                  />
-                  <figcaption class="waffle-method-label">
-                    Raster2Seq
-                  </figcaption>
-                </figure>
-              </div>
-            </article>
-
-            <article class="waffle-example">
-              <p class="waffle-building-name">Teltow Canal Power Station</p>
-              <div class="waffle-example-triplet">
-                <figure class="waffle-figure">
-                  <img
-                    class="waffle-image"
-                    src="./webpage_assets/images/waffle_comp/000001089.png"
-                    alt="Teltow Canal Power Station input floorplan image"
-                  />
-                  <figcaption class="waffle-method-label">
-                    Input Image
-                  </figcaption>
-                </figure>
-                <figure class="waffle-figure">
-                  <img
-                    class="waffle-image"
-                    src="./webpage_assets/images/waffle_comp/000001089_pred_floorplan.png"
-                    alt="RoomFormer reconstruction for Teltow Canal Power Station"
-                  />
-                  <figcaption class="waffle-method-label">
-                    RoomFormer
-                  </figcaption>
-                </figure>
-                <figure class="waffle-figure">
-                  <img
-                    class="waffle-image"
-                    src="./webpage_assets/images/waffle_comp/000001089_pred_floorplan_ours.png"
-                    alt="Raster2Seq reconstruction for Teltow Canal Power Station"
-                  />
-                  <figcaption class="waffle-method-label">
-                    Raster2Seq
-                  </figcaption>
-                </figure>
-              </div>
-            </article>
-
-            <article class="waffle-example">
-              <p class="waffle-building-name">Church of Saint Nicholas</p>
-              <div class="waffle-example-triplet">
-                <figure class="waffle-figure">
-                  <img
-                    class="waffle-image"
-                    src="./webpage_assets/images/waffle_comp/000000895.png"
-                    alt="Church of Saint Nicholas input floorplan image"
-                  />
-                  <figcaption class="waffle-method-label">
-                    Input Image
-                  </figcaption>
-                </figure>
-                <figure class="waffle-figure">
-                  <img
-                    class="waffle-image"
-                    src="./webpage_assets/images/waffle_comp/000000895_pred_floorplan.png"
-                    alt="RoomFormer reconstruction for Church of Saint Nicholas"
-                  />
-                  <figcaption class="waffle-method-label">
-                    RoomFormer
-                  </figcaption>
-                </figure>
-                <figure class="waffle-figure">
-                  <img
-                    class="waffle-image"
-                    src="./webpage_assets/images/waffle_comp/000000895_pred_floorplan_ours.png"
-                    alt="Raster2Seq reconstruction for Church of Saint Nicholas"
-                  />
-                  <figcaption class="waffle-method-label">
-                    Raster2Seq
-                  </figcaption>
-                </figure>
-              </div>
-            </article>
-
-            <article class="waffle-example">
-              <p class="waffle-building-name">Imkerhaus</p>
-              <div class="waffle-example-triplet">
-                <figure class="waffle-figure">
-                  <img
-                    class="waffle-image"
-                    src="./webpage_assets/images/waffle_comp/000001026.png"
-                    alt="Imkerhaus input floorplan image"
-                  />
-                  <figcaption class="waffle-method-label">
-                    Input Image
-                  </figcaption>
-                </figure>
-                <figure class="waffle-figure">
-                  <img
-                    class="waffle-image"
-                    src="./webpage_assets/images/waffle_comp/000001026_pred_floorplan.png"
-                    alt="RoomFormer reconstruction for Imkerhaus"
-                  />
-                  <figcaption class="waffle-method-label">
-                    RoomFormer
-                  </figcaption>
-                </figure>
-                <figure class="waffle-figure">
-                  <img
-                    class="waffle-image"
-                    src="./webpage_assets/images/waffle_comp/000001026_pred_floorplan_ours.png"
-                    alt="Raster2Seq reconstruction for Imkerhaus"
-                  />
-                  <figcaption class="waffle-method-label">
-                    Raster2Seq
-                  </figcaption>
-                </figure>
-              </div>
-            </article>
-
-            <article class="waffle-example">
-              <p class="waffle-building-name">Palais du Louvre</p>
-              <div class="waffle-example-triplet">
-                <figure class="waffle-figure">
-                  <img
-                    class="waffle-image"
-                    src="./webpage_assets/images/waffle_comp/000000300.png"
-                    alt="Palais du Louvre input floorplan image"
-                  />
-                  <figcaption class="waffle-method-label">
-                    Input Image
-                  </figcaption>
-                </figure>
-                <figure class="waffle-figure">
-                  <img
-                    class="waffle-image"
-                    src="./webpage_assets/images/waffle_comp/000000300_pred_floorplan.png"
-                    alt="RoomFormer reconstruction for Palais du Louvre"
-                  />
-                  <figcaption class="waffle-method-label">
-                    RoomFormer
-                  </figcaption>
-                </figure>
-                <figure class="waffle-figure">
-                  <img
-                    class="waffle-image"
-                    src="./webpage_assets/images/waffle_comp/000000300_pred_floorplan_ours.png"
-                    alt="Raster2Seq reconstruction for Palais du Louvre"
-                  />
-                  <figcaption class="waffle-method-label">
-                    Raster2Seq
-                  </figcaption>
-                </figure>
-              </div>
-            </article>
-
-            <article class="waffle-example">
-              <p class="waffle-building-name">Palmer Mansion</p>
-              <div class="waffle-example-triplet">
-                <figure class="waffle-figure">
-                  <img
-                    class="waffle-image"
-                    src="./webpage_assets/images/waffle_comp/000000337.png"
-                    alt="Palmer Mansion input floorplan image"
-                  />
-                  <figcaption class="waffle-method-label">
-                    Input Image
-                  </figcaption>
-                </figure>
-                <figure class="waffle-figure">
-                  <img
-                    class="waffle-image"
-                    src="./webpage_assets/images/waffle_comp/000000337_pred_floorplan.png"
-                    alt="RoomFormer reconstruction for Palmer Mansion"
-                  />
-                  <figcaption class="waffle-method-label">
-                    RoomFormer
-                  </figcaption>
-                </figure>
-                <figure class="waffle-figure">
-                  <img
-                    class="waffle-image"
-                    src="./webpage_assets/images/waffle_comp/000000337_pred_floorplan_ours.png"
-                    alt="Raster2Seq reconstruction for Palmer Mansion"
-                  />
-                  <figcaption class="waffle-method-label">
-                    Raster2Seq
-                  </figcaption>
-                </figure>
-              </div>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <!-- Previous tabbed qualitative floorplan results. -->
-      <section class="qual-results-section" width="100%" hidden>
-        <div class="qual-results-container">
-          <hr />
-          <h2 align="center">More Qualitative Results</h2>
+          <h2 align="center">Qualitative Results</h2>
           <p class="qual-results-intro has-text-justified">
             Each example shows a pair of images: the input image and the output
             reconstruction generated by
-            <span data-method-name>Raster2Seq</span>. Use the tabs to browse
-            qualitative results across Structured3D-B, CubiCasa5K, and
-            Raster2Graph dataset.
+            <span data-method-name>Raster2Seq</span>. Swipe or click a label
+            to browse results across Structured3D-B, CubiCasa5K, and
+            Raster2Graph datasets, or navigate to
+            <strong>WAFFLE</strong> for qualitative comparisons on real-world
+            Internet floorplans.
             <br />
-            <small
-              ><em
-                >*Structured3D-B denotes our binary raster version of
+            <small><em>*Structured3D-B denotes our binary raster version of
                 Structured3D, constructed from ground-truth annotations to
                 resemble standard floorplan drawings rather than the density-map
-                inputs used in the original dataset.</em
-              ></small
-            >
+                inputs used in the original dataset.</em></small>
           </p>
-
-          <div
-            class="qual-results-tabs"
-            role="tablist"
-            aria-label="Qualitative result datasets"
-          >
-            <button
-              class="qual-results-tab is-active"
-              id="qual-tab-s3d"
-              type="button"
-              role="tab"
-              aria-selected="true"
-              aria-controls="qual-panel-s3d"
-              data-tab-target="qual-panel-s3d"
-            >
-              Structured3D-B
-            </button>
-            <button
-              class="qual-results-tab"
-              id="qual-tab-cubi"
-              type="button"
-              role="tab"
-              aria-selected="false"
-              aria-controls="qual-panel-cubi"
-              data-tab-target="qual-panel-cubi"
-              tabindex="-1"
-            >
-              CubiCasa5K
-            </button>
-            <button
-              class="qual-results-tab"
-              id="qual-tab-r2g"
-              type="button"
-              role="tab"
-              aria-selected="false"
-              aria-controls="qual-panel-r2g"
-              data-tab-target="qual-panel-r2g"
-              tabindex="-1"
-            >
-              Raster2Graph
-            </button>
+          <div class="qual-swiper-labels">
+            <button class="qual-swiper-label is-active" data-slide="0">Structured3D-B</button>
+            <button class="qual-swiper-label" data-slide="1">CubiCasa5K</button>
+            <button class="qual-swiper-label" data-slide="2">Raster2Graph</button>
+            <button class="qual-swiper-label qual-swiper-label--waffle" data-slide="3">WAFFLE</button>
           </div>
 
-          <div class="qual-results-panels">
+          <div class="swiper qual-results-swiper">
+            <div class="swiper-wrapper">
+              <div class="swiper-slide">
             <div
-              class="qual-results-panel is-active"
+              class="qual-results-panel"
               id="qual-panel-s3d"
-              role="tabpanel"
-              aria-labelledby="qual-tab-s3d"
+
+
             >
               <div
                 class="s3d-color-legend"
@@ -1261,13 +960,14 @@
                 </div>
               </div>
             </div>
-
+              </div>
+              <div class="swiper-slide">
             <div
               class="qual-results-panel"
               id="qual-panel-cubi"
-              role="tabpanel"
-              aria-labelledby="qual-tab-cubi"
-              hidden
+
+
+             
             >
               <div
                 class="cubi-color-legend"
@@ -1457,13 +1157,14 @@
                 </div>
               </div>
             </div>
-
+              </div>
+              <div class="swiper-slide">
             <div
               class="qual-results-panel"
               id="qual-panel-r2g"
-              role="tabpanel"
-              aria-labelledby="qual-tab-r2g"
-              hidden
+
+
+             
             >
               <div
                 class="r2g-color-legend"
@@ -1655,7 +1356,246 @@
                 </div>
               </div>
             </div>
-          </div>
+              </div>
+              <div class="swiper-slide swiper-slide--waffle">
+            <div
+              class="qual-results-panel"
+              id="qual-panel-waffle"
+
+
+             
+            >
+              <p class="qual-results-intro has-text-justified" style="margin-top:10px">
+                Qualitative comparison with RoomFormer on unseen WAFFLE floorplan
+                images; both models are trained on CubiCasa5K. Our model exhibits
+                stronger generalization capabilities over real-world Internet data.
+              </p>
+              <div
+                class="waffle-results-grid"
+                aria-label="WAFFLE qualitative comparison with RoomFormer"
+              >
+<article class="waffle-example">
+              <p class="waffle-building-name">Church of Saint James</p>
+              <div class="waffle-example-triplet">
+                <figure class="waffle-figure">
+                  <img
+                    class="waffle-image"
+                    src="./webpage_assets/images/waffle_comp/000000859.png"
+                    alt="Church of Saint James the Greater in Rovny input floorplan image"
+                  />
+                  <figcaption class="waffle-method-label">
+                    Input Image
+                  </figcaption>
+                </figure>
+                <figure class="waffle-figure">
+                  <img
+                    class="waffle-image"
+                    src="./webpage_assets/images/waffle_comp/000000859_pred_floorplan.png"
+                    alt="RoomFormer reconstruction for Church of Saint James the Greater in Rovny"
+                  />
+                  <figcaption class="waffle-method-label">
+                    RoomFormer
+                  </figcaption>
+                </figure>
+                <figure class="waffle-figure">
+                  <img
+                    class="waffle-image"
+                    src="./webpage_assets/images/waffle_comp/000000859_pred_floorplan_ours.png"
+                    alt="Raster2Seq reconstruction for Church of Saint James the Greater in Rovny"
+                  />
+                  <figcaption class="waffle-method-label">
+                    Raster2Seq
+                  </figcaption>
+                </figure>
+              </div>
+            </article>
+
+            <article class="waffle-example">
+              <p class="waffle-building-name">Teltow Canal Power Station</p>
+              <div class="waffle-example-triplet">
+                <figure class="waffle-figure">
+                  <img
+                    class="waffle-image"
+                    src="./webpage_assets/images/waffle_comp/000001089.png"
+                    alt="Teltow Canal Power Station input floorplan image"
+                  />
+                  <figcaption class="waffle-method-label">
+                    Input Image
+                  </figcaption>
+                </figure>
+                <figure class="waffle-figure">
+                  <img
+                    class="waffle-image"
+                    src="./webpage_assets/images/waffle_comp/000001089_pred_floorplan.png"
+                    alt="RoomFormer reconstruction for Teltow Canal Power Station"
+                  />
+                  <figcaption class="waffle-method-label">
+                    RoomFormer
+                  </figcaption>
+                </figure>
+                <figure class="waffle-figure">
+                  <img
+                    class="waffle-image"
+                    src="./webpage_assets/images/waffle_comp/000001089_pred_floorplan_ours.png"
+                    alt="Raster2Seq reconstruction for Teltow Canal Power Station"
+                  />
+                  <figcaption class="waffle-method-label">
+                    Raster2Seq
+                  </figcaption>
+                </figure>
+              </div>
+            </article>
+
+            <article class="waffle-example">
+              <p class="waffle-building-name">Church of Saint Nicholas</p>
+              <div class="waffle-example-triplet">
+                <figure class="waffle-figure">
+                  <img
+                    class="waffle-image"
+                    src="./webpage_assets/images/waffle_comp/000000895.png"
+                    alt="Church of Saint Nicholas input floorplan image"
+                  />
+                  <figcaption class="waffle-method-label">
+                    Input Image
+                  </figcaption>
+                </figure>
+                <figure class="waffle-figure">
+                  <img
+                    class="waffle-image"
+                    src="./webpage_assets/images/waffle_comp/000000895_pred_floorplan.png"
+                    alt="RoomFormer reconstruction for Church of Saint Nicholas"
+                  />
+                  <figcaption class="waffle-method-label">
+                    RoomFormer
+                  </figcaption>
+                </figure>
+                <figure class="waffle-figure">
+                  <img
+                    class="waffle-image"
+                    src="./webpage_assets/images/waffle_comp/000000895_pred_floorplan_ours.png"
+                    alt="Raster2Seq reconstruction for Church of Saint Nicholas"
+                  />
+                  <figcaption class="waffle-method-label">
+                    Raster2Seq
+                  </figcaption>
+                </figure>
+              </div>
+            </article>
+
+            <article class="waffle-example">
+              <p class="waffle-building-name">Imkerhaus</p>
+              <div class="waffle-example-triplet">
+                <figure class="waffle-figure">
+                  <img
+                    class="waffle-image"
+                    src="./webpage_assets/images/waffle_comp/000001026.png"
+                    alt="Imkerhaus input floorplan image"
+                  />
+                  <figcaption class="waffle-method-label">
+                    Input Image
+                  </figcaption>
+                </figure>
+                <figure class="waffle-figure">
+                  <img
+                    class="waffle-image"
+                    src="./webpage_assets/images/waffle_comp/000001026_pred_floorplan.png"
+                    alt="RoomFormer reconstruction for Imkerhaus"
+                  />
+                  <figcaption class="waffle-method-label">
+                    RoomFormer
+                  </figcaption>
+                </figure>
+                <figure class="waffle-figure">
+                  <img
+                    class="waffle-image"
+                    src="./webpage_assets/images/waffle_comp/000001026_pred_floorplan_ours.png"
+                    alt="Raster2Seq reconstruction for Imkerhaus"
+                  />
+                  <figcaption class="waffle-method-label">
+                    Raster2Seq
+                  </figcaption>
+                </figure>
+              </div>
+            </article>
+
+            <article class="waffle-example">
+              <p class="waffle-building-name">Palais du Louvre</p>
+              <div class="waffle-example-triplet">
+                <figure class="waffle-figure">
+                  <img
+                    class="waffle-image"
+                    src="./webpage_assets/images/waffle_comp/000000300.png"
+                    alt="Palais du Louvre input floorplan image"
+                  />
+                  <figcaption class="waffle-method-label">
+                    Input Image
+                  </figcaption>
+                </figure>
+                <figure class="waffle-figure">
+                  <img
+                    class="waffle-image"
+                    src="./webpage_assets/images/waffle_comp/000000300_pred_floorplan.png"
+                    alt="RoomFormer reconstruction for Palais du Louvre"
+                  />
+                  <figcaption class="waffle-method-label">
+                    RoomFormer
+                  </figcaption>
+                </figure>
+                <figure class="waffle-figure">
+                  <img
+                    class="waffle-image"
+                    src="./webpage_assets/images/waffle_comp/000000300_pred_floorplan_ours.png"
+                    alt="Raster2Seq reconstruction for Palais du Louvre"
+                  />
+                  <figcaption class="waffle-method-label">
+                    Raster2Seq
+                  </figcaption>
+                </figure>
+              </div>
+            </article>
+
+            <article class="waffle-example">
+              <p class="waffle-building-name">Palmer Mansion</p>
+              <div class="waffle-example-triplet">
+                <figure class="waffle-figure">
+                  <img
+                    class="waffle-image"
+                    src="./webpage_assets/images/waffle_comp/000000337.png"
+                    alt="Palmer Mansion input floorplan image"
+                  />
+                  <figcaption class="waffle-method-label">
+                    Input Image
+                  </figcaption>
+                </figure>
+                <figure class="waffle-figure">
+                  <img
+                    class="waffle-image"
+                    src="./webpage_assets/images/waffle_comp/000000337_pred_floorplan.png"
+                    alt="RoomFormer reconstruction for Palmer Mansion"
+                  />
+                  <figcaption class="waffle-method-label">
+                    RoomFormer
+                  </figcaption>
+                </figure>
+                <figure class="waffle-figure">
+                  <img
+                    class="waffle-image"
+                    src="./webpage_assets/images/waffle_comp/000000337_pred_floorplan_ours.png"
+                    alt="Raster2Seq reconstruction for Palmer Mansion"
+                  />
+                  <figcaption class="waffle-method-label">
+                    Raster2Seq
+                  </figcaption>
+                </figure>
+              </div>
+            </article>
+                        </div>
+            </div>
+              </div>
+            </div><!-- /swiper-wrapper -->
+            <button class="qual-swiper-btn qual-swiper-prev" aria-label="Previous dataset">&#8249;</button>
+            <button class="qual-swiper-btn qual-swiper-next" aria-label="Next dataset">&#8250;</button>
+          </div><!-- /qual-results-swiper -->
           <div class="qual-results-note" role="note">
             <span class="qual-results-note-icon" aria-hidden="true">
               <i class="fa fa-info-circle"></i>
@@ -1668,6 +1608,7 @@
               for more qualitative comparisons.
             </p>
           </div>
+        </div>
         </div>
       </section>
 
@@ -2006,6 +1947,32 @@
           </div>
 
           <div class="cross-eval-panel">
+            <h3 class="cross-eval-title">
+              Model Robustness To Floorplan Complexity
+            </h3>
+            <p class="cross-eval-note has-text-justified">
+              We report the Room F1 performance of RoomFormer, FRI-Net, and our
+              model across varying numbers of polygons and corners on the
+              Structured3D-B and CubiCasa5K datasets. Our method consistently
+              demonstrates greater robustness as floorplan complexity increases.
+            </p>
+            <div class="floorplan-complexity-figure">
+              <iframe
+                class="floorplan-complexity-frame"
+                src="./webpage_assets/html/floorplan_complexity.html"
+                title="Performance versus floorplan complexity"
+                loading="lazy"
+              ></iframe>
+              <p class="floorplan-complexity-caption">
+                Performance vs. floorplan complexity&mdash;as approximated by
+                the total number of polygons (left) and the total number of
+                corners (right). As illustrated above over Structured3D-B (top)
+                and CubiCasa5K (bottom), our approach yields larger gains as the
+                floorplan complexity increases.
+              </p>
+            </div>
+          </div>
+          <div class="cross-eval-panel">
             <h3 class="cross-eval-title">Model Generalization</h3>
             <p class="cross-eval-note has-text-justified">
               We perform a cross-evaluation experiment across different
@@ -2037,6 +2004,7 @@
               </p>
             </div>
           </div>
+          <br />
         </div>
       </section>
 
@@ -2045,45 +2013,16 @@
         <div class="method-container">
           <hr />
           <h2 align="center">Why sequential prediction?</h2>
-          <br />
-          <div class="floorplan-complexity-figure">
-            <iframe
-              class="floorplan-complexity-frame"
-              src="./webpage_assets/html/floorplan_complexity.html"
-              title="Performance versus floorplan complexity"
-              loading="lazy"
-            ></iframe>
-            <p class="floorplan-complexity-caption">
-              Performance vs. floorplan complexity&mdash;as approximated by the
-              total number of polygons (left) and the total number of corners
-              (right). As illustrated above over Structured3D-B (top) and
-              CubiCasa5K (bottom), our approach yields larger gains as the
-              floorplan complexity increases.
-            </p>
-          </div>
-
           <p class="has-text-justified motivation-complexity-text">
-            Reconstructing a structured vector-graphics representation from a
-            rasterized floorplan image is a fundamental prerequisite for
-            computational tasks involving floorplans such as automated
-            understanding or CAD workflows. However, existing techniques
-            struggle to faithfully generate the structure and semantics conveyed
-            by complex floorplans that depict large indoor spaces with many
-            rooms and varying numbers of polygon corners. One popular paradigm
-            is to simultaneously predict all structural floorplan elements, as
-            in RoomFormer and FRI-Net. While these models perform similarly on
-            simpler cases, RoomFormer and FRI-Net exhibit a notable performance
-            drop in complex scenes with more than 15 polygons or 150 corners. As
-            shown in Figure above, our method remains more robust as floorplan
-            complexity increases. Particularly, RoomFormer relies on a fixed
-            number of room queries (e.g., 2800); exceeding this capacity can
-            trigger out-of-memory errors and increase computation due to
-            quadratic attention costs. By contrast, our method formulates
-            floorplan conversion as a sequence-to-sequence task, generating
-            polygon coordinates autoregressively. This naturally handles
-            variable-length polygons while allowing us to decompose floorplan
-            reconstruction into interpretable, sequential predictions mirroring
-            the natural CAD design workflow.
+            One popular paradigm predicts all structural floorplan elements
+            simultaneously, which makes them struggled to faithfully reconstruct
+            structure and semantics of complex floorplan. Our key observation,
+            motivating our framework design, is that floorplan elements can be
+            effectively modeled as a sequence, directly capturing both spatial
+            structure and semantic attributes. This allows us to decompose
+            floorplan reconstruction into interpretable prediction steps that
+            mirror the natural CAD design workflow, while naturally handling
+            variable-length polygons.
           </p>
         </div>
       </section>
@@ -2151,524 +2090,7 @@
         </div>
       </section>
 
-      <!-- applications -->
-      <section class="motivation-section" width="100%">
-        <div class="method-container">
-          <hr />
-          <h2 align="center">Downstream Applications</h2>
-
-          <div
-            class="app-tabs"
-            role="tablist"
-            aria-label="Downstream application examples"
-          >
-            <button
-              class="app-tab is-active"
-              id="app-tab-vlm"
-              type="button"
-              role="tab"
-              aria-selected="true"
-              aria-controls="app-panel-vlm"
-              data-tab-target="app-panel-vlm"
-            >
-              VLM-based Floorplan Refinement
-            </button>
-            <button
-              class="app-tab"
-              id="app-tab-3d"
-              type="button"
-              role="tab"
-              aria-selected="false"
-              aria-controls="app-panel-3d"
-              data-tab-target="app-panel-3d"
-              tabindex="-1"
-            >
-              Controllable 3D Scene Generation
-            </button>
-          </div>
-
-          <div
-            id="app-panel-vlm"
-            class="app-panel"
-            role="tabpanel"
-            aria-labelledby="app-tab-vlm"
-          >
-            <div class="application-overview-card">
-              <p class="has-text-justified motivation-complexity-text">
-                While our method outperforms existing works across various
-                metrics, it does not directly enforce geometric constraints,
-                which can cause predicted outputs to exhibit artifacts on noisy
-                datasets such as CubiCasa5K (see results below). To address
-                this, we introduce a VLM-based vectorization refinement
-                procedure that naturally builds on our polygon sequence
-                representation and further improves reconstruction accuracy,
-                highlighting the flexibility of our representation for
-                integrating higher-level reasoning modules.
-              </p>
-              <br />
-              <div class="floorplan-complexity-figure">
-                <img
-                  src="./webpage_assets/images/vlm_refinement.svg"
-                  alt="VLM-based Refinement"
-                />
-                <p class="floorplan-complexity-caption">
-                  Given an input JSON
-                  <button
-                    class="prompt-info-btn"
-                    aria-label="Show input JSON structure"
-                    onclick="document.getElementById('json-modal').showModal()"
-                  >
-                    ⓘ
-                  </button>
-                  specifying the vectorized floorplan predicted by our method, a
-                  VLM refines it using the rasterized floorplan, the vectorized
-                  overlay, the vectorized floorplan alone, and the adjacency
-                  graph as additional inputs. Users can specify geometric
-                  constraints in the refinement prompt
-                  <button
-                    class="prompt-info-btn"
-                    aria-label="Show refinement prompt"
-                    onclick="document.getElementById('prompt-modal').showModal()"
-                  >
-                    ⓘ</button
-                  >; the VLM then outputs the refined JSON.
-                </p>
-              </div>
-            </div>
-
-            <dialog id="json-modal" class="prompt-modal">
-              <div class="prompt-modal-header">
-                <h3>Input JSON Structure</h3>
-                <button
-                  class="prompt-modal-close"
-                  onclick="document.getElementById('json-modal').close()"
-                  aria-label="Close"
-                >
-                  ✕
-                </button>
-              </div>
-              <pre class="prompt-modal-body json-structure-body">{
-  <span class="json-key">"room_count"</span>: <span class="json-num">7</span>,
-  <span class="json-key">"room_area"</span>: <span class="json-num">25517.0</span>,
-  <span class="json-key">"spaces"</span>: [
-    {
-      <span class="json-key">"id"</span>: <span class="json-str">"Undefined|0"</span>,
-      <span class="json-key">"room_type"</span>: <span class="json-str">"Undefined"</span>,
-      <span class="json-key">"floor_polygon"</span>: [{ <span class="json-key">"x"</span>: <span class="json-num">49.0</span>, <span class="json-key">"y"</span>: <span class="json-num">12.0</span> }, …, { <span class="json-key">"x"</span>: <span class="json-num">145.0</span>, <span class="json-key">"y"</span>: <span class="json-num">12.0</span> }],
-      <span class="json-key">"area"</span>: <span class="json-num">10561.0</span>,
-      <span class="json-key">"graph"</span>: [<span class="json-str">"Kitchen|1"</span>, <span class="json-str">"Bed Room|2"</span>, <span class="json-str">"Bath|3"</span>, <span class="json-str">"Kitchen|4"</span>, <span class="json-str">"Bed Room|6"</span>]
-    },
-    …
-  ]
-}</pre>
-            </dialog>
-
-            <dialog id="prompt-modal" class="prompt-modal">
-              <div class="prompt-modal-header">
-                <h3>Refinement Prompt</h3>
-                <button
-                  class="prompt-modal-close"
-                  onclick="document.getElementById('prompt-modal').close()"
-                  aria-label="Close"
-                >
-                  ✕
-                </button>
-              </div>
-              <pre class="prompt-modal-body">
-You are a specialized Architectural Geometry AI. Your expertise lies in topological refinement: transforming JSON specifications and visual raster data-including bubble diagrams and vectorized drafts-into precise, non-overlapping floorplans by generating optimized xy coordinates.
-
-Goal: Produce an optimal arrangement of floorplan elements that maximizes area utilization. The algorithm must prioritize the spatial logic of the Floorplan Raster while using the Draft JSON only as a topological and proportional guide.
-
-Inputs:
-- JSON Specification: Contains preliminary room dimensions, labels, and connectivity requirements. Note: These numerical values (area, height, width) are derived from a rough draft and serve only as a proportional guide. They should be refined to match the visual scale and alignment of the Original Floorplan Raster.
-- Original Floorplan Raster (Image A): The architectural blueprint for alignment and scale.
-- Vectorized floorplan rendering (Image B): Shows the spatial arrangement and room IDs where each floorplan object is colored with type|id labels.
-- Vectorized floorplan rendering overlaid (Image C): Shows the spatial arrangement and room IDs overlaid on top of original floorplan raster.
-- Adjacency Graph (Image D): Defines the topological connections.
-
-Output: JSON file containing refined polygons.
-The JSON object must contain 'output' key storing these attributes:
-- 'room_count': the total number of room entries
-- 'spaces': a list of refined rooms. Each room entry must include:
-  - 'id': formatted as &lt;room_type&gt;|&lt;unique_index&gt; (e.g. "bedroom|2" or "interior_door|0")
-  - 'room_type': the room type (e.g. "living_room", "kitchen", etc.)
-  - 'area' in square meters (all positive numbers)
-  - 'floor_polygon': an ordered list of {x, y} vertices defining a polygon after refinement
-  - 'graph': store a list of adjacent space object 'id'
-
-Spatial Reference System:
-- Coordinate Space: All vertex calculations must be performed within a fixed [0, 256] coordinate system.
-- Origin: (0,0) represents the top-left corner of the Original Floorplan Raster.
-- Polygons in JSON are ordered by counter-clockwise direction.
-
-Refinement Constraints:
-- Contextual Overlaps: While polygons should generally avoid unwarranted intersections, minor overlaps are permitted if supported by the Original Floorplan Raster.
-- Watertight Adjacency: Rooms sharing a boundary must use exact same coordinate values for the shared edge.
-- Identity Preservation: Every id must be preserved and accurately repositioned.
-- Scale Fidelity: The final area should approximate width × height to match the Original Raster's proportions.
-- Truth Hierarchy: In conflicts between Draft JSON and Floorplan Raster, the Raster is the primary source of truth.
-- Manhattan Style: All edges must be axis-aligned unless the Raster explicitly shows a non-90° angle.
-
-Procedure (Mandatory):
-1. Problem analysis — identify geometric failures (overlaps, disconnected rooms, scale mismatches).
-2. Reasoning Plan — outline coordinate adjustments needed.
-3. Step-by-Step Execution — refine room-by-room with explicit coordinate traces and area checks.
-4. Final Answer — output the refined JSON inside a \boxed{} block.</pre
-              >
-            </dialog>
-
-            <div class="application-results-label">Results</div>
-
-            <div
-              class="cubi-color-legend vlm-refinement-legend"
-              aria-label="VLM refinement color legend"
-            >
-              <div class="cubi-color-legend-rooms">
-                <span class="s3d-legend-item"
-                  ><span class="s3d-legend-swatch cubi-outdoor"></span
-                  >Outdoor</span
-                >
-                <span class="s3d-legend-item"
-                  ><span class="s3d-legend-swatch cubi-kitchen"></span
-                  >Kitchen</span
-                >
-                <span class="s3d-legend-item"
-                  ><span class="s3d-legend-swatch cubi-livingroom"></span>Living
-                  room</span
-                >
-                <span class="s3d-legend-item"
-                  ><span class="s3d-legend-swatch cubi-bedroom"></span
-                  >Bedroom</span
-                >
-                <span class="s3d-legend-item"
-                  ><span class="s3d-legend-swatch cubi-bath"></span>Bath</span
-                >
-                <span class="s3d-legend-item"
-                  ><span class="s3d-legend-swatch cubi-entry"></span>Entry</span
-                >
-                <span class="s3d-legend-item"
-                  ><span class="s3d-legend-swatch cubi-storage"></span
-                  >Storage</span
-                >
-                <span class="s3d-legend-item"
-                  ><span class="s3d-legend-swatch cubi-garage"></span
-                  >Garage</span
-                >
-                <span class="s3d-legend-item"
-                  ><span class="s3d-legend-swatch cubi-undefined"></span
-                  >Undefined</span
-                >
-              </div>
-              <div class="cubi-color-legend-openings">
-                <span class="s3d-legend-item"
-                  ><span class="s3d-legend-line s3d-door"></span>Door</span
-                >
-                <span class="s3d-legend-item"
-                  ><span class="s3d-legend-line s3d-window"></span>Window</span
-                >
-              </div>
-            </div>
-
-            <div
-              class="vlm-refinement-carousel"
-              data-vlm-carousel
-              tabindex="0"
-              aria-label="VLM-based floorplan refinement examples"
-            >
-              <button
-                class="vlm-refinement-nav vlm-refinement-nav-prev"
-                type="button"
-                data-vlm-prev
-                aria-label="Show previous refinement example"
-              >
-                ‹
-              </button>
-              <div class="vlm-refinement-viewport">
-                <div class="vlm-refinement-grid" data-vlm-track>
-                  <article class="vlm-refinement-card">
-                    <figure class="vlm-refinement-figure">
-                      <img
-                        class="vlm-refinement-image"
-                        src="./webpage_assets/images/vlm_refinement_images/05930_raster.png"
-                        alt="VLM refinement sample 05930 input image"
-                        loading="lazy"
-                      />
-                      <figcaption>Input Image</figcaption>
-                    </figure>
-                    <figure class="vlm-refinement-figure">
-                      <img
-                        class="vlm-refinement-image"
-                        src="./webpage_assets/images/vlm_refinement_images/05930_gt_floorplan_sem.png"
-                        alt="VLM refinement sample 05930 ground-truth floorplan"
-                        loading="lazy"
-                      />
-                      <figcaption>GT</figcaption>
-                    </figure>
-                    <figure class="vlm-refinement-figure">
-                      <img
-                        class="vlm-refinement-image"
-                        src="./webpage_assets/images/vlm_refinement_images/05930_pred_floorplan_sem.png"
-                        alt="VLM refinement sample 05930 before refinement"
-                        loading="lazy"
-                      />
-                      <figcaption>Before Refinement</figcaption>
-                    </figure>
-                    <figure class="vlm-refinement-figure">
-                      <img
-                        class="vlm-refinement-image"
-                        src="./webpage_assets/images/vlm_refinement_images/05930_pred_floorplan_sem_pass1.png"
-                        alt="VLM refinement sample 05930 after refinement"
-                        loading="lazy"
-                      />
-                      <figcaption>After Refinement</figcaption>
-                    </figure>
-                  </article>
-
-                  <article class="vlm-refinement-card">
-                    <figure class="vlm-refinement-figure">
-                      <img
-                        class="vlm-refinement-image"
-                        src="./webpage_assets/images/vlm_refinement_images/05940_raster.png"
-                        alt="VLM refinement sample 05940 input image"
-                        loading="lazy"
-                      />
-                      <figcaption>Input Image</figcaption>
-                    </figure>
-                    <figure class="vlm-refinement-figure">
-                      <img
-                        class="vlm-refinement-image"
-                        src="./webpage_assets/images/vlm_refinement_images/05940_gt_floorplan_sem.png"
-                        alt="VLM refinement sample 05940 ground-truth floorplan"
-                        loading="lazy"
-                      />
-                      <figcaption>GT</figcaption>
-                    </figure>
-                    <figure class="vlm-refinement-figure">
-                      <img
-                        class="vlm-refinement-image"
-                        src="./webpage_assets/images/vlm_refinement_images/05940_pred_floorplan_sem.png"
-                        alt="VLM refinement sample 05940 before refinement"
-                        loading="lazy"
-                      />
-                      <figcaption>Before Refinement</figcaption>
-                    </figure>
-                    <figure class="vlm-refinement-figure">
-                      <img
-                        class="vlm-refinement-image"
-                        src="./webpage_assets/images/vlm_refinement_images/05940_pred_floorplan_sem_pass1.png"
-                        alt="VLM refinement sample 05940 after refinement"
-                        loading="lazy"
-                      />
-                      <figcaption>After Refinement</figcaption>
-                    </figure>
-                  </article>
-
-                  <article class="vlm-refinement-card">
-                    <figure class="vlm-refinement-figure">
-                      <img
-                        class="vlm-refinement-image"
-                        src="./webpage_assets/images/vlm_refinement_images/05948_raster.png"
-                        alt="VLM refinement sample 05948 input image"
-                        loading="lazy"
-                      />
-                      <figcaption>Input Image</figcaption>
-                    </figure>
-                    <figure class="vlm-refinement-figure">
-                      <img
-                        class="vlm-refinement-image"
-                        src="./webpage_assets/images/vlm_refinement_images/05948_gt_floorplan_sem.png"
-                        alt="VLM refinement sample 05948 ground-truth floorplan"
-                        loading="lazy"
-                      />
-                      <figcaption>GT</figcaption>
-                    </figure>
-                    <figure class="vlm-refinement-figure">
-                      <img
-                        class="vlm-refinement-image"
-                        src="./webpage_assets/images/vlm_refinement_images/05948_pred_floorplan_sem.png"
-                        alt="VLM refinement sample 05948 before refinement"
-                        loading="lazy"
-                      />
-                      <figcaption>Before Refinement</figcaption>
-                    </figure>
-                    <figure class="vlm-refinement-figure">
-                      <img
-                        class="vlm-refinement-image"
-                        src="./webpage_assets/images/vlm_refinement_images/05948_pred_floorplan_sem_pass1.png"
-                        alt="VLM refinement sample 05948 after refinement"
-                        loading="lazy"
-                      />
-                      <figcaption>After Refinement</figcaption>
-                    </figure>
-                  </article>
-
-                  <article class="vlm-refinement-card">
-                    <figure class="vlm-refinement-figure">
-                      <img
-                        class="vlm-refinement-image"
-                        src="./webpage_assets/images/vlm_refinement_images/05960_raster.png"
-                        alt="VLM refinement sample 05960 input image"
-                        loading="lazy"
-                      />
-                      <figcaption>Input Image</figcaption>
-                    </figure>
-                    <figure class="vlm-refinement-figure">
-                      <img
-                        class="vlm-refinement-image"
-                        src="./webpage_assets/images/vlm_refinement_images/05960_gt_floorplan_sem.png"
-                        alt="VLM refinement sample 05960 ground-truth floorplan"
-                        loading="lazy"
-                      />
-                      <figcaption>GT</figcaption>
-                    </figure>
-                    <figure class="vlm-refinement-figure">
-                      <img
-                        class="vlm-refinement-image"
-                        src="./webpage_assets/images/vlm_refinement_images/05960_pred_floorplan_sem.png"
-                        alt="VLM refinement sample 05960 before refinement"
-                        loading="lazy"
-                      />
-                      <figcaption>Before Refinement</figcaption>
-                    </figure>
-                    <figure class="vlm-refinement-figure">
-                      <img
-                        class="vlm-refinement-image"
-                        src="./webpage_assets/images/vlm_refinement_images/05960_pred_floorplan_sem_pass1.png"
-                        alt="VLM refinement sample 05960 after refinement"
-                        loading="lazy"
-                      />
-                      <figcaption>After Refinement</figcaption>
-                    </figure>
-                  </article>
-
-                  <article class="vlm-refinement-card">
-                    <figure class="vlm-refinement-figure">
-                      <img
-                        class="vlm-refinement-image"
-                        src="./webpage_assets/images/vlm_refinement_images/05984_raster.png"
-                        alt="VLM refinement sample 05984 input image"
-                        loading="lazy"
-                      />
-                      <figcaption>Input Image</figcaption>
-                    </figure>
-                    <figure class="vlm-refinement-figure">
-                      <img
-                        class="vlm-refinement-image"
-                        src="./webpage_assets/images/vlm_refinement_images/05984_gt_floorplan_sem.png"
-                        alt="VLM refinement sample 05984 ground-truth floorplan"
-                        loading="lazy"
-                      />
-                      <figcaption>GT</figcaption>
-                    </figure>
-                    <figure class="vlm-refinement-figure">
-                      <img
-                        class="vlm-refinement-image"
-                        src="./webpage_assets/images/vlm_refinement_images/05984_pred_floorplan_sem.png"
-                        alt="VLM refinement sample 05984 before refinement"
-                        loading="lazy"
-                      />
-                      <figcaption>Before Refinement</figcaption>
-                    </figure>
-                    <figure class="vlm-refinement-figure">
-                      <img
-                        class="vlm-refinement-image"
-                        src="./webpage_assets/images/vlm_refinement_images/05984_pred_floorplan_sem_pass1.png"
-                        alt="VLM refinement sample 05984 after refinement"
-                        loading="lazy"
-                      />
-                      <figcaption>After Refinement</figcaption>
-                    </figure>
-                  </article>
-
-                  <article class="vlm-refinement-card">
-                    <figure class="vlm-refinement-figure">
-                      <img
-                        class="vlm-refinement-image"
-                        src="./webpage_assets/images/vlm_refinement_images/06001_raster.png"
-                        alt="VLM refinement sample 06001 input image"
-                        loading="lazy"
-                      />
-                      <figcaption>Input Image</figcaption>
-                    </figure>
-                    <figure class="vlm-refinement-figure">
-                      <img
-                        class="vlm-refinement-image"
-                        src="./webpage_assets/images/vlm_refinement_images/06001_gt_floorplan_sem.png"
-                        alt="VLM refinement sample 06001 ground-truth floorplan"
-                        loading="lazy"
-                      />
-                      <figcaption>GT</figcaption>
-                    </figure>
-                    <figure class="vlm-refinement-figure">
-                      <img
-                        class="vlm-refinement-image"
-                        src="./webpage_assets/images/vlm_refinement_images/06001_pred_floorplan_sem.png"
-                        alt="VLM refinement sample 06001 before refinement"
-                        loading="lazy"
-                      />
-                      <figcaption>Before Refinement</figcaption>
-                    </figure>
-                    <figure class="vlm-refinement-figure">
-                      <img
-                        class="vlm-refinement-image"
-                        src="./webpage_assets/images/vlm_refinement_images/06001_pred_floorplan_sem_pass1.png"
-                        alt="VLM refinement sample 06001 after refinement"
-                        loading="lazy"
-                      />
-                      <figcaption>After Refinement</figcaption>
-                    </figure>
-                  </article>
-                </div>
-              </div>
-              <button
-                class="vlm-refinement-nav vlm-refinement-nav-next"
-                type="button"
-                data-vlm-next
-                aria-label="Show next refinement example"
-              >
-                ›
-              </button>
-              <div
-                class="vlm-refinement-dots"
-                data-vlm-dots
-                aria-label="VLM refinement example selector"
-              ></div>
-            </div>
-          </div>
-          <!-- end app-panel-vlm -->
-
-          <div
-            id="app-panel-3d"
-            class="app-panel"
-            role="tabpanel"
-            aria-labelledby="app-tab-3d"
-            hidden
-          >
-            <div class="application-overview-card">
-              <p class="has-text-justified motivation-complexity-text">
-                Floorplan vectorization unlocks a range of computational tasks
-                that are difficult or impossible in pixel space. We demonstrate
-                this for controllable 3D scene generation: the vectorized
-                floorplan is extruded into a coarse 3D volume, which guides
-                TRELLIS--3D Generative Backbone--using a test-time approach,
-                SpaceControl. The results show that floorplan vectorization
-                provides a strong geometric prior, allowing the 3D generative
-                model to faithfully reproduce complex architectural layouts from
-                a single input RGB image, while maintaining global structural
-                consistency.
-              </p>
-              <br />
-              <div class="floorplan-complexity-figure">
-                <img
-                  src="./webpage_assets/images/trellis_samples.svg"
-                  alt="Controllable 3D scene generation examples using TRELLIS and SpaceControl"
-                />
-              </div>
-            </div>
-          </div>
-          <!-- end app-panel-3d -->
-        </div>
-      </section>
+      <!-- INCLUDE: sections/downstream_applications.html -->
 
       <!--     BibTex-->
       <section class="bib-section" width="100%">
