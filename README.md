@@ -165,7 +165,7 @@ The provided eval and inference bash scripts in following sections use Hugging F
     <tr>
       <th>Dataset</th>
       <th>RoomF1</th>
-      <th>Checkpoints</th>
+      <th>Hugging Face key</th>
     </tr>
   </thead>
   <tbody>
@@ -173,7 +173,7 @@ The provided eval and inference bash scripts in following sections use Hugging F
       <td>Raster2Graph</td>
       <td>98.1</td>
       <td>
-        <a href="https://drive.google.com/file/d/1oSUwzAzytKwwDkeaGA3_QN96HGUM4Cdn/view?usp=sharing">Link</a>
+        <code>raster2graph-512</code>
       </td>
     </tr>
   </tbody>

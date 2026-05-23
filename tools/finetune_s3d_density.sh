@@ -11,7 +11,7 @@ SEQ_LEN=512
 CONVERTER=v3
 
 JOB=s3dd_sem_res256
-PRETRAIN=checkpoints/s3dd_res256_ep0499.pth # or save_models/s3dd_res256/checkpoint0499.pth
+PRETRAIN=checkpoints/s3dd_res256_ep0499.pth
 OUTPUT_DIR=save_models
 
 WANDB_MODE=online python -m torch.distributed.run --nproc_per_node=${NUM_GPUS} --master_port=$MASTER_PORT main_ddp.py --dataset_name=stru3d \

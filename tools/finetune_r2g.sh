@@ -14,7 +14,7 @@ CONVERTER=v3
 
 DATA=data/R2G_hr_dataset_processed_v1
 JOB=r2g_sem_res256
-PRETRAIN=checkpoints/r2g_res256_ep0849.pth # or saved_models/r2g_res256/checkpoint0849.pth
+PRETRAIN=checkpoints/r2g_res256_ep0849.pth
 OUTPUT_DIR=save_models
 
 WANDB_MODE=online torchrun --nproc_per_node=${NUM_GPUS} --master_port=$MASTER_PORT main_ddp.py --dataset_name=r2g \

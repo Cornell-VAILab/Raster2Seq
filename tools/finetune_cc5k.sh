@@ -14,7 +14,7 @@ CONVERTER=v3
 
 DATA=data/coco_cubicasa5k_nowalls_v4-1_refined/
 JOB=cc5k_sem_res256
-PRETRAIN=checkpoints/cc5k_res256_ep0499.pth # or save_models/cc5k_res256/checkpoint0499.pth
+PRETRAIN=checkpoints/cc5k_res256_ep0499.pth
 OUTPUT_DIR=save_models
 
 WANDB_MODE=online torchrun --nproc_per_node=1 --master_port=$MASTER_PORT main_ddp.py --dataset_name=cubicasa \

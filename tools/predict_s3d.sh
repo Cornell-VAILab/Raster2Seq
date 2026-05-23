@@ -19,4 +19,5 @@ python predict.py \
     --per_token_sem_loss \
     --use_anchor \
     --ema4eval \
-    --save_pred
+    --save_pred \
+    --debug
