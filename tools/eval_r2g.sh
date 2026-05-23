@@ -1,6 +1,6 @@
 # !/usr/bin/env bash
 
-CKPT=checkpoints/r2g_sem_res256_ep0549.pth
+CKPT=hf:raster2graph
 python eval.py --dataset_name=r2g \
    --dataset_root=data/R2G_hr_dataset_processed_v1 \
    --eval_set=test \

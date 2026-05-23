@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-CKPT=checkpoints/s3dd_sem_res256_ep0699.pth
+CKPT=hf:s3d-density
 python eval.py --dataset_name=stru3d \
                --dataset_root=data/stru3d \
                --eval_set=test \

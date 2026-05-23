@@ -16,6 +16,7 @@ from datasets.transforms import ResizeAndPad
 from detectron2.data import transforms as T
 from engine import generate, generate_with_refinement, plot_density_map
 from models import build_model
+from raster2seq_hub import resolve_checkpoint_path
 from util.plot_utils import CC5K_LABEL, S3D_LABEL, auto_crop_whitespace, plot_semantic_rich_floorplan_opencv
 
 
@@ -282,6 +283,7 @@ def main(args):
     n_parameters = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print("number of params:", n_parameters)
 
+    args.checkpoint = resolve_checkpoint_path(args.checkpoint)
     checkpoint = torch.load(args.checkpoint, map_location="cpu")
     if args.ema4eval:
         ckpt_state_dict = copy.deepcopy(checkpoint["ema"])

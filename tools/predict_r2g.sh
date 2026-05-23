@@ -2,7 +2,7 @@
 
 DATA=data/R2G_hr_dataset_processed_v1
 FOLDER=test 
-CKPT=checkpoints/r2g_sem_res256_ep0549.pth
+CKPT=hf:raster2graph
 
 python predict.py \
    --dataset_name=r2g \

@@ -2,7 +2,7 @@
 
 DATA=data/coco_cubicasa5k_nowalls_v4-1_refined/
 FOLDER=test 
-CKPT=checkpoints/cc5k_sem_res256_ep0499.pth
+CKPT=hf:cubicasa5k
 
 python predict.py \
     --dataset_name=cubicasa \

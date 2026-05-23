@@ -13,6 +13,7 @@ from tqdm import trange
 from datasets import build_dataset
 from engine import evaluate_floor, generate
 from models import build_model
+from raster2seq_hub import resolve_checkpoint_path
 
 
 def get_args_parser():
@@ -217,6 +218,7 @@ def main(args):
 
     output_dir = Path(args.output_dir)
 
+    args.checkpoint = resolve_checkpoint_path(args.checkpoint)
     checkpoint = torch.load(args.checkpoint, map_location="cpu")
     if args.ema4eval:
         ckpt_state_dict = copy.deepcopy(checkpoint["ema"])

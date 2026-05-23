@@ -3,7 +3,7 @@ SPLIT=test
 
 NAME=r2g_cc5k_${SPLIT}_preds
 SAVE_DIR=cross_eval_outputs/${NAME}
-CKPT=checkpoints/r2g_sem_res256_ep0549.pth
+CKPT=hf:raster2graph
 
 python eval.py \
    --dataset_name=cubicasa \

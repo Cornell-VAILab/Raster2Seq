@@ -3,7 +3,7 @@ SPLIT=test
 
 NAME=cc5k_r2g_${SPLIT}_preds
 SAVE_DIR=cross_eval_outputs/${NAME}
-CKPT=checkpoints/cc5k_sem_res256_ep0499.pth
+CKPT=hf:cubicasa5k
 
 python eval.py \
     --dataset_name=r2g \

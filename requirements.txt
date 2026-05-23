@@ -11,6 +11,7 @@ fairscale==0.4.6
 timm==0.5.4
 shapely==1.8.2
 tqdm==4.64.0
+huggingface_hub
 pycocotools
 descartes
 webcolors

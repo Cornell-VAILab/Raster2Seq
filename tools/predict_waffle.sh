@@ -2,7 +2,7 @@
 
 DATA=data/waffle/data/clean_images/ # data/waffle/data/original_size_images/
 FOLDER=00001
-CKPT=checkpoints/cc5k_sem_res256_ep0499.pth
+CKPT=hf:cubicasa5k
 
 python predict.py \
     --dataset_root=${DATA}/${FOLDER} \

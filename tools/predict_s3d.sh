@@ -2,7 +2,7 @@
 
 DATA=data/coco_s3d_bw/
 FOLDER=test
-CKPT=checkpoints/s3dbw_sem_res256_ep0449.pth
+CKPT=hf:s3d-bw
 
 python predict.py \
     --dataset_name=stru3d \

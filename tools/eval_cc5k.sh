@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-CKPT=checkpoints/cc5k_sem_res256_ep0499.pth
+CKPT=hf:cubicasa5k
 python eval.py --dataset_name=cubicasa \
    --dataset_root=data/coco_cubicasa5k_nowalls_v4-1_refined/ \
    --eval_set=test \

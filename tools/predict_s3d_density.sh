@@ -2,7 +2,7 @@
 
 DATA=data/stru3d/
 FOLDER=test
-CKPT=checkpoints/s3dd_sem_res256_ep0699.pth
+CKPT=hf:s3d-density
 
 python predict.py \
                --dataset_name=stru3d \

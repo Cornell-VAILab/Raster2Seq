@@ -6,7 +6,7 @@ SPLIT=test
 ##### Trained on CubiCasa5K dataset, test on WAFFLE
 NAME=cc5k_waffle_${SPLIT}_preds
 SAVE_DIR=cross_eval_outputs/${NAME}
-CKPT=checkpoints/cc5k_sem_res256_ep0499.pth
+CKPT=hf:cubicasa5k
 python predict.py \
    --dataset_root=${DATA}/${SPLIT} \
    --checkpoint=${CKPT} \
@@ -31,7 +31,7 @@ python eval_seg.py evaluations/clipseg_eval/config.yaml 0 \
 ##### Trained on Raster2Graph dataset, test on WAFFLE
 NAME=r2g_waffle_${SPLIT}_preds
 SAVE_DIR=cross_eval_outputs/${NAME}
-CKPT=checkpoints/r2g_sem_res256_ep0549.pth
+CKPT=hf:raster2graph
 python predict.py \
    --dataset_root=${DATA}/${SPLIT} \
    --checkpoint=${CKPT} \
