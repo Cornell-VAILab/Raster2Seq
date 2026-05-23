@@ -15,12 +15,99 @@
     --border-subtle: #e8e4df;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 body {
     font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     width: 100%;
     background: #ffffff;
     color: var(--text-primary);
     line-height: 1.7;
+}
+
+section,
+#top {
+    scroll-margin-top: 24px;
+}
+
+.section-navigator {
+    position: fixed;
+    top: 50%;
+    left: 0;
+    z-index: 40;
+    width: 190px;
+    padding: 18px 14px 18px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transform: translateY(-50%);
+    opacity: 1;
+    transition: opacity 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.section-navigator::before {
+    content: "";
+    position: absolute;
+    top: 24px;
+    bottom: 24px;
+    left: 25px;
+    width: 1px;
+    background: rgba(61, 90, 128, 0.18);
+}
+
+.section-navigator-link {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 30px;
+    gap: 10px;
+    color: rgba(85, 91, 110, 0.5);
+    text-decoration: none;
+    outline: none;
+}
+
+.section-navigator-marker {
+    position: relative;
+    z-index: 1;
+    width: 15px;
+    height: 15px;
+    flex: 0 0 15px;
+    border: 1px solid rgba(61, 90, 128, 0.28);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.45);
+    transition: border-color 0.16s ease, background-color 0.16s ease, transform 0.16s ease;
+}
+
+.section-navigator-title {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.25;
+    opacity: 0.58;
+    transform: translateX(0);
+    transition: opacity 0.16s ease, transform 0.16s ease, color 0.16s ease, font-weight 0.16s ease;
+    white-space: nowrap;
+}
+
+.section-navigator-link:hover,
+.section-navigator-link:focus-visible {
+    color: var(--primary-accent);
+}
+
+.section-navigator-link:hover .section-navigator-marker,
+.section-navigator-link:focus-visible .section-navigator-marker {
+    border-color: var(--primary-accent);
+    background: var(--primary-accent);
+    transform: scale(1.18);
+}
+
+.section-navigator-link:hover .section-navigator-title,
+.section-navigator-link:focus-visible .section-navigator-title {
+    color: var(--primary-accent);
+    font-weight: 800;
+    opacity: 1;
 }
 
 /* Title styling */
@@ -1885,6 +1972,10 @@ p {
 }
 
 @media (max-width: 900px) {
+    .section-navigator {
+        display: none;
+    }
+
     .cross-eval-heatmaps {
         grid-template-columns: 1fr;
         width: 100%;

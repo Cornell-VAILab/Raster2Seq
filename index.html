@@ -68,7 +68,7 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css"
     />
-    <link href="style.css?v=61" rel="stylesheet" type="text/css" />
+    <link href="style.css?v=62" rel="stylesheet" type="text/css" />
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
@@ -476,7 +476,38 @@
     </script>
   </head>
   <body>
-    <div class="page-container">
+    <nav class="section-navigator" aria-label="Page sections">
+      <a class="section-navigator-link" href="#top" data-section-title="Overview">
+        <span class="section-navigator-marker" aria-hidden="true"></span>
+        <span class="section-navigator-title">Overview</span>
+      </a>
+      <a class="section-navigator-link" href="#intro" data-section-title="TL;DR">
+        <span class="section-navigator-marker" aria-hidden="true"></span>
+        <span class="section-navigator-title">TL;DR</span>
+      </a>
+      <a class="section-navigator-link" href="#abstract" data-section-title="Abstract">
+        <span class="section-navigator-marker" aria-hidden="true"></span>
+        <span class="section-navigator-title">Abstract</span>
+      </a>
+      <a class="section-navigator-link" href="#qualitative-results" data-section-title="Qualitative Results">
+        <span class="section-navigator-marker" aria-hidden="true"></span>
+        <span class="section-navigator-title">Qualitative Results</span>
+      </a>
+      <a class="section-navigator-link" href="#quantitative-results" data-section-title="Quantitative Results">
+        <span class="section-navigator-marker" aria-hidden="true"></span>
+        <span class="section-navigator-title">Quantitative Results</span>
+      </a>
+      <a class="section-navigator-link" href="#method" data-section-title="Method">
+        <span class="section-navigator-marker" aria-hidden="true"></span>
+        <span class="section-navigator-title">Method</span>
+      </a>
+      <a class="section-navigator-link" href="#bibtex" data-section-title="BibTeX">
+        <span class="section-navigator-marker" aria-hidden="true"></span>
+        <span class="section-navigator-title">BibTeX</span>
+      </a>
+    </nav>
+
+    <div class="page-container" id="top">
       <!-- title -->
       <h1 class="ourh1" align="center">
         <span class="title-prox" data-method-name>Raster2Seq</span>
@@ -657,7 +688,7 @@
       </div>
 
       <!-- intro -->
-      <section class="into-paragraph-section" width="100%">
+      <section class="into-paragraph-section" id="intro" width="100%">
         <div class="intro-container has-text-justified">
           <div class="intro-paragraph">
             <p>
@@ -675,7 +706,7 @@
       </section>
 
       <!-- abstract -->
-      <section class="abstract-section" width="100%">
+      <section class="abstract-section" id="abstract" width="100%">
         <div class="abstract-container has-text-justified">
           <hr />
           <h2 align="center">Abstract</h2>
@@ -711,7 +742,7 @@
       </section>
 
       <!-- Qualitative results on held-out CubiCasa5K test samples. -->
-      <section class="qual-results-section" width="100%">
+      <section class="qual-results-section" id="qualitative-results" width="100%">
         <div class="qual-results-container">
           <hr />
           <h2 align="center">Qualitative Results</h2>
@@ -1614,7 +1645,7 @@
       </section>
 
       <!-- Quantitative floorplan results -->
-      <section class="quant-results-section" width="100%">
+      <section class="quant-results-section" id="quantitative-results" width="100%">
         <div class="quant-results-container">
           <hr />
           <h2 align="center">Quantitative Results</h2>
@@ -2010,7 +2041,7 @@
       </section>
 
       <!-- method -->
-      <section class="method-section" width="100%">
+      <section class="method-section" id="method" width="100%">
         <div class="method-container">
           <hr />
           <h2 align="center">How does it work?</h2>
@@ -2086,7 +2117,7 @@
       <!-- INCLUDE: sections/downstream_applications.html -->
 
       <!--     BibTex-->
-      <section class="bib-section" width="100%">
+      <section class="bib-section" id="bibtex" width="100%">
         <div class="bib-container">
           <hr />
           <h2 align="center">BibTeX</h2>
