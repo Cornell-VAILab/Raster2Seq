@@ -121,7 +121,7 @@ In this code, we experiments with 3 datasets: Structured3D, CubiCasa5K, and Rast
 
 ### Checkpoints
 
-Our model checkpoints are hosted at [haopt/Raster2Seq](https://huggingface.co/haopt/Raster2Seq), with one subfolder per trained model. You can download all checkpoints at once or only the checkpoint subfolder you need.
+Our model checkpoints are hosted at [<img src="https://huggingface.co/front/assets/huggingface_logo.svg" width=20>haopt/Raster2Seq](https://huggingface.co/haopt/Raster2Seq), with one subfolder per trained model. You can download all checkpoints at once or only the checkpoint subfolder you need.
 
 <table>
   <thead>
