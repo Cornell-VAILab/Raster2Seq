@@ -225,6 +225,7 @@ class ConvertToCocoDict(object):
                     obj["segmentation"] = [orient_line(obj["segmentation"][0])]
             record["image"] = (1 / 255) * torch.as_tensor(np.ascontiguousarray(self._expand_image_dims(img)))
             record["instances"] = annotations_to_instances(target, (h, w), mask_format=self.mask_format)
+            record["instances"].gt_is_line = torch.tensor([o.get("geom_type") == "line" for o in target], dtype=torch.bool)
         else:
             aug_input = T.AugInput(img)
             transforms = self.augmentations(aug_input)
@@ -247,6 +248,8 @@ class ConvertToCocoDict(object):
                     anno["segmentation"][0] = resort_corners(anno["segmentation"][0])
 
             record["instances"] = annotations_to_instances(annos, (h, w), mask_format=self.mask_format)
+            # per-shape open/closed flag (from the annotations' geom_type), for drawing / scoring lines open
+            record["instances"].gt_is_line = torch.tensor([a.get("geom_type") == "line" for a in annos], dtype=torch.bool)
 
         #### NEW ####
         if self.image_normalize is not None:
@@ -259,6 +262,7 @@ class ConvertToCocoDict(object):
                 polygons = [np.array([[0.0, 0.0]])]
                 polygons_label = [self.semantic_classes - 1]  # dummy class
             else:
+                self._px_per_unit = w - 1  # pixel scale of the 0-1 coordinates (used for row_tolerance_px)
                 polygons = [
                     np.clip(np.array(inst).reshape(-1, 2) / (w - 1), 0, 1)
                     for inst in record["instances"].gt_masks.polygons
@@ -378,6 +382,7 @@ class ConvertToCocoDictWithOrder_plus(ConvertToCocoDict):
         dataset_name="stru3d",
         order_type="l2r",
         random_drop_rate=0.0,
+        row_tolerance_px=None,
         **kwargs,
     ):
         super().__init__(
@@ -394,6 +399,11 @@ class ConvertToCocoDictWithOrder_plus(ConvertToCocoDict):
         self.dataset_name = dataset_name
         self.order_type = order_type  # l2r, r2l
         self.random_drop_rate = random_drop_rate
+        # Shape order: sort_polygons groups shapes into rows whose top corners are within `tolerance`, then goes
+        # left to right. The default tolerance (20) is applied to 0-1 coordinates, which puts every shape in
+        # one row (pure left-to-right order). row_tolerance_px sets the row height in pixels instead, giving
+        # reading order (rows top to bottom); None keeps the original behaviour.
+        self.row_tolerance_px = row_tolerance_px
         self.tokenizer = DiscreteTokenizer(add_cls=add_cls_token, **kwargs)
 
     def _get_bilinear_interpolation_coeffs(self, polygons, polygons_label, add_cls_token=False, per_token_class=False):
@@ -407,11 +417,12 @@ class ConvertToCocoDictWithOrder_plus(ConvertToCocoDict):
             poly_idx for poly_idx, poly_label in enumerate(polygons_label) if poly_label in WD_INDEX[self.dataset_name]
         ]
 
+        tol = {} if self.row_tolerance_px is None else {"tolerance": self.row_tolerance_px / self._px_per_unit}
         _, room_sorted_indices = sort_polygons(
-            [polygons[poly_idx] for poly_idx in room_indices], reverse=(self.order_type == "r2l")
+            [polygons[poly_idx] for poly_idx in room_indices], reverse=(self.order_type == "r2l"), **tol
         )
         _, wd_sorted_indices = sort_polygons(
-            [polygons[poly_idx] for poly_idx in wd_indices], reverse=(self.order_type == "r2l")
+            [polygons[poly_idx] for poly_idx in wd_indices], reverse=(self.order_type == "r2l"), **tol
         )
         room_indices = [room_indices[_idx] for _idx in room_sorted_indices]
         wd_indices = [wd_indices[_idx] for _idx in wd_sorted_indices]
@@ -594,6 +605,7 @@ def build(image_set, args):
             mask_format=getattr(args, "mask_format", "polygon"),
             converter_version=getattr(args, "converter_version", "v1"),
             random_drop_rate=getattr(args, "random_drop_rate", 0.0),
+            row_tolerance_px=getattr(args, "row_tolerance_px", None),
         )
 
     return dataset

@@ -339,8 +339,8 @@ def plot_score_map(corner_map, scores):
     return score_map
 
 
-def plot_room_map(preds, room_map, room_id=0, im_size=256, plot_text=True):
-    """Draw room polygons overlaid on the density map"""
+def plot_room_map(preds, room_map, room_id=0, im_size=256, plot_text=True, closed=True):
+    """Draw room polygons overlaid on the density map (closed=False: an open line, no closing edge)"""
     centroid_x = int(np.mean(preds[:, 0]))
     centroid_y = int(np.mean(preds[:, 1]))
 
@@ -354,13 +354,14 @@ def plot_room_map(preds, room_map, room_id=0, im_size=256, plot_text=True):
 
     for i, corner in enumerate(preds):
         if i == len(preds) - 1:
-            cv2.line(
-                room_map,
-                (round(corner[0]), round(corner[1])),
-                (round(preds[0][0]), round(preds[0][1])),
-                border_color,
-                2,
-            )
+            if closed:  # closing edge back to the first corner (polygons only)
+                cv2.line(
+                    room_map,
+                    (round(corner[0]), round(corner[1])),
+                    (round(preds[0][0]), round(preds[0][1])),
+                    border_color,
+                    2,
+                )
         else:
             cv2.line(
                 room_map,
@@ -903,7 +904,8 @@ def plot_semantic_rich_floorplan_opencv(
     Plot semantically-rich floorplan using OpenCV with improved quality.
 
     Args:
-        polygons (list): A list of polygons, where each polygon is a list of (x, y) coordinates.
+        polygons (list): A list of [polygon, type] or [polygon, type, is_line] entries, where polygon is a
+            list of (x, y) coordinates; is_line=True draws the shape as an open line (not filled or closed).
         file_name (str): Path to save the output image.
         img_w (int): Width of the output image.
         img_h (int): Height of the output image.
@@ -923,9 +925,9 @@ def plot_semantic_rich_floorplan_opencv(
 
     if scale != 1:
         new_polygons = []
-        for poly, poly_label in polygons:
+        for poly, *rest in polygons:
             poly = (poly * scale).round().astype(np.int32)
-            new_polygons.append([poly, poly_label])
+            new_polygons.append([poly, *rest])
         polygons = new_polygons
 
     if one_color:
@@ -950,15 +952,18 @@ def plot_semantic_rich_floorplan_opencv(
     room_polygons = []
     door_polygons = []
     window_polygons = []
+    line_polygons = []  # open lines (entries flagged is_line)
 
     # Sort polygons by type (track original index for highlight support)
-    for poly_idx, (poly, poly_type) in enumerate(polygons):
+    for poly_idx, (poly, poly_type, *flags) in enumerate(polygons):
         if len(poly) < 2:  # Skip invalid polygons
             continue
 
         points = np.array(poly, dtype=np.int32)
 
-        if door_window_index and poly_type == door_window_index[0]:  # Door
+        if flags and flags[0]:  # Open line: drawn as a stroke, never filled or closed
+            line_polygons.append((points, poly_type, poly_idx))
+        elif door_window_index and poly_type == door_window_index[0]:  # Door
             door_polygons.append((points, poly_type, poly_idx))
         elif door_window_index and poly_type == door_window_index[1]:  # Window
             window_polygons.append((points, poly_type, poly_idx))
@@ -989,6 +994,15 @@ def plot_semantic_rich_floorplan_opencv(
 
     # Blend overlay with transparency
     cv2.addWeighted(overlay, room_alpha, image, 1 - room_alpha, 0, image)
+
+    # Draw open lines, coloured by type like rooms
+    for points, poly_type, _orig_idx in line_polygons:
+        if is_bw:
+            line_color = (0, 0, 0)
+        else:
+            rgb_color = ImageColor.getcolor(colors[poly_type % len(colors)], "RGB")
+            line_color = (rgb_color[2], rgb_color[1], rgb_color[0])
+        cv2.polylines(image, [points], isClosed=False, color=line_color, thickness=line_thickness, lineType=cv2.LINE_AA)
 
     # Draw doors with proper styling
     for points, _, _orig_idx in door_polygons:
