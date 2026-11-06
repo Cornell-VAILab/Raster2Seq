@@ -58,6 +58,11 @@ def get_args_parser():
     parser.add_argument(
         "--random_drop_rate", type=float, default=0.0, help="randomly drop some polygons during training"
     )
+    parser.add_argument(
+        "--row_tolerance", type=float, default=None,
+        help="shape order: group shapes into rows of this height, as a fraction of the image (e.g. 0.08) - "
+             "reading order; default: left to right only",
+    )
 
     # raster2seq
     parser.add_argument("--poly2seq", action="store_true")

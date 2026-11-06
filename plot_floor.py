@@ -365,6 +365,11 @@ def get_args_parser():
     parser.add_argument("--poly2seq", action="store_true")
     parser.add_argument("--seq_len", type=int, default=1024)
     parser.add_argument("--num_bins", type=int, default=64)
+    parser.add_argument(
+        "--row_tolerance", type=float, default=None,
+        help="shape order: group shapes into rows of this height, as a fraction of the image (e.g. 0.08) - "
+             "reading order; default: left to right only",
+    )
     parser.add_argument("--add_cls_token", action="store_true")
     parser.add_argument("--per_token_sem_loss", action="store_true")
 
