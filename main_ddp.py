@@ -78,6 +78,16 @@ def get_args_parser():
 
     # parser.add_argument('--use_room_attn_at_last_dec_layer', default=False, action='store_true', help="use room-wise attention in last decoder layer")
 
+    # handle stage 1 predictions differently
+    parser.add_argument("--geom_classes", action="store_true", help="classes = geometry type (0 polygon, 1 line)")
+    
+    # add geometry head optionally
+    parser.add_argument("--add_geom_head", action="store_true",
+                        help="geometry head (polygon/line) whose prediction adds a learned bias to the label logits")
+    parser.add_argument("--geom_loss_coef", default=1.0, type=float)
+    parser.add_argument("--geom_mask", action="store_true",
+                        help="with --add_geom_head: during generation, labels must match the predicted geometry type")
+
     # backbone
     parser.add_argument("--backbone", default="resnet50", type=str, help="Name of the convolutional backbone to use")
     parser.add_argument(
@@ -233,7 +243,7 @@ def main(args):
 
     def trivial_batch_collator(batch):
         """
-        A batch collator that does nothing.
+        A batch collator that does nothing. Note: combines several records into one batch.
         """
         if "target_seq" in batch[0]:
             # Concatenate tensors for each key in the batch
@@ -267,8 +277,12 @@ def main(args):
                 del item["target_polygon_labels"]
                 # del item['input_polygon_labels']
 
-            # Return the concatenated batch
-            return batch, {
+            # Collect target geom and add to batch
+            # Remove from item, add to extras
+            target_geom = [item.pop("target_geom") for item in batch if "target_geom" in item]
+
+            # everything about the image's sequence except the image itself
+            extras = {
                 "delta_x1": delta_x1,
                 "delta_x2": delta_x2,
                 "delta_y1": delta_y1,
@@ -283,6 +297,11 @@ def main(args):
                 "target_polygon_labels": target_polygon_labels,
                 # 'input_polygon_labels': input_polygon_labels,
             }
+
+            # Return the concatenated batch
+            if target_geom:
+                extras["target_geom"] = torch.stack(target_geom)
+            return batch, extras
 
         return batch, None
 
@@ -419,7 +438,7 @@ def main(args):
         # )
         dist.barrier()
 
-    if args.start_from_checkpoint:
+    if args.start_from_checkpoint and not (args.resume and os.path.exists(args.resume)):
         checkpoint = torch.load(args.start_from_checkpoint, map_location="cpu")["model"]
         for key, value in checkpoint.items():
             if key.startswith("class_embed"):
@@ -467,6 +486,25 @@ def main(args):
                         checkpoint[key] = checkpoint[key].repeat((diff_scale, 1))
                     else:
                         checkpoint[key] = checkpoint[key].repeat((diff_scale,))
+            # New: if sequence of checkpoint != initialized sequence
+            elif key == "query_embed.weight" and value.shape != model.module.query_embed.weight.shape:
+                n = min(len(value), len(model.module.query_embed.weight))
+                checkpoint[key] = model.module.query_embed.weight.detach().cpu().clone()
+                checkpoint[key][:n] = value[:n]
+
+        # --add_geom_head from a stage-1 --geom_classes checkpoint: its label head (polygon / line / undefined)
+        # initialises the geometry head
+        if args.add_geom_head and checkpoint.get("room_class_embed.weight", torch.empty(0)).shape[0] == 3:
+            checkpoint["geom_embed.weight"] = checkpoint["room_class_embed.weight"][:2]   # 0 polygon, 1 line
+            checkpoint["geom_embed.bias"] = checkpoint["room_class_embed.bias"][:2]
+        # skip weights whose shape differs from the model's (e.g. a label head with another number of classes)
+        # skip last head if shape differs
+        # models own weights
+        model_sd = model.module.state_dict()
+        # skip if names match, but shapes don't match
+        skipped = [k for k, v in checkpoint.items() if k in model_sd and v.shape != model_sd[k].shape]
+        print("Not loaded (shape differs):", skipped)
+        checkpoint = {k: v for k, v in checkpoint.items() if k not in skipped}
 
         missing_keys, unexpected_keys = model.module.load_state_dict(checkpoint, strict=False)
         unexpected_keys = [k for k in unexpected_keys if not (k.endswith("total_params") or k.endswith("total_ops"))]
@@ -555,13 +593,13 @@ def main(args):
                 args.dataset_name,
                 data_loader_val,
                 device,
-                plot_density=True,
+                plot_density=False, # turning off
                 output_dir=output_dir,
                 epoch=epoch,
                 poly2seq=args.poly2seq,
                 add_cls_token=args.add_cls_token,
                 per_token_sem_loss=args.per_token_sem_loss,
-                wd_as_line=not args.disable_wd_as_line,
+                wd_as_line=not args.disable_wd_as_line and args.dataset_name != "osm"
             )
             log_stats.update(**{f"test_{k}": v for k, v in test_stats.items()})
 

@@ -16,6 +16,16 @@ def is_clockwise(points):
     return s > 0.0
 
 
+def orient_line(points):
+    """Fixed direction for an open line (the line counterpart of resort_corners): keep the point
+    order, but start at the end nearer the image's upper-left corner (smaller x^2 + y^2), so a line
+    has one canonical sequence instead of two. Returns a flat array, like resort_corners."""
+    pts = np.asarray(points, dtype=np.float64).reshape(-1, 2)
+    if (pts[-1] ** 2).sum() < (pts[0] ** 2).sum():
+        pts = pts[::-1]
+    return pts.reshape(-1)
+
+
 def resort_corners(corners):
     """Resort a sequence of corners so that the first corner starts
     from upper-left and counterclockwise ordered in image

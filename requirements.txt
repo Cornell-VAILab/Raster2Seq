@@ -2,14 +2,14 @@ opencv-python
 numpy==1.26.4
 matplotlib==3.6.2
 imageio==2.19.3
-wandb==0.12.19
+wandb==0.31.0
 scipy==1.11.4
 fvcore
 cloudpickle==2.1.0
 omegaconf==2.2.2
 fairscale==0.4.6
 timm==0.5.4
-shapely==1.8.2
+shapely>=2
 tqdm==4.64.0
 huggingface_hub
 pycocotools

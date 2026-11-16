@@ -32,6 +32,9 @@ from util.plot_utils import (
 )
 from util.poly_ops import pad_gt_polys
 
+# add specific helper for lines and per-label scoring
+from evaluations.line_eval import line_scores, label_scores
+
 options = MCSSOptions()
 opts = options.parse()
 
@@ -154,7 +157,7 @@ def evaluate(
     Args:
         model: The neural network model to evaluate.
         criterion: The loss criterion used for evaluation.
-        dataset_name (str): Name of the dataset (e.g., "stru3d", "cubicasa", "r2g", "waffle").
+        dataset_name (str): Name of the dataset (e.g., "stru3d", "cubicasa", "r2g", "waffle", "osm).
         data_loader: DataLoader providing batches of input data.
         device: The device (e.g., CPU or GPU) to run the evaluation on.
         plot_density (bool, optional): If True, plots a density map for the last sample. Defaults to False.
@@ -184,9 +187,21 @@ def evaluate(
     else:
         door_window_index = []
 
+    if dataset_name == "osm":
+        wd_as_line = False
+
     metric_logger = utils.MetricLogger(delimiter="  ")
     header = "Test:"
     model_obj = model if not hasattr(model, "module") else model.module
+
+    # determine lines differently based on stage 1 or 2 output:
+    # - Stage 1 with --geom_classes: the model predicts 0 = polygon, 1 = line, so "line" is class 1.
+    # Stage 2: the model predicts 33 labels. Lines are several of those (street, path, highway)
+    line_classes = set()
+    if dataset_name == "osm":
+        ds = data_loader.dataset
+        line_classes = {1} if getattr(ds, "geom_classes", False) else {
+            a["category_id"] for a in ds.coco.dataset["annotations"] if a.get("geom_type") == "line"}
 
     for batched_inputs, batched_extras in metric_logger.log_every(data_loader, 10, header):
         samples = [x["image"].to(device) for x in batched_inputs]
@@ -250,7 +265,7 @@ def evaluate(
                 curr_opts.scene_id = "scene_0" + str(scene_ids[i])
                 curr_data_rw = S3DRW(curr_opts, mode="online_eval")
                 evaluator = Evaluator(curr_data_rw, curr_opts, disable_overlapping_filter=poly2seq)
-            elif dataset_name in ["cubicasa", "r2g", "waffle"]:
+            elif dataset_name in ["cubicasa", "r2g", "waffle", "osm"]:
                 evaluator = Evaluator_RPlan(disable_overlapping_filter=poly2seq, wd_as_line=wd_as_line)
 
             print("Running Evaluation for scene %s" % scene_ids[i])
@@ -284,6 +299,17 @@ def evaluate(
             window_doors_types = scene_outputs["window_doors_types"]
             pred_room_label_per_scene = scene_outputs["pred_room_label_per_scene"]
 
+            if dataset_name == "osm" and semantic_rich:
+                # lines: buffered into thin polygons and scored on their own; the evaluator below gets polygons only
+                metric_logger.update(**line_scores(room_polys, room_types, gt_polys, gt_polys_types, line_classes,
+                                                   (image_size, image_size)))
+                keep = [t not in line_classes for t in room_types]
+                room_polys = [p for p, k in zip(room_polys, keep) if k]
+                room_types = [t for t, k in zip(room_types, keep) if k]
+                gt_keep = [t not in line_classes for t in gt_polys_types]
+                gt_polys = [p for p, k in zip(gt_polys, gt_keep) if k]
+                gt_polys_types = [t for t, k in zip(gt_polys_types, gt_keep) if k]
+
             if dataset_name == "stru3d":
                 if not semantic_rich:
                     quant_result_dict_scene = evaluator.evaluate_scene(room_polys=room_polys)
@@ -294,7 +320,7 @@ def evaluate(
                         window_door_lines=window_doors,
                         window_door_lines_types=window_doors_types,
                     )
-            elif dataset_name in ["cubicasa", "r2g", "waffle"]:
+            elif dataset_name in ["cubicasa", "r2g", "waffle", "osm"]:
                 if not semantic_rich:
                     quant_result_dict_scene = evaluator.evaluate_scene(
                         room_polys=room_polys,
@@ -550,6 +576,7 @@ def evaluate_floor(
     per_token_sem_loss=False,
     iou_thres=0.5,
     wd_as_line=True,
+    per_label=False, # new to handle per-label metrics
 ):
     """
     Evaluate the model on a given dataset at testing.
@@ -566,7 +593,7 @@ def evaluate_floor(
 
     Args:
         model: The trained model to evaluate (e.g., a PyTorch model).
-        dataset_name (str): Name of the dataset (e.g., "stru3d", "cubicasa", "r2g", "waffle").
+        dataset_name (str): Name of the dataset (e.g., "stru3d", "cubicasa", "r2g", "waffle", "osm").
         data_loader: PyTorch DataLoader providing batched inputs and extras.
         device: Device to run the model on (e.g., torch.device('cuda') or 'cpu').
         output_dir (str): Directory path to save output files (plots, JSONs, results).
@@ -599,6 +626,10 @@ def evaluate_floor(
     else:
         door_window_index = []
 
+    if dataset_name == "osm":
+        wd_as_line = False
+        
+
     metric_category = ["room", "corner", "angles"]
     if semantic_rich:
         metric_category += ["room_sem", "window_door"]
@@ -609,6 +640,13 @@ def evaluate_floor(
 
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
+
+    # handles lines differently based on stage 1 vs. stage 2
+    ds = data_loader.dataset
+    line_classes = {1} if getattr(ds, "geom_classes", False) else {
+        a["category_id"] for a in ds.coco.dataset["annotations"] if a.get("geom_type") == "line"}
+    line_results = []
+    label_results = [] # --per_label_eval, initialize, will be used later
 
     for batched_inputs, batched_extras in data_loader:
         samples = [x["image"].to(device) for x in batched_inputs]
@@ -660,7 +698,7 @@ def evaluate_floor(
                 curr_opts.scene_id = "scene_0" + str(scene_ids[i])
                 curr_data_rw = S3DRW(curr_opts, mode="test")
                 evaluator = Evaluator(curr_data_rw, curr_opts, disable_overlapping_filter=poly2seq)
-            elif dataset_name in ["cubicasa", "waffle", "r2g"]:
+            elif dataset_name in ["cubicasa", "waffle", "r2g", "osm"]:
                 evaluator = Evaluator_RPlan(
                     disable_overlapping_filter=poly2seq, iou_thres=iou_thres, wd_as_line=wd_as_line
                 )
@@ -688,6 +726,31 @@ def evaluate_floor(
             window_doors_types = scene_outputs["window_doors_types"]
             pred_room_label_per_scene = scene_outputs["pred_room_label_per_scene"]
 
+            pred_lines = gt_lines = [] # initialize to empty for other datasets
+            if dataset_name == "osm" and semantic_rich:
+                # lines: buffered into thin polygons and scored on their own; the evaluator below gets polygons only
+                scores = line_scores(room_polys, room_types, gt_polys, gt_polys_types, line_classes,
+                                     (image_size, image_size))
+                if scores:
+                    # adding line scores
+                    line_results.append(scores)
+
+                # adding per-label scores
+                if per_label:  # per-label precision / recall, before lines are removed below
+                    label_results.append(label_scores(room_polys, room_types, gt_polys, gt_polys_types, line_classes,
+                                                      (image_size, image_size)))
+
+                # keep line predictions and gt (for plots)
+                pred_lines = [(p, t) for p, t in zip(room_polys, room_types) if t in line_classes]
+                gt_lines = [(p, t) for p, t in zip(gt_polys, gt_polys_types) if t in line_classes]
+
+                keep = [t not in line_classes for t in room_types]
+                room_polys = [p for p, k in zip(room_polys, keep) if k]
+                room_types = [t for t, k in zip(room_types, keep) if k]
+                gt_keep = [t not in line_classes for t in gt_polys_types]
+                gt_polys = [p for p, k in zip(gt_polys, gt_keep) if k]
+                gt_polys_types = [t for t, k in zip(gt_polys_types, gt_keep) if k]
+
             if dataset_name == "stru3d":
                 if not semantic_rich:
                     quant_result_dict_scene = evaluator.evaluate_scene(room_polys=room_polys)
@@ -698,7 +761,7 @@ def evaluate_floor(
                         window_door_lines=window_doors,
                         window_door_lines_types=window_doors_types,
                     )
-            elif dataset_name in ["cubicasa", "waffle", "r2g"]:
+            elif dataset_name in ["cubicasa", "waffle", "r2g", "osm"]:
                 if not semantic_rich:
                     quant_result_dict_scene = evaluator.evaluate_scene(
                         room_polys=room_polys,
@@ -760,12 +823,22 @@ def evaluate_floor(
             }
 
             if plot_pred:
+                # account for lines separately
+                pl = [np.array(p) for p, _ in pred_lines]
+                gl = [np.array(p) for p, _ in gt_lines]
                 gt_floorplan_map = plot_floorplan_with_regions(
-                    gt_room_polys, matching_labels=gt_mask, base_scale=image_size, scale=1024
-                )
+                    gt_room_polys + gl, matching_labels=None if gt_mask is None else gt_mask + [True] * len(gl),
+                    base_scale=image_size, scale=1024, is_line=[False] * len(gt_room_polys) + [True] * len(gl))
                 floorplan_map = plot_floorplan_with_regions(
-                    room_polys, matching_labels=pred_mask, base_scale=image_size, scale=1024
-                )
+                    room_polys + pl, matching_labels=None if pred_mask is None else pred_mask + [True] * len(pl),
+                    base_scale=image_size, scale=1024, is_line=[False] * len(room_polys) + [True] * len(pl))
+
+                # gt_floorplan_map = plot_floorplan_with_regions(
+                #     gt_room_polys, matching_labels=gt_mask, base_scale=image_size, scale=1024
+                # )
+                # floorplan_map = plot_floorplan_with_regions(
+                #     room_polys, matching_labels=pred_mask, base_scale=image_size, scale=1024
+                # )
                 if not merge:
                     cv2.imwrite(os.path.join(output_dir, "{}_pred_floorplan.png".format(scene_ids[i])), floorplan_map)
                     cv2.imwrite(os.path.join(output_dir, "{}_gt_floorplan.png".format(scene_ids[i])), gt_floorplan_map)
@@ -777,6 +850,9 @@ def evaluate_floor(
 
                 if semantic_rich:
                     _, ID2CLASS_LABEL = get_dataset_class_labels(dataset_name)
+                    # add lines to the shapes to be predicted
+                    shapes = [[p, t, False] for p, t in zip(room_polys + window_doors, room_types + window_doors_types)]
+                    shapes += [[p, t, True] for p, t in pred_lines]
                     floorplan_map = plot_semantic_rich_floorplan_opencv(
                         zip(room_polys + window_doors, room_types + window_doors_types),
                         os.path.join(output_dir, "{}_pred_floorplan_sem.png".format(scene_ids[i])),
@@ -825,10 +901,17 @@ def evaluate_floor(
                 cv2.imwrite(os.path.join(output_dir, "{}_gt.png".format(scene_ids[i])), gt_image)
 
             if plot_density:
-                pred_room_map = plot_density_map(
-                    samples[i], image_size, room_polys, pred_room_label_per_scene, plot_text=False
-                )
-                gt_room_map = plot_density_map(samples[i], image_size, gt_polys, gt_polys_types, plot_text=False)
+                pred_room_map = plot_density_map(samples[i], image_size, room_polys + pl,
+                                                 list(pred_room_label_per_scene) + [t for _, t in pred_lines],
+                                                 plot_text=False, is_line=[False] * len(room_polys) + [True] * len(pl))
+                gt_room_map = plot_density_map(samples[i], image_size, gt_polys + gl,
+                                               list(gt_polys_types) + [t for _, t in gt_lines],
+                                               plot_text=False, is_line=[False] * len(gt_polys) + [True] * len(gl))
+                                               
+                # pred_room_map = plot_density_map(
+                #     samples[i], image_size, room_polys, pred_room_label_per_scene, plot_text=False
+                # )
+                # gt_room_map = plot_density_map(samples[i], image_size, gt_polys, gt_polys_types, plot_text=False)
 
                 if merge:
                     concatenated_map = concat_floorplan_maps(gt_room_map, pred_room_map, plot_statistics)
@@ -842,6 +925,24 @@ def evaluate_floor(
     for k in quant_result_dict.keys():
         quant_result_dict[k] /= float(scene_counter)
     quant_result_dict = compute_f1(quant_result_dict, metric_category)
+
+    # add line results, only for labels that appear in images
+    if line_results:
+        # get all per-label metrics for the set of images in the sample
+        keys = {k for r in line_results for k in r}
+        # compute mean for each label across all images that have it
+        quant_result_dict.update({k: float(np.mean([r[k] for r in line_results if k in r])) for k in keys})
+
+    # add per-label results
+    # each label averaged over the images that contain it
+    if label_results:
+        names, _ = get_dataset_class_labels(dataset_name)
+        keys = sorted({k for r in label_results for k in r}, key=lambda k: (int(k.split("_")[1]), k))
+        quant_result_dict["per_label"] = {
+            f"{k.split('_')[0]}_{names[int(k.split('_')[1])]}": float(np.mean([r[k] for r in label_results if k in r]))
+            for k in keys}
+        for k, v in quant_result_dict["per_label"].items():
+            print(f"{k:<25s} {v:.3f}")
 
     print("*************************************************")
     print(quant_result_dict)

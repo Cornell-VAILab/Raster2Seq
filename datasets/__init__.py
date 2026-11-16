@@ -1,8 +1,10 @@
+import sys
+import os
 from .poly_data import build as build_poly
 
 
 def build_dataset(image_set, args):
-    if args.dataset_name in ["stru3d", "cubicasa", "waffle", "r2g"]:
+    if args.dataset_name in ["stru3d", "cubicasa", "waffle", "r2g", "osm"]:
         print(f"Build {args.dataset_name} {image_set} dataset")
         return build_poly(image_set, args)
     raise ValueError(f"dataset {args.dataset_name} not supported")
@@ -61,6 +63,14 @@ def get_dataset_class_labels(dataset_name):
             "PS": 10,
             "outside": 11,
         }
+    elif dataset_name == "osm":
+        # OSM vocabulary: Vectorizing-Raster-Maps/data_preprocess/create_coco_osm.py, next to this repo
+        OSM_PREPROCESS = os.path.join(os.path.dirname(__file__), "..", "..", "Vectorizing-Raster-Maps", "data_preprocess")
+        # add osm vocabulary
+        sys.path.insert(0, OSM_PREPROCESS)
+        from create_coco_osm import CATEGORIES
+        
+        semantics_label = {i: label for label, i in CATEGORIES.items()}
 
     id2class = {v: k for k, v in semantics_label.items()} if semantics_label else None
 

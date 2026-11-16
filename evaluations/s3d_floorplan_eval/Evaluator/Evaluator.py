@@ -197,10 +197,10 @@ class Evaluator:
                             pred_overlaps[pred_ind2] = True
 
             # import pdb; pdb.set_trace()
-            room_metric = [np.bool((1 - pred_overlaps[ind]) * pred2gt_exists[ind]) for ind in range(len(pred_polys))]
+            room_metric = [bool((1 - pred_overlaps[ind]) * pred2gt_exists[ind]) for ind in range(len(pred_polys))]
             if pred_types is not None:
                 room_sem_metric = [
-                    np.bool((1 - pred_overlaps[ind]) * pred2gt_exists_sem[ind]) for ind in range(len(pred_polys))
+                    bool((1 - pred_overlaps[ind]) * pred2gt_exists_sem[ind]) for ind in range(len(pred_polys))
                 ]
             else:
                 room_sem_metric = None
