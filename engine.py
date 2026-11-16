@@ -83,22 +83,24 @@ def train_one_epoch(
     for batched_inputs, batched_extras in metric_logger.log_every(data_loader, print_freq, header):
         samples = [x["image"].to(device) for x in batched_inputs]
         gt_instances = [x["instances"].to(device) for x in batched_inputs]
-        if not poly2seq:
-            room_targets = pad_gt_polys(
-                gt_instances,
-                model_obj.num_queries_per_poly,
-                samples[0].shape[1],
-                drop_rate=kwargs.get("drop_rate", 0.0),
-                device=device,
-            )
-            outputs = model(samples)
-        else:
-            for key in batched_extras.keys():
-                batched_extras[key] = batched_extras[key].to(device)
-            room_targets = batched_extras
-            outputs = model(samples, batched_extras)
+        # --amp: forward pass and losses in bfloat16 mixed precision
+        with torch.autocast("cuda", dtype=torch.bfloat16, enabled=kwargs.get("amp", False)):
+            if not poly2seq:
+                room_targets = pad_gt_polys(
+                    gt_instances,
+                    model_obj.num_queries_per_poly,
+                    samples[0].shape[1],
+                    drop_rate=kwargs.get("drop_rate", 0.0),
+                    device=device,
+                )
+                outputs = model(samples)
+            else:
+                for key in batched_extras.keys():
+                    batched_extras[key] = batched_extras[key].to(device)
+                room_targets = batched_extras
+                outputs = model(samples, batched_extras)
 
-        loss_dict = criterion(outputs, room_targets)
+            loss_dict = criterion(outputs, room_targets)
         weight_dict = criterion.weight_dict
         losses = sum(loss_dict[k] * weight_dict[k] for k in loss_dict.keys() if k in weight_dict)
 

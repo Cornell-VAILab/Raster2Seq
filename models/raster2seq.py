@@ -272,11 +272,13 @@ class Raster2Seq(nn.Module):
                 masks.append(mask)
                 pos.append(pos_l)
 
-        query_embeds = None if self.query_embed is None else self.query_embed.weight
+        # sequences may be shorter than seq_len (--trim_padding): use the first L anchors / mask rows
+        L = self.attention_mask.shape[0] if seq_kwargs is None else seq_kwargs["seq11"].shape[1]
+        query_embeds = None if self.query_embed is None else self.query_embed.weight[:L]
         tgt_embeds = None
 
         hs, init_reference, inter_references, inter_classes = self.transformer(
-            srcs, masks, pos, query_embeds, tgt_embeds, self.attention_mask, seq_kwargs
+            srcs, masks, pos, query_embeds, tgt_embeds, self.attention_mask[:L, :L], seq_kwargs
         )
 
         outputs_class = inter_classes

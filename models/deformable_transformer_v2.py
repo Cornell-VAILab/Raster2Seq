@@ -233,7 +233,8 @@ class DeformableTransformer(nn.Module):
             query_pos = None  # inferred from reference_points
         else:
             reference_points = None
-            query_pos = self.pos_embed
+            # training sequences may be shorter than seq_len (--trim_padding); generation indexes the full table
+            query_pos = self.pos_embed if decode_token_pos is not None else self.pos_embed[:, : seq_kwargs["seq11"].shape[1]]
         init_reference_out = reference_points
 
         if tgt_masks is None:

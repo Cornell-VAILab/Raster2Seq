@@ -121,7 +121,9 @@ class MSDeformAttn(nn.Module):
         else:
             offset_normalizer = torch.stack([input_spatial_shapes[..., 1], input_spatial_shapes[..., 0]], -1)
             sampling_locations = sampling_offsets / offset_normalizer[None, None, None, :, None, :]
-        output = MSDeformAttnFunction.apply(
-            value, input_spatial_shapes, input_level_start_index, sampling_locations, attention_weights, self.im2col_step)
+        with torch.autocast("cuda", enabled=False):  # the CUDA op only supports float32 / float64 (--amp)
+            output = MSDeformAttnFunction.apply(
+                value.float(), input_spatial_shapes, input_level_start_index, sampling_locations.float(),
+                attention_weights.float(), self.im2col_step)
         output = self.output_proj(output)
         return output

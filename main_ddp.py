@@ -93,6 +93,9 @@ def get_args_parser():
                         help="training: share of shapes whose input start corner is jittered")
     parser.add_argument("--start_noise_std", type=float, default=0.01,
                         help="training: std of that jitter, as a fraction of the image")
+    parser.add_argument("--trim_padding", action="store_true",
+                        help="cut each training batch to its longest real sequence instead of --seq_len (same results, faster)")
+    parser.add_argument("--amp", action="store_true", help="train in bfloat16 mixed precision (faster, less memory)")
     parser.add_argument("--geom_mask", action="store_true",
                         help="with --add_geom_head: during generation, labels must match the predicted geometry type")
 
@@ -309,6 +312,10 @@ def main(args):
             # Return the concatenated batch
             if target_geom:
                 extras["target_geom"] = torch.stack(target_geom)
+            if args.trim_padding:  # cut every per-token tensor to the batch's longest real sequence (multiple of 8)
+                n = int(extras["mask"].sum(1).max())
+                n = min(-(-n // 8) * 8, extras["mask"].shape[1])
+                extras = {k: v[:, :n] for k, v in extras.items()}
             return batch, extras
 
         return batch, None
@@ -541,6 +548,7 @@ def main(args):
             args.poly2seq,
             ema_model=ema,
             drop_rate=args.random_drop_rate,
+            amp=args.amp,
         )
         if lr_scheduler is not None:
             lr_scheduler.step()
@@ -588,6 +596,11 @@ def main(args):
             if "loss_raster" in train_stats:
                 # only apply the rasterization loss for non-semantic floorplans
                 train_log_dict["train/loss_raster"] = train_stats["loss_raster"]
+
+        # losses from --add_geom_head and --start_order_coef, when used
+        for k in ["loss_ce_geom", "loss_start_order"]:
+            if k in train_stats:
+                train_log_dict[f"train/{k}"] = train_stats[k]
 
         if rank == 0:
             wandb.log(train_log_dict)
@@ -641,6 +654,12 @@ def main(args):
 
             if "room_iou" in test_stats:
                 val_log_dict["val_metrics/room_iou"] = test_stats["room_iou"]
+
+            # losses from --add_geom_head / --start_order_coef, and the OSM line metrics, when present
+            for k in ["loss_ce_geom", "loss_start_order"]:
+                if k in test_stats:
+                    val_log_dict[f"val/{k}"] = test_stats[k]
+            val_log_dict.update({f"val_metrics/{k}": v for k, v in test_stats.items() if k.startswith("line_")})
 
             if rank == 0:
                 wandb.log(val_log_dict)
