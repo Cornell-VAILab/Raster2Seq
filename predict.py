@@ -222,6 +222,14 @@ def get_args_parser():
     parser.add_argument("--add_geom_head", action="store_true",
                         help="geometry head (polygon/line) whose prediction adds a learned bias to the label logits")
     parser.add_argument("--geom_loss_coef", default=1.0, type=float)
+    parser.add_argument("--sem_attn", action="store_true",
+                        help="bidirectional attention layer over the sequence before the semantic head")
+    parser.add_argument("--start_order_coef", type=float, default=0.0,
+                        help="weight of the penalty for shape starts going backwards in reading order (needs --row_tolerance)")
+    parser.add_argument("--start_noise_prob", type=float, default=0.0,
+                        help="training: share of shapes whose input start corner is jittered")
+    parser.add_argument("--start_noise_std", type=float, default=0.01,
+                        help="training: std of that jitter, as a fraction of the image")
     parser.add_argument("--geom_mask", action="store_true",
                         help="with --add_geom_head: during generation, labels must match the predicted geometry type")
     return parser

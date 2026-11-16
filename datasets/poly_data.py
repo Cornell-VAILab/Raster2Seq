@@ -50,6 +50,8 @@ class MultiPoly(Dataset):
         converter_version="v1",
         random_drop_rate=0.0,
         geom_classes=False,
+        start_noise_prob=0.0,
+        start_noise_std=0.0,
         **kwargs,
     ):
         super(MultiPoly, self).__init__()
@@ -71,6 +73,8 @@ class MultiPoly(Dataset):
             semantic_classes=semantic_classes,
             order_type=["l2r", "r2l"][converter_version == "v3_flipped"],
             random_drop_rate=random_drop_rate,
+            start_noise_prob=start_noise_prob,
+            start_noise_std=start_noise_std,
             **kwargs,
         )
         self.geom_classes = geom_classes
@@ -392,6 +396,8 @@ class ConvertToCocoDictWithOrder_plus(ConvertToCocoDict):
         order_type="l2r",
         random_drop_rate=0.0,
         row_tolerance=None,
+        start_noise_prob=0.0,
+        start_noise_std=0.0,
         **kwargs,
     ):
         super().__init__(
@@ -413,6 +419,9 @@ class ConvertToCocoDictWithOrder_plus(ConvertToCocoDict):
         # one row (pure left-to-right order). row_tolerance sets the row height as a fraction of the image
         # (e.g. 0.08), giving reading order (rows top to bottom) at any image size; None keeps the original.
         self.row_tolerance = row_tolerance
+        # --start_noise_prob / --start_noise_std: jitter the first corner of that share of shapes in the *input*
+        # sequence (fraction of the image), so the model learns to continue from a slightly wrong start
+        self.start_noise_prob, self.start_noise_std = start_noise_prob, start_noise_std
         self.tokenizer = DiscreteTokenizer(add_cls=add_cls_token, **kwargs)
 
     def _get_bilinear_interpolation_coeffs(self, polygons, polygons_label, add_cls_token=False, per_token_class=False,
@@ -450,6 +459,11 @@ class ConvertToCocoDictWithOrder_plus(ConvertToCocoDict):
         polygons_geom = [polygons_geom[i] for i in combined_indices]
 
         quant_poly = [poly * (num_bins - 1) for poly in polygons]
+        if self.start_noise_prob > 0:  # inputs only: target_seq is built from `polygons`, which stay exact
+            for poly in quant_poly:
+                if np.random.rand() < self.start_noise_prob:
+                    poly[0] = np.clip(poly[0] + np.random.normal(0, self.start_noise_std * (num_bins - 1), 2),
+                                      0, num_bins - 1)
         index11 = [[math.floor(p[0]) * num_bins + math.floor(p[1]) for p in poly] for poly in quant_poly]
         index21 = [[math.ceil(p[0]) * num_bins + math.floor(p[1]) for p in poly] for poly in quant_poly]
         index12 = [[math.floor(p[0]) * num_bins + math.ceil(p[1]) for p in poly] for poly in quant_poly]
@@ -627,6 +641,8 @@ def build(image_set, args):
             random_drop_rate=getattr(args, "random_drop_rate", 0.0),
             row_tolerance=getattr(args, "row_tolerance", None),
             geom_classes=getattr(args, "geom_classes", False),
+            start_noise_prob=getattr(args, "start_noise_prob", 0.0) if image_set == "train" else 0.0,
+            start_noise_std=getattr(args, "start_noise_std", 0.0),
         )
 
     return dataset

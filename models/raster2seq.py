@@ -46,6 +46,7 @@ class Raster2Seq(nn.Module):
         inject_cls_embed=False,
         add_geom_head=False,
         label_geom=None,
+        sem_attn=False,
     ):
         """Initializes the model.
         Parameters:
@@ -180,6 +181,13 @@ class Raster2Seq(nn.Module):
         use_mask = label_geom is not None and self.geom_embed is not None
         self.register_buffer("label_geom", torch.tensor(label_geom, dtype=torch.long) if use_mask else None)
 
+        # --sem_attn: a bidirectional attention layer over the whole sequence, used only by the semantic head
+        # (labels never feed back into generation, so they can look at later tokens and other shapes)
+        self.sem_attn = None
+        if sem_attn and semantic_classes > 0:
+            self.sem_attn = nn.TransformerEncoderLayer(hidden_dim, nhead=8, dim_feedforward=4 * hidden_dim,
+                                                       dropout=0.1, batch_first=True)
+
     def _create_causal_attention_mask(self, seq_len):
         """
         Creates a causal attention mask for a sequence of length `seq_len`.
@@ -190,13 +198,21 @@ class Raster2Seq(nn.Module):
         causal_mask = mask.masked_fill(mask == 1, float("-inf")).masked_fill(mask == 0, 0.0)
         return causal_mask
 
-    def _room_logits(self, hs, target_geom=None):
+    def _sem_attn_mask(self, valid):
+        """Blocked pairs (True) for the semantic layer: padding and tokens after <eos> are never attended to.
+        valid: (B, L) bool. Each token can always attend to itself, so no row is empty."""
+        allowed = valid[:, None, :] | torch.eye(valid.shape[1], dtype=torch.bool, device=valid.device)
+        return (~allowed).repeat_interleave(self.sem_attn.self_attn.num_heads, dim=0)
+
+    def _room_logits(self, hs, target_geom=None, valid=None):
         """With --add_geom_head, the label logits get a learned bias per geometry type (true type where
         target_geom >= 0, otherwise the predicted one). With --geom_mask, generation also rules out labels of
-        the other geometry type. Returns (label logits, geometry logits)."""
+        the other geometry type. With --sem_attn, the semantic head reads hidden states refined by a bidirectional
+        attention layer over the real tokens (`valid`). Returns (label logits, geometry logits)."""
+        h_sem = hs if self.sem_attn is None else self.sem_attn(hs, src_mask=self._sem_attn_mask(valid))
         # same as before
         if self.geom_embed is None:
-            return self.room_class_embed(hs), None
+            return self.room_class_embed(h_sem), None
         # otherwise: get geom embedding
         geom_logits = self.geom_embed(hs)
         # make predictions
@@ -205,7 +221,7 @@ class Raster2Seq(nn.Module):
         if target_geom is not None:
             geom = torch.where(target_geom >= 0, target_geom, geom)
         # add the geometry bias
-        logits = self.room_class_embed(hs) + self.geom_bias(geom)
+        logits = self.room_class_embed(h_sem) + self.geom_bias(geom)
         # if using a geom mask
         if self.label_geom is not None and target_geom is None:  # generation only (see geom_mask help)
             wrong = (self.label_geom >= 0) & (self.label_geom != geom[..., None])
@@ -270,7 +286,8 @@ class Raster2Seq(nn.Module):
 
         if self.room_class_embed is not None:
             target_geom = None if seq_kwargs is None else seq_kwargs.get("target_geom")
-            out["pred_room_logits"], geom_logits = self._room_logits(hs[-1], target_geom)
+            valid = None if seq_kwargs is None else seq_kwargs["mask"].bool()  # real tokens of the sequence
+            out["pred_room_logits"], geom_logits = self._room_logits(hs[-1], target_geom, valid)
             if geom_logits is not None:
                 out["pred_geom_logits"] = geom_logits
 
@@ -590,7 +607,11 @@ class Raster2Seq(nn.Module):
         # hack implementation of room label prediction, not compatible with auxiliary loss
         if self.room_class_embed is not None:
             hs = torch.cat(output_hs_list, dim=1)
-            outputs_room_class, geom_logits = self._room_logits(hs)
+            valid = torch.zeros(hs.shape[:2], dtype=torch.bool, device=hs.device)  # generated tokens up to <eos>
+            for j, seq in enumerate(gen_out):
+                n = next((k + 1 for k, t in enumerate(seq) if not isinstance(t, list) and t == TokenType.eos.value), len(seq))
+                valid[j, :n] = True
+            outputs_room_class, geom_logits = self._room_logits(hs, valid=valid)
             out = {
                 "pred_logits": all_cls_logits,
                 "pred_coords": all_reg_coords,
@@ -663,6 +684,7 @@ class SetCriterion(nn.Module):
         losses,
         label_smoothing=0.0,
         per_token_sem_loss=False,
+        start_order_tol=None,
     ):
         """Create the criterion.
         Parameters:
@@ -680,6 +702,7 @@ class SetCriterion(nn.Module):
         self.losses = losses
         self.label_smoothing = label_smoothing
         self.per_token_sem_loss = per_token_sem_loss
+        self.start_order_tol = start_order_tol  # row height for --start_order_coef (= --row_tolerance)
 
         if "loss_raster" in self.weight_dict:
             self.raster_loss = MaskRasterizationLoss(None)
@@ -792,6 +815,10 @@ class SetCriterion(nn.Module):
         losses = {}
         losses["loss_coords"] = loss_coords
 
+        # --start_order_coef: penalise a shape's predicted first corner landing earlier in reading order
+        if self.start_order_tol is not None and self.weight_dict.get("loss_start_order", 0) > 0:
+            losses["loss_start_order"] = self._start_order_loss(src_poly, target_polys, token_labels)
+
         # omit the rasterization loss for semantically-rich floorplan
         if self.weight_dict.get("loss_raster", 0) > 0:
             pred_poly_list = self._extract_polygons(src_poly, token_labels)
@@ -804,6 +831,27 @@ class SetCriterion(nn.Module):
             losses["loss_raster"] = loss_raster_mask
 
         return losses
+
+    def _start_order_loss(self, pred, target, token_labels):
+        """Mean penalty for each shape's predicted first corner lying earlier in reading order than the previous
+        shape's true first corner (more than a row, start_order_tol, above it, or to its left within that row),
+        beyond what the true first corner itself does (shapes are sorted by their top point, so some true
+        starts already step back); a correct prediction costs nothing."""
+
+        def backwards(p, q):  # how far p goes back from q in reading order
+            return F.relu(q[:, 1] - self.start_order_tol - p[:, 1]) + \
+                F.relu(q[:, 0] - p[:, 0]) * ((p[:, 1] - q[:, 1]).abs() <= self.start_order_tol)
+
+        corner = token_labels == 0
+        starts = corner & ~torch.cat([torch.zeros_like(corner[:, :1]), corner[:, :-1]], dim=1)
+        terms = []
+        for b in range(pred.shape[0]):
+            idx = starts[b].nonzero().squeeze(1)
+            if len(idx) < 2:
+                continue
+            q = target[b, idx[:-1]]  # previous shape's true start
+            terms.append(F.relu(backwards(pred[b, idx[1:]], q) - backwards(target[b, idx[1:]], q)))
+        return torch.cat(terms).mean() if terms else pred.sum() * 0
 
     def _get_src_permutation_idx(self, indices):
         # permute predictions following indices
@@ -908,6 +956,7 @@ def build(args, train=True, tokenizer=None):
         inject_cls_embed=getattr(args, "inject_cls_embed", False),
         add_geom_head=getattr(args, "add_geom_head", False),
         label_geom=label_geometry(args.dataset_root, args.semantic_classes) if getattr(args, "geom_mask", False) else None,
+        sem_attn=getattr(args, "sem_attn", False),
     )
 
     if not train:
@@ -921,6 +970,7 @@ def build(args, train=True, tokenizer=None):
         "loss_coords": args.coords_loss_coef,
         # new loss for geom classification only
         "loss_ce_geom": getattr(args, "geom_loss_coef", 1.0),
+        "loss_start_order": getattr(args, "start_order_coef", 0.0),
     }
     if args.raster_loss_coef > 0:
         weight_dict["loss_raster"] = args.raster_loss_coef
@@ -947,6 +997,7 @@ def build(args, train=True, tokenizer=None):
         losses,
         label_smoothing=args.label_smoothing,
         per_token_sem_loss=args.per_token_sem_loss,
+        start_order_tol=getattr(args, "row_tolerance", None),
     )
     criterion.to(device)
 
