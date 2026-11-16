@@ -35,6 +35,11 @@ from util.poly_ops import pad_gt_polys
 # add specific helper for lines and per-label scoring
 from evaluations.line_eval import line_scores, label_scores
 
+# smallest polygon (px^2) kept; predictions below it are always dropped. With FILTER_GT_BY_AREA,
+# ground-truth polygons below it are dropped too (lines are kept), so both sides follow the same rule.
+MIN_POLY_AREA = 100
+FILTER_GT_BY_AREA = False
+
 options = MCSSOptions()
 opts = options.parse()
 
@@ -447,11 +452,11 @@ def _process_predictions(
 
                 if not semantic_rich:
                     # only regular rooms
-                    if len(corners) >= 4 and Polygon(corners).area >= 100:
+                    if len(corners) >= 4 and Polygon(corners).area >= MIN_POLY_AREA:
                         room_polys.append(corners)
                 else:
                     # regular rooms
-                    if len(corners) >= 3 and Polygon(corners).area >= 100:
+                    if len(corners) >= 3 and Polygon(corners).area >= MIN_POLY_AREA:
                         room_polys.append(corners)
                         room_types.append(pred_room_label_per_scene[j])
                     # window / door
@@ -504,7 +509,7 @@ def _process_predictions(
 
             if not semantic_rich:
                 # only regular rooms
-                if len(corners) >= 4 and Polygon(corners).area >= 100:
+                if len(corners) >= 4 and Polygon(corners).area >= MIN_POLY_AREA:
                     room_polys.append(corners)
             else:
                 if per_token_sem_loss:
@@ -522,7 +527,7 @@ def _process_predictions(
 
                 if wd_as_line:
                     # regular rooms
-                    if len(corners) >= 3 and Polygon(corners).area >= 100:
+                    if len(corners) >= 3 and Polygon(corners).area >= MIN_POLY_AREA:
                         room_polys.append(corners)
                         room_types.append(pred_class)
                     # window / door
@@ -689,7 +694,11 @@ def evaluate_floor(
                 else:
                     gt_polys.append(gt_poly)
                     gt_polys_types.append(gt_id)
-
+            if FILTER_GT_BY_AREA:
+                _keep = [len(p) < 3 or (line_classes and t in line_classes) or Polygon(p).area >= MIN_POLY_AREA
+                         for p, t in zip(gt_polys, gt_polys_types)]
+                gt_polys = [p for p, k in zip(gt_polys, _keep) if k]
+                gt_polys_types = [t for t, k in zip(gt_polys_types, _keep) if k]
             # Create evaluator based on dataset
             if dataset_name == "stru3d":
                 if int(scene_ids[i]) in wrong_s3d_annotations_list:

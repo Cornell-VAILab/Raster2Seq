@@ -148,6 +148,9 @@ def get_args_parser():
     # new for osm
     parser.add_argument("--geom_classes", action="store_true", help="classes = geometry type (0 polygon, 1 line)")
     parser.add_argument("--row_tolerance", type=float, default=None)
+    parser.add_argument("--min_poly_area", type=float, default=100, help="drop predicted polygons smaller than this (px^2)")
+    parser.add_argument("--filter_gt_by_area", action="store_true",
+                        help="also drop ground-truth polygons smaller than --min_poly_area (lines are kept)")
 
     parser.add_argument("--device", default="cuda", help="device to use for training / testing")
     parser.add_argument("--num_workers", default=2, type=int)
@@ -173,7 +176,6 @@ def get_args_parser():
 
 
     # argument for per-label evaluation
-    parser.add_argument("--per_label_eval", action="store_true", help="also report precision / recall per label")
 
     return parser
 
@@ -303,6 +305,9 @@ def main(args):
     # save_dir = os.path.join(output_dir, os.path.dirname(args.checkpoint).split('/')[-1])
     save_dir = output_dir
     os.makedirs(save_dir, exist_ok=True)
+    import engine
+    engine.MIN_POLY_AREA = args.min_poly_area
+    engine.FILTER_GT_BY_AREA = args.filter_gt_by_area
     evaluate_floor(
         model,
         args.dataset_name,
