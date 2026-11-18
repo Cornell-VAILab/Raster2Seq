@@ -735,6 +735,14 @@ def evaluate_floor(
             window_doors_types = scene_outputs["window_doors_types"]
             pred_room_label_per_scene = scene_outputs["pred_room_label_per_scene"]
 
+            # new
+            # drop predicted polygons under MIN_POLY_AREA px² (lines exempt), like roomformer and baselines
+            if dataset_name == "osm" and semantic_rich:
+                keep = [t in line_classes or (len(p) >= 3 and Polygon(p).area >= MIN_POLY_AREA)
+                        for p, t in zip(room_polys, room_types)]
+                room_polys = [p for p, k in zip(room_polys, keep) if k]
+                room_types = [t for t, k in zip(room_types, keep) if k]
+
             pred_lines = gt_lines = [] # initialize to empty for other datasets
             if dataset_name == "osm" and semantic_rich:
                 # lines: buffered into thin polygons and scored on their own; the evaluator below gets polygons only
