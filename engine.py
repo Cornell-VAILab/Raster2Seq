@@ -206,7 +206,8 @@ def evaluate(
     if dataset_name == "osm":
         ds = data_loader.dataset
         line_classes = {1} if getattr(ds, "geom_classes", False) else {
-            a["category_id"] for a in ds.coco.dataset["annotations"] if a.get("geom_type") == "line"}
+            # new: include source_geom_type for buffered data
+            a["category_id"] for a in ds.coco.dataset["annotations"] if a.get("source_geom_type", a.get("geom_type")) == "line"}
 
     for batched_inputs, batched_extras in metric_logger.log_every(data_loader, 10, header):
         samples = [x["image"].to(device) for x in batched_inputs]
@@ -649,7 +650,8 @@ def evaluate_floor(
     # handles lines differently based on stage 1 vs. stage 2
     ds = data_loader.dataset
     line_classes = {1} if getattr(ds, "geom_classes", False) else {
-        a["category_id"] for a in ds.coco.dataset["annotations"] if a.get("geom_type") == "line"}
+        # new: include source_geom_type for buffered data
+        a["category_id"] for a in ds.coco.dataset["annotations"] if a.get("source_geom_type", a.get("geom_type")) == "line"}
     line_results = []
     label_results = [] # --per_label_eval, initialize, will be used later
 
@@ -745,7 +747,8 @@ def evaluate_floor(
 
             pred_lines = gt_lines = [] # initialize to empty for other datasets
             if dataset_name == "osm" and semantic_rich:
-                # lines: buffered into thin polygons and scored on their own; the evaluator below gets polygons only
+                # lines: buffered into thin polygons and scored if not already buffered
+                # the evaluator below gets polygons only
                 scores = line_scores(room_polys, room_types, gt_polys, gt_polys_types, line_classes,
                                      (image_size, image_size))
                 if scores:

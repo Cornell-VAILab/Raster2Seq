@@ -8,6 +8,7 @@ import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
+from shapely.geometry import LineString
 
 corner_metric_thresh = 10  # 10,20
 angle_metric_thresh = 5
@@ -105,6 +106,13 @@ class Evaluator_RPlan:
         plt.savefig("joint_mask.png", bbox_inches="tight")
         assert False
 
+    def _band(points, radius):
+        """Buffer helper function"""
+        g = LineString(points).buffer(radius, cap_style=2, join_style=2)
+        if g.geom_type == "MultiPolygon":  # a line folding back on itself can split: keep the largest piece
+            g = max(g.geoms, key=lambda x: x.area)
+        return np.round(np.asarray(g.exterior.coords[:-1])).astype(np.int32)
+
     def evaluate_scene(
         self,
         room_polys,
@@ -119,27 +127,30 @@ class Evaluator_RPlan:
         name="ours",
         dataset_type="s3d",
         img_size=(256, 256),
+        line_classes=None,
+        line_radius=10,
+        pred_lines_raw=True,
+        gt_lines_raw=True,
     ):
 
-        gt_polys_list = [np.concatenate([poly, poly[None, 0]]) for poly in gt_polys]
-        room_polys = [np.concatenate([poly, poly[None, 0]]) for poly in room_polys]
+        # list of true line predictions
+        is_line_pred = [line_classes is not None and t in line_classes and pred_lines_raw for t in room_types] \
+            if room_types is not None else [False] * len(room_polys)
+        is_line_gt = [line_classes is not None and t in line_classes and gt_lines_raw for t in gt_polys_types]
+        match_pred = [_band(p, line_radius) if l else p for p, l in zip(room_polys, is_line_pred)]  # for drawing masks and IoU
+        match_gt = [_band(g, line_radius) if l else g for g, l in zip(gt_polys, is_line_gt)]
+        match_pred_closed = [np.concatenate([p, p[None, 0]]) for p in match_pred]
+        match_gt_closed = [np.concatenate([p, p[None, 0]]) for p in match_gt]
 
         ignore_mask_region = None
 
         # TODO: input img_size
         quant_result_dict = self.get_quantitative(
-            gt_polys_list,
-            gt_polys_types,
-            gt_window_doors_list,
-            gt_window_doors_type_list,
-            ignore_mask_region,
-            room_polys,
-            room_types,
-            window_door_lines,
-            window_door_lines_types,
-            None,
-            img_size,
+            match_gt_closed, gt_polys_types, gt_window_doors_list, gt_window_doors_type_list, ignore_mask_region,
+            match_pred_closed, room_types, window_door_lines, window_door_lines_types, None, img_size,
             dataset_type=dataset_type,
+            raw_pred=room_polys, raw_gt=gt_polys,  # originals, unclosed
+            is_line_pred=is_line_pred, is_line_gt=is_line_gt,
         )
 
         return quant_result_dict
@@ -158,6 +169,10 @@ class Evaluator_RPlan:
         masks_list=None,
         img_size=(256, 256),
         dataset_type="s3d",
+        raw_pred=None,
+        raw_gt=None,
+        is_line_pred=None,
+        is_line_gt=None
     ):
         def get_room_metric():
             pred_overlaps = [False] * len(pred_room_map_list)
@@ -200,14 +215,21 @@ class Evaluator_RPlan:
 
             room_corners_metric = []
             for pred_poly_ind, gt_poly_ind in enumerate(pred2gt_indices):
-                p_poly = pred_polys[pred_poly_ind][:-1]  # Last vertex = First vertex
+                # size by the prediction's own type (valid for unmatched predictions too)
+                pred_is_line = is_line_pred is not None and is_line_pred[pred_poly_ind]
+                p_poly = raw_pred[pred_poly_ind] if pred_is_line else pred_polys[pred_poly_ind][:-1]
+                gt_poly = raw_gt[gt_poly_ind] if line else gt_polys[gt_poly_ind][:-1]
 
                 p_poly_corner_metrics = [False] * p_poly.shape[0]
                 if not room_metric[pred_poly_ind]:
                     room_corners_metric += p_poly_corner_metrics
                     continue
 
-                gt_poly = gt_polys[gt_poly_ind][:-1]
+                # matched: gt_poly_ind is a real index now
+                line = pred_is_line and is_line_gt[gt_poly_ind]
+                gt_poly = raw_gt[gt_poly_ind] if line else gt_polys[gt_poly_ind][:-1]
+                
+                # gt_poly = gt_polys[gt_poly_ind][:-1]
 
                 # for v in p_poly:
                 #     v_dists = np.linalg.norm(v[None,:] - gt_poly, axis=1, ord=2)
@@ -300,10 +322,15 @@ class Evaluator_RPlan:
 
             room_angles_metric = []
             for pred_poly_ind, gt_poly_ind in enumerate(pred2gt_indices):
-                p_poly = pred_polys[pred_poly_ind][:-1]  # Last vertex = First vertex
+                pred_is_line = is_line_pred is not None and is_line_pred[pred_poly_ind]
+                p_poly = raw_pred[pred_poly_ind] if pred_is_line else pred_polys[pred_poly_ind][:-1]  # Last vertex = First vertex
 
                 p_poly_angle_metrics = [False] * p_poly.shape[0]
                 if not room_metric[pred_poly_ind]:
+                    room_angles_metric += p_poly_angle_metrics
+                    continue
+
+                if pred_is_line and is_line_gt[gt_poly_ind]:  # angles are scored for polygons only
                     room_angles_metric += p_poly_angle_metrics
                     continue
 
@@ -359,7 +386,7 @@ class Evaluator_RPlan:
             cv2.fillPoly(room_map, [poly], color=1.0)
 
             gt_room_map_list.append(room_map)
-
+        
         gt_polys_sorted_indcs = [
             i[0] for i in sorted(enumerate(gt_room_map_list), key=poly_map_sort_key, reverse=True)
         ]
@@ -367,6 +394,9 @@ class Evaluator_RPlan:
         gt_polys = [gt_polys[ind] for ind in gt_polys_sorted_indcs]
         gt_polys_types = [gt_polys_types[ind] for ind in gt_polys_sorted_indcs]
         gt_room_map_list = [gt_room_map_list[ind] for ind in gt_polys_sorted_indcs]
+        if raw_gt is not None:  # keep the raw GT shapes and line flags in the same order
+            raw_gt = [raw_gt[k] for k in gt_polys_sorted_indcs]
+            is_line_gt = [is_line_gt[k] for k in gt_polys_sorted_indcs]
 
         if pred_polys is not None:
             pred_room_map_list = []
@@ -528,8 +558,19 @@ class Evaluator_RPlan:
 
         ###### metric for corner ######
         corner_metric = get_corner_metric()
-        pred_corners_n = sum([poly.shape[0] - 1 for poly in pred_polys])
-        gt_corners_n = sum([poly.shape[0] - 1 for poly in gt_polys])
+        def _count_points(polys, raw, is_line, lines_count=True):
+            total = 0
+            for k, p in enumerate(polys):
+                if is_line is not None and is_line[k]:
+                    total += len(raw[k]) if lines_count else 0
+                else:
+                    total += p.shape[0] - 1
+            return total
+
+        pred_corners_n, gt_corners_n = _count_points(pred_polys, raw_pred, is_line_pred), _count_points(gt_polys, raw_gt, is_line_gt)
+
+        # pred_corners_n = sum([poly.shape[0] - 1 for poly in pred_polys])
+        # gt_corners_n = sum([poly.shape[0] - 1 for poly in gt_polys])
 
         if pred_corners_n > 0:
             corner_metric_prec = sum(corner_metric) / float(pred_corners_n)
@@ -540,11 +581,13 @@ class Evaluator_RPlan:
         ###### metric for angle ######
         angles_metric = get_angle_metric()
 
+        poly_pred_n = _count_points(pred_polys, raw_pred, is_line_pred, lines_count=False)
+        poly_gt_n = _count_points(gt_polys, raw_gt, is_line_gt, lines_count=False)
         if pred_corners_n > 0:
-            angles_metric_prec = sum(angles_metric) / float(pred_corners_n)
+            angles_metric_prec = sum(angles_metric) / poly_pred_n if poly_pred_n > 0 else 0
         else:
             angles_metric_prec = 0
-        angles_metric_rec = sum(angles_metric) / float(gt_corners_n + 1e-4)
+        angles_metric_rec = sum(angles_metric) / (poly_gt_n + 1e-4)
 
         # sanity check
         assert room_metric_prec <= 1
